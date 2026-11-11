@@ -17,7 +17,7 @@ export function Hero() {
             from a <em>seed</em>.
           </h1>
           <p className="lead">
-            {GENERATORS.length} generators, from drafting-table cutting mats and flow fields to git graphs and synthwave suns. Change
+            {GENERATORS.length} generators, from drafting-table cutting mats and flow fields to black holes, strange attractors and the shapes sound makes in sand. Change
             the colours, apply one of {THEMES.length} editor themes, write your own quote or go text-free, then download a
             pixel-perfect PNG for any screen.
           </p>

@@ -6,6 +6,9 @@ export const SITE = {
   driveUrl: process.env.NEXT_PUBLIC_DRIVE_URL ?? "",
 } as const;
 
+/** Looks that get a "New" tag and the top spot on the home page. Newest first. */
+export const NEW_GENERATORS: readonly string[] = ["event-horizon", "cymatics", "attractor", "quasicrystal", "op-art", "seed-head"];
+
 /** Extracts the folder id from a Drive folder link, or "" if it isn't one. */
 export function driveFolderId(url: string): string {
   return /\/folders\/([\w-]+)/.exec(url)?.[1] ?? "";
