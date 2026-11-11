@@ -58,6 +58,10 @@ The data goes into hidden params (`data`/`start` on **Contribution Grid**, `hist
 | `/api/s/<seed>?w=&h=` or `?d=<device>` | one seed, cached forever; `&format=json` describes it |
 | `/api/daily?d=…[&date=YYYY-MM-DD]` | today's seed (UTC, or the given date); `&format=json` → `{ date, seed, page, image }` |
 | `/api/u/<login>?look=…&theme=…&d=…` | a GitHub wallpaper |
+| `/api/render?g=<gen>&p=<preset>&w=&h=[&x=…][&t=<theme>]` | any generator at any size; same query as a `/studio` link (`x` = base64url JSON of params, `t` = theme); `&format=json` → `{ svg, png, studio, params }` |
+| `/api/generators` | the catalogue as JSON: generators with params and presets, themes, devices |
+
+The [Seedwall MCP server and Claude Code plugin](https://github.com/Suryansh-Codes2209/seedwall-mcp) are built on `/api/render` and `/api/generators`.
 
 Sizes are capped at 6144 px per side (larger requests are scaled down). Fonts are traced into the functions through `outputFileTracingIncludes` in `next.config.ts`.
 
