@@ -19,6 +19,12 @@ import { spirograph } from "./spirograph";
 import { codeCity } from "./code-city";
 import { marble } from "./marble";
 import { contributions } from "./contributions";
+import { cymatics } from "./cymatics";
+import { quasicrystal } from "./quasicrystal";
+import { eventHorizon } from "./event-horizon";
+import { attractor } from "./attractor";
+import { opArt } from "./op-art";
+import { seedHead } from "./seed-head";
 
 /** Erase a generator's param type for storage in the registry. */
 const reg = <P extends Params>(g: Generator<P>): AnyGenerator => g as unknown as AnyGenerator;
@@ -45,6 +51,12 @@ export const GENERATORS: readonly AnyGenerator[] = [
   reg(spirograph),
   reg(codeCity),
   reg(marble),
+  reg(eventHorizon),
+  reg(cymatics),
+  reg(attractor),
+  reg(quasicrystal),
+  reg(opArt),
+  reg(seedHead),
 ];
 
 export function getGenerator(id: string): AnyGenerator | undefined {

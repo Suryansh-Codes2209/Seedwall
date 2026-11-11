@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { AnyGenerator } from "@/generators";
 import { LiveThumb } from "./LiveThumb";
 
-export function GeneratorCard({ gen }: { gen: AnyGenerator }) {
+export function GeneratorCard({ gen, isNew = false }: { gen: AnyGenerator; isNew?: boolean }) {
   const first = gen.presets[0];
   return (
     <Link href={`/generators/${gen.id}`} className="card">
@@ -10,7 +10,10 @@ export function GeneratorCard({ gen }: { gen: AnyGenerator }) {
         <LiveThumb gen={gen.id} preset={first?.id} w={1600} h={1000} label={`${gen.name} — ${first?.title ?? "default"}`} />
       </div>
       <div className="card-body">
-        <h3>{gen.name}</h3>
+        <h3>
+          {gen.name}
+          {isNew && <span className="new-tag">New</span>}
+        </h3>
         <p>{gen.description}</p>
         <div className="card-meta">
           <span className="tag">{gen.presets.length} presets</span>

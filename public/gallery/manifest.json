@@ -1198,5 +1198,365 @@
     "hasTextFree": true,
     "createdAt": "2026-11-07T18:31:33.146Z",
     "source": "samples"
+  },
+  {
+    "id": "cymatics-plate-1440p-notext",
+    "title": "Cymatics · Brass plate",
+    "generator": "cymatics",
+    "presetId": "plate",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "cymatics",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/cymatics-plate-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/cymatics-plate-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:50.460Z",
+    "source": "samples"
+  },
+  {
+    "id": "cymatics-bone-iphone-notext",
+    "title": "Cymatics · Bone on ink",
+    "generator": "cymatics",
+    "presetId": "bone",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "cymatics",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/cymatics-bone-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/cymatics-bone-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:50.720Z",
+    "source": "samples"
+  },
+  {
+    "id": "cymatics-ember-macbook14-notext",
+    "title": "Cymatics · Ember",
+    "generator": "cymatics",
+    "presetId": "ember",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "cymatics",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/cymatics-ember-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/cymatics-ember-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:51.153Z",
+    "source": "samples"
+  },
+  {
+    "id": "quasicrystal-penrose-blue-1440p-notext",
+    "title": "Quasicrystal · Fivefold blue",
+    "generator": "quasicrystal",
+    "presetId": "penrose-blue",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "quasicrystal",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/quasicrystal-penrose-blue-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/quasicrystal-penrose-blue-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:52.199Z",
+    "source": "samples"
+  },
+  {
+    "id": "quasicrystal-sevenfold-iphone-notext",
+    "title": "Quasicrystal · Sevenfold dusk",
+    "generator": "quasicrystal",
+    "presetId": "sevenfold",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "quasicrystal",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/quasicrystal-sevenfold-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/quasicrystal-sevenfold-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:52.455Z",
+    "source": "samples"
+  },
+  {
+    "id": "quasicrystal-twelve-macbook14-notext",
+    "title": "Quasicrystal · Twelvefold jade",
+    "generator": "quasicrystal",
+    "presetId": "twelve",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "quasicrystal",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/quasicrystal-twelve-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/quasicrystal-twelve-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:52.826Z",
+    "source": "samples"
+  },
+  {
+    "id": "op-art-swell-1440p-notext",
+    "title": "Op Art · Swell",
+    "generator": "op-art",
+    "presetId": "swell",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "op-art",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/op-art-swell-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/op-art-swell-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:53.058Z",
+    "source": "samples"
+  },
+  {
+    "id": "op-art-checker-dome-iphone-notext",
+    "title": "Op Art · Checker dome",
+    "generator": "op-art",
+    "presetId": "checker-dome",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "op-art",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/op-art-checker-dome-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/op-art-checker-dome-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:53.266Z",
+    "source": "samples"
+  },
+  {
+    "id": "op-art-night-stripes-macbook14-notext",
+    "title": "Op Art · Night stripes",
+    "generator": "op-art",
+    "presetId": "night-stripes",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "op-art",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/op-art-night-stripes-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/op-art-night-stripes-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:53.638Z",
+    "source": "samples"
+  },
+  {
+    "id": "seed-head-sunflower-1440p-notext",
+    "title": "Seed Head · Sunflower",
+    "generator": "seed-head",
+    "presetId": "sunflower",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "seed-head",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/seed-head-sunflower-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/seed-head-sunflower-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:53.873Z",
+    "source": "samples"
+  },
+  {
+    "id": "seed-head-arms-iphone-notext",
+    "title": "Seed Head · Off by a hair",
+    "generator": "seed-head",
+    "presetId": "arms",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "seed-head",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/seed-head-arms-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/seed-head-arms-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:54.110Z",
+    "source": "samples"
+  },
+  {
+    "id": "seed-head-rising-macbook14-notext",
+    "title": "Seed Head · Rising (bottom)",
+    "generator": "seed-head",
+    "presetId": "rising",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "seed-head",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/seed-head-rising-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/seed-head-rising-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:21:54.459Z",
+    "source": "samples"
+  },
+  {
+    "id": "attractor-ribbon-1440p-notext",
+    "title": "Strange Attractor · Ribbon",
+    "generator": "attractor",
+    "presetId": "ribbon",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "attractor",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/attractor-ribbon-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/attractor-ribbon-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:25:24.974Z",
+    "source": "samples"
+  },
+  {
+    "id": "attractor-wings-iphone-notext",
+    "title": "Strange Attractor · Wings",
+    "generator": "attractor",
+    "presetId": "wings",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "attractor",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/attractor-wings-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/attractor-wings-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:25:25.197Z",
+    "source": "samples"
+  },
+  {
+    "id": "attractor-shell-macbook14-notext",
+    "title": "Strange Attractor · Shell",
+    "generator": "attractor",
+    "presetId": "shell",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "attractor",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/attractor-shell-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/attractor-shell-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:25:25.507Z",
+    "source": "samples"
+  },
+  {
+    "id": "event-horizon-gargantua-1440p-notext",
+    "title": "Event Horizon · Amber disk",
+    "generator": "event-horizon",
+    "presetId": "gargantua",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "event-horizon",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/event-horizon-gargantua-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/event-horizon-gargantua-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:25:25.885Z",
+    "source": "samples"
+  },
+  {
+    "id": "event-horizon-blueshift-iphone-notext",
+    "title": "Event Horizon · Blueshift",
+    "generator": "event-horizon",
+    "presetId": "blueshift",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "event-horizon",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/event-horizon-blueshift-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/event-horizon-blueshift-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:25:26.257Z",
+    "source": "samples"
+  },
+  {
+    "id": "event-horizon-edge-on-macbook14-notext",
+    "title": "Event Horizon · Edge-on",
+    "generator": "event-horizon",
+    "presetId": "edge-on",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "event-horizon",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/event-horizon-edge-on-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/event-horizon-edge-on-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-11T18:25:26.853Z",
+    "source": "samples"
   }
 ]

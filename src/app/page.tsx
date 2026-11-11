@@ -5,6 +5,7 @@ import { GitHubForm } from "@/components/GitHubForm";
 import { Hero } from "@/components/Hero";
 import { LiveThumb } from "@/components/LiveThumb";
 import { dailySeed, isoDate, wallpaperFromSeed } from "@/lib/seed";
+import { NEW_GENERATORS } from "@/config/site";
 import { GENERATORS } from "@/generators";
 import { getDriveItems, getSampleItems } from "@/lib/galleryData";
 
@@ -16,8 +17,11 @@ export default async function HomePage() {
   const featured = [
     ...drive.filter((i) => !i.hasTextFree && i.presetId?.endsWith("-bold")).slice(0, 4),
     ...drive.filter((i) => i.height > i.width && !i.hasTextFree).slice(0, 2),
-    ...getSampleItems().filter((_, idx) => idx % 3 === 0).slice(0, 6),
+    // One desktop sample of each new look, then the older generators.
+    ...NEW_GENERATORS.flatMap((id) => getSampleItems().filter((i) => i.generator === id && i.width > i.height).slice(0, 1)),
   ];
+  const fresh = NEW_GENERATORS.flatMap((id) => GENERATORS.filter((g) => g.id === id));
+  const rest = GENERATORS.filter((g) => !NEW_GENERATORS.includes(g.id));
   const today = isoDate(new Date());
   const daily = wallpaperFromSeed(dailySeed(today));
   return (
@@ -53,15 +57,30 @@ export default async function HomePage() {
         </div>
         <GalleryGrid compact items={featured} generators={GENERATORS.map((g) => ({ id: g.id, name: g.name }))} />
       </section>
+      <section id="new" className="container section" aria-labelledby="new-h">
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">New looks</span>
+            <h2 id="new-h">Art you don&apos;t usually see on a wallpaper.</h2>
+            <p>A black hole drawn in lines, the shape sand takes when a plate rings, chaos that draws the same figure forever, and patterns that never repeat.</p>
+          </div>
+          <Link className="btn" href={`/studio?g=${fresh[0]?.id ?? ""}`}>Open in the studio →</Link>
+        </div>
+        <div className="grid-cards">
+          {fresh.map((g) => (
+            <GeneratorCard key={g.id} gen={g} isNew />
+          ))}
+        </div>
+      </section>
       <section id="generators" className="container section" aria-labelledby="gens-h">
         <div className="section-head">
           <div>
-            <h2 id="gens-h">Generators</h2>
+            <h2 id="gens-h">All {GENERATORS.length} generators</h2>
             <p>Each look is one TypeScript file that turns parameters and a seed into an SVG.</p>
           </div>
         </div>
         <div className="grid-cards">
-          {GENERATORS.map((g) => (
+          {rest.map((g) => (
             <GeneratorCard key={g.id} gen={g} />
           ))}
         </div>
