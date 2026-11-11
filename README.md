@@ -8,6 +8,7 @@ Browse, customise and generate desktop and phone wallpapers — **https://seedwa
 - **/s/[seed]**: seed links. Every number from 1 to 999999 is one exact wallpaper, the same for everyone. **/today** redirects to today's seed.
 - **/u/[github-username]**: a wallpaper drawn from someone's real public GitHub contribution graph and recent commits.
 - **/mac**: the menu-bar app (`mac/`) that sets a new wallpaper every day.
+- **/claude**: the claude.ai connector and Claude Code plugin ([seedwall-mcp](https://github.com/Suryansh-Codes2209/seedwall-mcp)) for hero backgrounds, OG images and banners.
 
 Every wallpaper is an **SVG string produced by a pure TypeScript function**. The same code runs in the browser (live preview, PNG export via canvas) and in Node (CLI, PNG via resvg). Output is deterministic from `(generator, params, size, seed)`.
 

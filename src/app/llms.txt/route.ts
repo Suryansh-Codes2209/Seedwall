@@ -21,6 +21,7 @@ export function GET(): Response {
     `- [Today's seed](${absoluteUrl("/today")}): one wallpaper a day, the same for everyone. Every seed 1–999999 has a page at /s/<seed>.`,
     `- GitHub wallpapers: ${absoluteUrl("/u/<username>")} draws someone's real public contribution graph and commit history.`,
     `- [Mac app](${absoluteUrl("/mac")}): a menu-bar app that sets a new wallpaper every day.`,
+    `- [Claude connector and plugin](${absoluteUrl("/claude")}): render any generator from claude.ai or Claude Code, for hero backgrounds, OG images and banners.`,
     "",
     "## Image API",
     `- ${absoluteUrl("/api/s/<seed>")}?w=&h= (or ?d=<device>): PNG of a seed; &format=svg for SVG, &format=json for what the seed picks.`,
