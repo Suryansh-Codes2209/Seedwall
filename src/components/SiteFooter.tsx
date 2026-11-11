@@ -103,6 +103,7 @@ export function SiteFooter() {
           <Link href="/gallery">Gallery</Link>
           <Link href="/today">Today&apos;s seed</Link>
           <Link href="/mac">Mac app</Link>
+          <Link href="/claude">Claude plugin<span className="new-tag">New</span></Link>
           <Link href="/#personal-h">Your GitHub wallpaper</Link>
           {SITE.driveUrl ? (
             <a href={SITE.driveUrl} target="_blank" rel="noreferrer">Full pack on Drive ↗</a>
