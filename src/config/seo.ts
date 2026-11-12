@@ -5,8 +5,8 @@ import { SITE } from "./site";
 export const AUTHOR = {
   name: "Suryansh Chaudhary",
   url: "https://suryansh.work/",
-  x: "https://x.com/Suryansh_2001",
-  xHandle: "@Suryansh_2001",
+  x: "https://x.com/suryanshbuilds",
+  xHandle: "@suryanshbuilds",
   linkedin: "https://www.linkedin.com/in/suryansh-chaudhary-2209/",
   github: "https://github.com/Suryansh-Codes2209",
   email: "suryansh.codes2001@gmail.com",
