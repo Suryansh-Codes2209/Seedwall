@@ -4,6 +4,10 @@ export const SITE = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://seedwall.suryansh.work",
   /** Shared Google Drive folder for "Download the full pack". Empty → button disabled. */
   driveUrl: process.env.NEXT_PUBLIC_DRIVE_URL ?? "",
+  /** Google AdSense publisher id ("ca-pub-…"). Empty → no ads, no ads.txt. */
+  adsenseClient: process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "",
+  /** Id of the one display ad unit shown above the footer. Empty → no ad is placed. */
+  adsenseSlot: process.env.NEXT_PUBLIC_ADSENSE_SLOT ?? "",
 } as const;
 
 /** Looks that get a "New" tag and the top spot on the home page. Newest first. */

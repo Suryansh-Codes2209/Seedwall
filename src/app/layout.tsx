@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Schibsted_Grotesk } from "next/font/google";
+import { AdSlot } from "@/components/AdSlot";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { JsonLd } from "@/components/JsonLd";
@@ -38,6 +39,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og/default.png"], creator: AUTHOR.xHandle, site: AUTHOR.xHandle },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   appleWebApp: { title: SITE.name, capable: true, statusBarStyle: "black-translucent" },
+  // Lets AdSense verify the site during review.
+  ...(SITE.adsenseClient ? { other: { "google-adsense-account": SITE.adsenseClient } } : {}),
 };
 
 /** Site-wide structured data: the website, the app, and its author. */
@@ -99,6 +102,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <JsonLd data={STRUCTURED_DATA} />
         <script dangerouslySetInnerHTML={{ __html: gtmScript }} />
+        {SITE.adsenseClient && (
+          // Loads AdSense. The only ad placed in code is <AdSlot /> above the footer; keep Auto ads
+          // (anchor, vignette, side rail) off in the AdSense dashboard so nothing covers the page.
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body>
         <noscript>
@@ -112,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="visually-hidden">Skip to content</a>
         <SiteHeader />
         <main id="main">{children}</main>
+        <AdSlot />
         <SiteFooter />
         <ServiceWorker />
       </body>

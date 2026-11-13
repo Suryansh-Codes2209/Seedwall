@@ -7,6 +7,7 @@ import { getTheme } from "@/generators/shared/themes";
 import { decodeState, encodeState, initialState, type StudioState } from "@/lib/studioState";
 import { scopeSvgIds } from "@/lib/scopeSvg";
 import { downloadBlob, svgToPngBlob } from "@/lib/svgToPng";
+import { trackDownload } from "@/lib/analytics";
 import { useDebounced } from "@/lib/useDebounced";
 import { saveToCollection } from "@/lib/collection";
 import { DevicePicker } from "./DevicePicker";
@@ -79,6 +80,7 @@ export function Studio() {
     setExporting(true);
     try {
       downloadBlob(await svgToPngBlob(fullSvg(), state.w, state.h), filename("png"));
+      trackDownload({ source: "studio", format: "png", generator: state.gen, width: state.w, height: state.h });
       setToast(`Saved ${state.w}×${state.h} PNG`);
     } catch (e) {
       setToast(e instanceof Error ? e.message : "Export failed");
@@ -132,7 +134,10 @@ export function Studio() {
             <button type="button" className="btn btn-primary" onClick={downloadPng} disabled={exporting}>
               {exporting ? "Rendering…" : "Download PNG"}
             </button>
-            <button type="button" className="btn" onClick={() => downloadBlob(new Blob([fullSvg()], { type: "image/svg+xml" }), filename("svg"))}>
+            <button type="button" className="btn" onClick={() => {
+                downloadBlob(new Blob([fullSvg()], { type: "image/svg+xml" }), filename("svg"));
+                trackDownload({ source: "studio", format: "svg", generator: state.gen, width: state.w, height: state.h });
+              }}>
               SVG
             </button>
             <button type="button" className="btn" onClick={() => copy(shareUrl(), "Share link copied")}>

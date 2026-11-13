@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { getGenerator } from "@/generators";
 import { studioLinkFor, type GalleryItem } from "@/lib/gallery";
+import { trackDownload } from "@/lib/analytics";
 
 interface Props {
   item: GalleryItem | null;
@@ -55,7 +56,8 @@ export function WallpaperDialog({ item, onClose }: Props) {
               <dt>Tags</dt>
               <dd>{item.tags.join(", ")}</dd>
             </dl>
-            <a className="btn btn-primary btn-block" href={item.downloadUrl} download target={item.source === "drive" ? "_blank" : undefined} rel="noreferrer">
+            <a className="btn btn-primary btn-block" href={item.downloadUrl} download target={item.source === "drive" ? "_blank" : undefined} rel="noreferrer"
+              onClick={() => trackDownload({ source: "gallery", format: "png", generator: item.generator, width: item.width, height: item.height })}>
               Download PNG
             </a>
             {studio ? (

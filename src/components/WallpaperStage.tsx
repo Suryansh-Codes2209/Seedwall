@@ -7,6 +7,7 @@ import { getGenerator, renderWallpaper, type Params } from "@/generators";
 import { scopeSvgIds } from "@/lib/scopeSvg";
 import { studioHref } from "@/lib/studioState";
 import { downloadBlob, svgToPngBlob } from "@/lib/svgToPng";
+import { trackDownload } from "@/lib/analytics";
 import { useDebounced } from "@/lib/useDebounced";
 import { DevicePicker } from "./DevicePicker";
 import { Preview } from "./Preview";
@@ -65,6 +66,7 @@ export function WallpaperStage({ gen, preset, params, name, sharePath, title, su
     setExporting(true);
     try {
       downloadBlob(await svgToPngBlob(fullSvg(), size.w, size.h), file("png"));
+      trackDownload({ source: "seed", format: "png", generator: gen, width: size.w, height: size.h });
       setToast(`Saved ${size.w}×${size.h} PNG`);
     } catch (e) {
       setToast(e instanceof Error ? e.message : "Export failed");
@@ -96,7 +98,10 @@ export function WallpaperStage({ gen, preset, params, name, sharePath, title, su
             <button type="button" className="btn btn-primary" onClick={downloadPng} disabled={exporting}>
               {exporting ? "Rendering…" : "Download PNG"}
             </button>
-            <button type="button" className="btn" onClick={() => downloadBlob(new Blob([fullSvg()], { type: "image/svg+xml" }), file("svg"))}>
+            <button type="button" className="btn" onClick={() => {
+                downloadBlob(new Blob([fullSvg()], { type: "image/svg+xml" }), file("svg"));
+                trackDownload({ source: "seed", format: "svg", generator: gen, width: size.w, height: size.h });
+              }}>
               SVG
             </button>
             <button type="button" className="btn" onClick={copyLink}>Copy link</button>
