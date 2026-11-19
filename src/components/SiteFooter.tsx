@@ -99,6 +99,7 @@ export function SiteFooter() {
         <nav className="footer-col" aria-label="Explore">
           <span className="label">Explore</span>
           <Link href="/studio">Studio</Link>
+          <Link href="/paint">Paint my photo<span className="new-tag">New</span></Link>
           <Link href="/gallery">Gallery</Link>
           <Link href="/today">Today&apos;s seed</Link>
           <Link href="/mac">Mac app</Link>
