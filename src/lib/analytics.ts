@@ -3,7 +3,7 @@
  * It is registered as a key event in the Seedwall GA4 property. Safe to call on the server
  * or before the tag loads: it just queues onto dataLayer.
  */
-export type DownloadSource = "studio" | "seed" | "gallery";
+export type DownloadSource = "studio" | "seed" | "gallery" | "paint";
 
 export function trackDownload(params: {
   source: DownloadSource;

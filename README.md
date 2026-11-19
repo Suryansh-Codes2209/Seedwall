@@ -3,6 +3,7 @@
 Browse, customise and generate desktop and phone wallpapers — **https://seedwall.suryansh.work**
 
 - **/studio**: pick a generator and preset, then change colours, text (or go text-free), device and seed. Download a full-size PNG or SVG, copy a share link, or save to your collection.
+- **/paint**: turn a photo into a palette-knife impasto painting at any device size. It runs in the browser (`src/lib/paintPhoto.ts`), so the photo is never uploaded.
 - **/gallery**: the Cutting Mat pack, read live from the shared Google Drive folder (refreshed hourly, with direct downloads), plus generated samples. Filter by generator, device, tag and text-free.
 - **/generators/[id]**: one page per look, showing its presets and parameter table.
 - **/s/[seed]**: seed links. Every number from 1 to 999999 is one exact wallpaper, the same for everyone. **/today** redirects to today's seed.
@@ -27,7 +28,7 @@ src/generators/
   types.ts            Generator<P>, ParamSchema<P>, Preset<P>
   index.ts            the registry (GENERATORS)
   render.ts           resolveParams (defaults ← preset ← overrides, validated) + renderWallpaper
-  shared/             rng, noise, palettes, colour, svg helpers, text layout + metrics
+  shared/             rng, noise, palettes, colour, svg helpers, text layout + metrics, knife (impasto strokes)
   cutting-mat.ts … minimal-type.ts   one file per look
 src/config/           devices.ts, site.ts
 src/lib/              studioState (URL), svgToPng (browser), prompt, collection, drive, gallery

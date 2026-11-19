@@ -2068,5 +2068,65 @@
     "hasTextFree": true,
     "createdAt": "2026-11-15T10:08:03.509Z",
     "source": "samples"
+  },
+  {
+    "id": "impasto-ember-panels-1440p",
+    "title": "Impasto · Ember Panels",
+    "generator": "impasto",
+    "presetId": "ember-panels",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "impasto",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/impasto-ember-panels-1440p-preview.webp",
+    "downloadUrl": "/gallery/impasto-ember-panels-1440p.png",
+    "hasTextFree": false,
+    "createdAt": "2026-11-19T13:08:28.186Z",
+    "source": "samples"
+  },
+  {
+    "id": "impasto-harbour-dusk-iphone",
+    "title": "Impasto · Harbour Dusk",
+    "generator": "impasto",
+    "presetId": "harbour-dusk",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "impasto",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/impasto-harbour-dusk-iphone-preview.webp",
+    "downloadUrl": "/gallery/impasto-harbour-dusk-iphone.png",
+    "hasTextFree": false,
+    "createdAt": "2026-11-19T13:08:29.911Z",
+    "source": "samples"
+  },
+  {
+    "id": "impasto-still-life-macbook14-notext",
+    "title": "Impasto · Still Life",
+    "generator": "impasto",
+    "presetId": "still-life",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "impasto",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/impasto-still-life-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/impasto-still-life-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-19T13:08:31.882Z",
+    "source": "samples"
   }
 ]
