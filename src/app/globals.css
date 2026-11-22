@@ -119,7 +119,9 @@ code, kbd, .mono { font-family: var(--font-mono); }
 .nav { display: flex; gap: 4px; margin-left: auto; align-items: center; }
 .nav a { text-decoration: none; padding: 6px 10px; border-radius: var(--radius); color: var(--muted); font-weight: 500; }
 .nav a:hover, .nav a[aria-current="page"] { color: var(--ink); background: var(--accent-soft); }
-@media (max-width: 520px) { .nav a.hide-sm { display: none; } .nav { gap: 0; } }
+@media (max-width: 520px) { .nav a.hide-sm { display: none; } .nav { gap: 0; } .site-header .container { gap: 10px; } }
+/* Narrow phones: the mark alone links home, so the nav and theme toggle fit without clipping. */
+@media (max-width: 420px) { .site-header .logo-word { display: none; } .nav a { padding: 6px 9px; } }
 
 /* logo */
 .logo { display: inline-flex; align-items: center; gap: 9px; }
@@ -300,17 +302,38 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; heigh
 .collection-item small { display: block; color: var(--muted); font: 11px var(--font-mono); }
 .empty { color: var(--muted); font-size: 13px; }
 
+/* Tablet: the picker runs down the left of both rows (so its sticky scroll never slides over
+   the controls), the preview sits top right and the controls go under it. */
 @media (max-width: 1100px) {
-  .studio { grid-template-columns: 230px minmax(0, 1fr); }
-  .studio-col.params-col { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--line); position: static; max-height: none; }
+  .studio { grid-template-columns: 230px minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .studio-col.picker-col { grid-row: 1 / span 2; }
+  .studio-col.params-col { grid-column: 2; border-left: 0; border-top: 1px solid var(--line); position: static; max-height: none; padding: 16px 20px 24px; }
 }
+/* Phone: one column. The preview and its buttons stick under the header while the
+   generator list, presets and controls scroll beneath them. */
 @media (max-width: 760px) {
-  .studio { grid-template-columns: minmax(0, 1fr); }
-  .studio-stage { order: 1; padding: 14px; }
-  .studio-col { position: static; max-height: none; border-right: 0; border-top: 1px solid var(--line); }
-  .studio-col.picker-col { order: 2; }
-  .studio-col.params-col { order: 3; }
+  .studio { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .studio-stage { order: 1; padding: 12px 14px; gap: 10px; }
+  .studio-col { position: static; max-height: none; border-right: 0; border-top: 1px solid var(--line); padding: 16px 14px; }
+  .studio-col.picker-col { order: 2; grid-row: auto; }
+  .studio-col.params-col { order: 3; grid-column: auto; padding: 16px 14px 24px; }
   .preview-wrap { padding: 12px; min-height: 0; }
+  .stage-title h1 { font-size: 20px; }
+  /* Generators and presets become swipeable rows instead of a long list. */
+  .gen-list { flex-direction: row; gap: 6px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 6px; margin: 0 -14px; padding-inline: 14px; scroll-padding-inline: 14px; scrollbar-width: thin; }
+  .gen-list button { flex: none; gap: 8px; align-items: center; border-color: var(--line); background: var(--surface); scroll-snap-align: start; white-space: nowrap; }
+  .studio .preset-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(140px, 44%); overflow-x: auto; scroll-snap-type: x proximity; padding: 3px 14px 6px; margin: 0 -14px; scroll-padding-inline: 14px; scrollbar-width: thin; }
+  .studio .preset-btn { scroll-snap-align: start; }
+}
+@media (max-width: 760px) and (min-height: 600px) {
+  .studio-stage { position: sticky; top: 56px; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 6px 12px -10px rgb(0 0 0 / 0.3); }
+  .studio-stage .preview-wrap { --preview-vh: 0.34; flex: none; }
+  .studio-stage .actions { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .studio-stage .actions { gap: 6px; }
+  .studio-stage .actions .btn { padding: 0 10px; flex: 1 0 auto; }
+  /* The "rendered from code" note isn't worth the space while it's pinned. */
+  .studio-stage > .stage-bar:last-child { display: none; }
+  .studio-col.picker-col { border-top: 0; }
 }
 
 /* ---------- paint my photo ---------- */
@@ -369,7 +392,47 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
 .param-table th, .param-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 .param-table th { font: 500 11px var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .param-table code { font-size: 12px; }
-.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); -webkit-overflow-scrolling: touch; }
+/* On narrow screens the table scrolls sideways instead of crushing its columns. */
+@media (max-width: 640px) {
+  .param-table { min-width: 600px; }
+  .param-table td:first-child, .param-table th:first-child { white-space: nowrap; }
+}
+
+/* ---------- touch screens and phones: 44px tap targets ---------- */
+@media (max-width: 760px), (pointer: coarse) {
+  .btn, .btn-sm { height: 44px; }
+  .btn-sm { min-width: 44px; }
+  .chip { height: 44px; padding: 0 12px; }
+  /* 16px stops iOS zooming in when a field is focused. */
+  .input, .select { height: 44px; font-size: 16px; }
+  .textarea { font-size: 16px; }
+  .nav a { min-height: 44px; display: inline-flex; align-items: center; }
+  .nav .btn-ghost { width: 44px; padding: 0; }
+  .brand { min-height: 44px; min-width: 44px; }
+  .gen-list button { padding: 12px 12px; }
+  .param-group > summary { min-height: 44px; margin-bottom: 4px; }
+  .toggle { min-height: 44px; margin-bottom: 4px; }
+  .color-field input[type="color"] { width: 44px; height: 44px; }
+  input[type="range"] { height: 32px; }
+  .seed-row .btn { flex: none; }
+  .collection-item { grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .collection-item button.load { min-height: 44px; }
+  .dropzone { padding: 26px 14px; }
+  .footer-col { gap: 0; }
+  .footer-col a, .footer-col .muted { min-height: 44px; min-width: 44px; display: flex; align-items: center; }
+  .footer-col .label { margin-bottom: 2px; }
+  .footer-logo, .footer-contribute { min-height: 44px; }
+  .socials a { width: 44px; height: 44px; }
+  .gallery-item .gi-body { min-height: 44px; }
+}
+@media (max-width: 760px) {
+  dialog.wp-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+  .dialog-media { max-height: none; padding: 10px; }
+  .dialog-media img { max-height: 55dvh; }
+  .dialog-side { padding: 16px; }
+  .section-head h2 { font-size: 24px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }

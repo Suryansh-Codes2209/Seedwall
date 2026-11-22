@@ -21,14 +21,16 @@ export function Preview({ svg, w, h, busy }: Props) {
       if (!entry) return;
       const cs = getComputedStyle(el);
       const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-      setBox({ w: el.clientWidth - padX, h: window.innerHeight * (window.innerWidth < 760 ? 0.6 : 0.68) });
+      // CSS can set --preview-vh (a fraction of the viewport height), e.g. for the pinned studio preview on phones.
+      const vh = parseFloat(cs.getPropertyValue("--preview-vh")) || (window.innerWidth < 760 ? 0.6 : 0.68);
+      setBox({ w: el.clientWidth - padX, h: window.innerHeight * vh });
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
   // Fit to the stage width and ~2/3 of the viewport height.
-  const scale = Math.min((box.w || 320) / w, Math.max(240, box.h || 560) / h);
+  const scale = Math.min((box.w || 320) / w, Math.max(200, box.h || 560) / h);
   const dw = Math.max(1, Math.floor(w * scale));
   const dh = Math.max(1, Math.floor(h * scale));
 
