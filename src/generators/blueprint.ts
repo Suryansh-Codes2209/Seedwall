@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { pick, range } from "./shared/rng";
 import { esc, line, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ink: string;
   grid: number;
@@ -25,6 +26,7 @@ const params: ParamSchema<P> = {
   titleBlock: { kind: "toggle", label: "Title block", default: true, group: "Drawing" },
   title: { kind: "text", label: "Drawing title", default: "WORKSTATION / REV B", group: "Drawing", maxLength: 40 },
   seed: { kind: "seed", label: "Seed", default: 3 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "Design is how", "text.line2": "it *works*.", "text.font": "mono", "text.size": 4, "text.color": "#ffffff" }),
 };
 
@@ -42,6 +44,7 @@ export const blueprint: Generator<P> = {
   description: "Engineering paper in deep blue: fine grid, part outlines with centre lines, dimension lines and numbered callouts.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const g = p.grid * u;

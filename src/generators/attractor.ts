@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -46,6 +47,7 @@ const params: ParamSchema<P> = {
   points: { kind: "range", label: "Points", min: 6000, max: 44000, step: 2000, default: 30000, group: "Drawing" },
   weight: { kind: "range", label: "Point size", min: 0.05, max: 0.5, step: 0.01, default: 0.2, group: "Drawing" },
   seed: { kind: "seed", label: "Seed", default: 2 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Chaos has", "text.line2": "a *pattern*.", "text.color": "#ffffff", "text.size": 4.5, "text.position": "lower" }),
 };
 
@@ -63,6 +65,7 @@ export const attractor: Generator<P> = {
   description: "One point, moved by the same two-line equation tens of thousands of times. It never settles and never repeats, yet it draws a shape.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     // Clifford attractor: x' = sin(a·y) + c·cos(a·x), y' = sin(b·x) + d·cos(b·y)

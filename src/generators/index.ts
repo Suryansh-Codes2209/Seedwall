@@ -34,6 +34,8 @@ import { kintsugi } from "./kintsugi";
 import { ascent } from "./ascent";
 import { clockwork } from "./clockwork";
 import { impasto } from "./impasto";
+import { nebula } from "./nebula";
+import { frutigerAero } from "./frutiger-aero";
 
 /** Erase a generator's param type for storage in the registry. */
 const reg = <P extends Params>(g: Generator<P>): AnyGenerator => g as unknown as AnyGenerator;
@@ -75,6 +77,8 @@ export const GENERATORS: readonly AnyGenerator[] = [
   reg(ascent),
   reg(clockwork),
   reg(impasto),
+  reg(nebula),
+  reg(frutigerAero),
 ];
 
 export function getGenerator(id: string): AnyGenerator | undefined {

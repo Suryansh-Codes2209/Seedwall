@@ -1,3 +1,4 @@
+import type { TrueBlackSupport } from "./shared/background";
 /** A single parameter value. Every generator's params are a flat record of these. */
 export type ParamValue = string | number | boolean;
 export type Params = Record<string, ParamValue>;
@@ -7,11 +8,11 @@ interface BaseDef {
   /** Optional UI group heading ("Colours", "Grid", "Text"…). */
   group?: string;
   help?: string;
-  /** Data fed in by code (e.g. real GitHub history) — not shown as a studio control. */
+  /** Data fed in by code (e.g. real GitHub history), not shown as a studio control. */
   hidden?: boolean;
 }
 
-/** What a colour is for — lets a syntax theme recolour any generator. */
+/** What a colour is for. Lets a syntax theme recolour any generator. */
 export type ColorRole = "bg" | "fg" | "accent";
 export interface ColorDef extends BaseDef { kind: "color"; default: string; role?: ColorRole }
 export interface SelectDef extends BaseDef {
@@ -53,6 +54,12 @@ export interface Generator<P extends Params = Params> {
   description: string;
   params: ParamSchema<P>;
   presets: Preset<P>[];
+  /**
+   * Set when the look offers the shared "True black (OLED)" toggle (`background.trueBlack`, see
+   * shared/background.ts). `bg` lists the colour params the render path sets to #000000;
+   * `native` means render() handles the toggle itself. Absent means the look has no toggle.
+   */
+  trueBlack?: TrueBlackSupport;
   /** Pure + deterministic: same (p, size, rng seed) → same SVG string. */
   render(p: P, size: Size, rng: () => number): string;
 }

@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { darken } from "./shared/color";
 import { pick, range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   trace: string;
   chip: string;
@@ -22,6 +23,7 @@ const params: ParamSchema<P> = {
   traces: { kind: "range", label: "Traces", min: 20, max: 400, step: 5, default: 160, group: "Board" },
   chips: { kind: "range", label: "Chips", min: 0, max: 8, step: 1, default: 3, group: "Board" },
   seed: { kind: "seed", label: "Seed", default: 8 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "Hello, *world*.", "text.line2": "", "text.font": "mono", "text.size": 5, "text.color": "#f3d8a1" }),
 };
 
@@ -38,9 +40,10 @@ const DIRS: [number, number][] = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1,
 export const circuit: Generator<P> = {
   id: "circuit",
   name: "Circuit Board",
-  description: "Copper traces routed at 45° between pads, vias and chips — and around your quote, never through it.",
+  description: "Copper traces routed at 45° between pads, vias and chips, and around your quote, never through it.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const g = p.grid * u;

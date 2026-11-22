@@ -46,6 +46,7 @@ const presets: Preset<P>[] = [
   { id: "misty-blue", title: "Misty blue", params: { sky1: "#dfe9f3", sky2: "#ffffff", far: "#b6c9dc", near: "#1f3a5f", sun: false, layers: 7, roughness: 2, seed: 4, "text.color": "#1f3a5f" } },
   { id: "desert", title: "Desert", params: { sky1: "#87b7d9", sky2: "#f2d8b3", sun1: "#fff2cc", sun2: "#ffd27f", far: "#e8b77d", near: "#9a4f2b", layers: 4, roughness: 0.8, seed: 22 } },
   { id: "lofi-night", title: "Lo-fi night", params: { sky1: "#1b1d3a", sky2: "#e98a9a", sun1: "#ffe3c4", sun2: "#ffb4a2", far: "#9c6f97", near: "#141225", stars: true, layers: 5, seed: 18, grain: 0.12, "text.none": false, "text.line1": "late night", "text.line2": "*lo-fi* beats", "text.color": "#ffe3c4" } },
+  { id: "moss-forest", title: "Moss forest", params: { sky1: "#d9e4d0", sky2: "#f2f0de", sun1: "#fffbea", sun2: "#efe6c2", far: "#a7bd93", near: "#1c3223", layers: 7, roughness: 1.8, grain: 0.06, seed: 31, "text.color": "#1c3223" } },
 ];
 
 export const landscape: Generator<P> = {

@@ -1,8 +1,9 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -30,6 +31,7 @@ const params: ParamSchema<P> = {
   tile: { kind: "range", label: "Tile size", min: 2, max: 20, step: 0.5, default: 6, group: "Tiles" },
   weight: { kind: "range", label: "Line weight", min: 0.05, max: 0.45, step: 0.01, default: 0.18, group: "Tiles", help: "Fraction of a tile." },
   seed: { kind: "seed", label: "Seed", default: 10 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "There is always", "text.line2": "*another way*.", "text.font": "grotesk", "text.size": 5 }),
 };
 
@@ -47,6 +49,7 @@ export const truchet: Generator<P> = {
   description: "Randomly rotated quarter-arc or diagonal tiles that join into flowing, maze-like patterns.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const s = p.tile * u;

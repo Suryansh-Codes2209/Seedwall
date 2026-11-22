@@ -3,9 +3,10 @@ import { mix } from "./shared/color";
 import { range } from "./shared/rng";
 import { blurFilter, esc, grainFilter, grainRect, n, rect, smoothPath, svgDoc, unit } from "./shared/svg";
 import { freeRows } from "./shared/layout";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ash: string;
   fire: string;
@@ -31,6 +32,7 @@ const params: ParamSchema<P> = {
   glow: { kind: "range", label: "Glow", min: 0, max: 1, step: 0.05, default: 0.75, group: "Eye" },
   grain: { kind: "range", label: "Grain", min: 0, max: 0.3, step: 0.01, default: 0.12, group: "Ash" },
   seed: { kind: "seed", label: "Seed", default: 7 },
+  ...backgroundParams(),
   ...textParams({ "text.none": false, "text.line1": "एक दृष्टि,", "text.line2": "और सब भस्म।", "text.color": "#e7e2da", "text.position": "bottom-left", "text.font": "hindi", "text.size": 4.6 }),
 };
 
@@ -48,6 +50,7 @@ export const trinetra: Generator<P> = {
   description: "Shiva's forehead: three bands of sacred ash, and the third eye opening through them. Closed, it is meditation; open, it is the fire that burns desire to ash.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const portrait = size.h > size.w;
