@@ -69,3 +69,23 @@ export async function pngBytes(svg: string, w: number, h: number): Promise<Uint8
   const blob = await svgToPngBlob(svg, w, h);
   return new Uint8Array(await blob.arrayBuffer());
 }
+
+/** Draws PNG parts onto one canvas (black where nothing is drawn) and encodes it as a PNG. */
+export async function composePng(parts: readonly { data: Uint8Array; x: number; y: number }[], w: number, h: number): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas 2D is unavailable");
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, w, h);
+  for (const p of parts) {
+    const bmp = await createImageBitmap(new Blob([p.data as Uint8Array<ArrayBuffer>], { type: "image/png" }));
+    ctx.drawImage(bmp, p.x, p.y);
+    bmp.close();
+    await nextFrame();
+  }
+  return new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("The wide image is too big for this browser"))), "image/png"),
+  );
+}

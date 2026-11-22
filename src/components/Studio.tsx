@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { GENERATORS, applyTheme, getGenerator, renderWallpaper, resolveParams, type ParamValue } from "@/generators";
+import { GENERATORS, applyTheme, getGenerator, renderWallpaper, resolveParams, type Params, type ParamValue } from "@/generators";
 import { getTheme } from "@/generators/shared/themes";
 import { SAFE_AREA, lockScreenZones, safeAreaApplies, type SafeAreaMode } from "@/generators/shared/safeArea";
 import { decodeState, encodeState, initialState, type StudioState } from "@/lib/studioState";
@@ -11,7 +11,9 @@ import { downloadBlob, svgToPngBlob } from "@/lib/svgToPng";
 import { trackDownload } from "@/lib/analytics";
 import { useDebounced } from "@/lib/useDebounced";
 import { setTargets, setZipName } from "@/lib/exportSet";
-import { nextFrame, pngBytes, renderSvgAsync } from "@/lib/renderAsync";
+import { composePng, nextFrame, pngBytes, renderSvgAsync } from "@/lib/renderAsync";
+import { cropSvg, spanFilename, type SpanLayout } from "@/lib/span";
+import { seedwallName } from "@/lib/exportSet";
 import { buildZip, type ZipEntry } from "@/lib/zip";
 import { saveToCollection } from "@/lib/collection";
 import { DevicePicker } from "./DevicePicker";
@@ -21,6 +23,7 @@ import { LiveThumb } from "./LiveThumb";
 import { CollectionPanel } from "./CollectionPanel";
 import { ThemePicker } from "./ThemePicker";
 import { SafeAreaToggle } from "./SafeAreaToggle";
+import { SpanPanel } from "./SpanPanel";
 import type { PreviewZone } from "./Preview";
 
 export function Studio() {
@@ -97,6 +100,45 @@ export function Studio() {
     } finally {
       setExporting(false);
     }
+  };
+
+  /** Monitor span: render the full canvas once, then rasterise one slice per screen. */
+  const downloadSpan = (layout: SpanLayout, params: Params, kind: "slices" | "wide") => {
+    const g = state.gen;
+    const seed = typeof params.seed === "number" ? params.seed : 0;
+    let full: Promise<string> | null = null;
+    const canvasSvg = () => (full ??= renderSvgAsync(g, params, layout.canvas.w, layout.canvas.h));
+    const n = layout.slices.length;
+    const slice = (i: number) => async () => {
+      const r = layout.slices[i]!;
+      return pngBytes(cropSvg(await canvasSvg(), r), r.w, r.h);
+    };
+    const jobs = layout.slices.map((r, i) => ({ label: `screen ${i + 1} (${r.w}×${r.h})`, filename: spanFilename(g, seed, i, n, "png"), make: slice(i) }));
+    trackDownload({ source: "studio", format: "png", generator: g, width: layout.canvas.w, height: layout.canvas.h });
+    if (kind === "slices") {
+      void exportZip(jobs, seedwallName(g, seed, "span", "zip"), `Saved ${n} screens`);
+      return;
+    }
+    void (async () => {
+      if (progress) return;
+      try {
+        const parts: { data: Uint8Array; x: number; y: number }[] = [];
+        for (const [i, job] of jobs.entries()) {
+          setProgress({ done: i, total: n + 1, label: job.label });
+          await nextFrame();
+          parts.push({ data: await job.make(), ...layout.placements[i]! });
+        }
+        setProgress({ done: n, total: n + 1, label: "the wide image" });
+        await nextFrame();
+        const { w, h } = layout.combined;
+        downloadBlob(await composePng(parts, w, h), seedwallName(g, seed, `span-${w}x${h}`, "png"));
+        setToast(`Saved one ${w}×${h} image`);
+      } catch (e) {
+        setToast(e instanceof Error ? e.message : "Export failed");
+      } finally {
+        setProgress(null);
+      }
+    })();
   };
 
   /** Renders each job in turn (off the main thread where possible), zips the PNGs and downloads the zip. */
@@ -245,6 +287,10 @@ export function Studio() {
             }
           />
           {safeOffered && <SafeAreaToggle mode={safeMode} onChange={(m) => setParam(SAFE_AREA, m)} />}
+        </section>
+        <section className="col-section">
+          <span className="label">Multi-monitor</span>
+          <SpanPanel gen={state.gen} params={state.params} busy={progress !== null} onDownload={downloadSpan} />
         </section>
         <section className="col-section">
           <span className="label">Syntax theme</span>
