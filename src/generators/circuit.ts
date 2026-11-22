@@ -38,7 +38,7 @@ const DIRS: [number, number][] = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1,
 export const circuit: Generator<P> = {
   id: "circuit",
   name: "Circuit Board",
-  description: "Copper traces routed at 45° between pads, vias and chips — and around your quote, never through it.",
+  description: "Copper traces routed at 45° between pads, vias and chips, and around your quote, never through it.",
   params,
   presets,
   render(p, size, rng) {

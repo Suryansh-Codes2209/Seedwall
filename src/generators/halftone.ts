@@ -97,7 +97,7 @@ export const halftone: Generator<P> = {
         const y = j * c * 0.866 * 1.155;
         let v = Math.min(1, Math.max(0, value(x, y)));
         if (p.invert) v = 1 - v;
-        // ±6% seeded jitter — real print never has perfectly even dots.
+        // ±6% seeded jitter, since real print never has perfectly even dots.
         const r = (c / 2) * p.size * Math.sqrt(v) * 1.25 * (0.94 + rng() * 0.12);
         if (r < c * 0.04) continue;
         if (p.shape === "square") d.push(`M${n(x - r * 0.88)} ${n(y - r * 0.88)}h${n(r * 1.76)}v${n(r * 1.76)}h${n(-r * 1.76)}Z`);

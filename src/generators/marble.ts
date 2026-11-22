@@ -46,7 +46,7 @@ const presets: Preset<P>[] = [
 export const marble: Generator<P> = {
   id: "marble",
   name: "Liquid Marble",
-  description: "Domain-warped stripes filled as smooth iso-bands — swirling marble and ink, with optional fine veins.",
+  description: "Domain-warped stripes filled as smooth iso-bands: swirling marble and ink, with optional fine veins.",
   params,
   presets,
   render(p, size, rng) {

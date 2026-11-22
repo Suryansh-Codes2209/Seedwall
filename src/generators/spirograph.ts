@@ -96,7 +96,7 @@ function curvePoints(p: P, layerShift: number): [number, number][] {
 export const spirograph: Generator<P> = {
   id: "spirograph",
   name: "Spirograph",
-  description: "Spirograph, rose and Lissajous curves drawn as thin glowing lines — intricate, from a single equation.",
+  description: "Spirograph, rose and Lissajous curves drawn as thin glowing lines. Intricate, from a single equation.",
   params,
   presets,
   render(p, size, rng) {

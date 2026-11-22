@@ -7,11 +7,11 @@ interface BaseDef {
   /** Optional UI group heading ("Colours", "Grid", "Text"…). */
   group?: string;
   help?: string;
-  /** Data fed in by code (e.g. real GitHub history) — not shown as a studio control. */
+  /** Data fed in by code (e.g. real GitHub history), not shown as a studio control. */
   hidden?: boolean;
 }
 
-/** What a colour is for — lets a syntax theme recolour any generator. */
+/** What a colour is for. Lets a syntax theme recolour any generator. */
 export type ColorRole = "bg" | "fg" | "accent";
 export interface ColorDef extends BaseDef { kind: "color"; default: string; role?: ColorRole }
 export interface SelectDef extends BaseDef {

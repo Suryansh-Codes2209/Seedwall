@@ -48,13 +48,13 @@ export function resolveParams(gen: AnyGenerator, presetId?: string, overrides: R
   return out;
 }
 
-/** Render with the rng seeded from params.seed — the single entry point for site, CLI and tests. */
+/** Render with the rng seeded from params.seed. The single entry point for site, CLI and tests. */
 export function renderWallpaper(gen: AnyGenerator, params: Params, size: Size): string {
   const seed = typeof params.seed === "number" ? params.seed : 1;
   return gen.render(params, { w: Math.round(size.w), h: Math.round(size.h) }, createRng(seed));
 }
 
-/** Only the keys that differ from the preset — keeps share links and CLI commands short. */
+/** Only the keys that differ from the preset. Keeps share links and CLI commands short. */
 export function diffFromPreset(gen: AnyGenerator, presetId: string | undefined, params: Params): Params {
   const base = resolveParams(gen, presetId);
   const out: Params = {};

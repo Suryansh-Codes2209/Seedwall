@@ -189,7 +189,7 @@ function gridLayer(p: P, mat: Mat, u: number): string {
   for (let i = 0; i <= cols; i++) (i % 5 === 0 ? major : minor).push(line(x0 + i * cell, y0, x0 + i * cell, y1));
   for (let j = 0; j <= rows; j++) (j % 5 === 0 ? major : minor).push(line(x0, y1 - j * cell, x1, y1 - j * cell));
 
-  // Sub-grid (half cells) — very faint, gives the "printed mat" density.
+  // Sub-grid (half cells), very faint, gives the "printed mat" density.
   const sub: string[] = [];
   if (cell > 1.6 * u) {
     for (let i = 0; i < cols; i++) sub.push(line(x0 + (i + 0.5) * cell, y0, x0 + (i + 0.5) * cell, y1));

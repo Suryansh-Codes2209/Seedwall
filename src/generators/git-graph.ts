@@ -73,7 +73,7 @@ export function parseHistory(history: string): RealCommit[] {
   return out;
 }
 
-/** Inverse of parseHistory — what the server writes into the param. */
+/** Inverse of parseHistory: what the server writes into the param. */
 export function formatHistory(commits: readonly RealCommit[]): string {
   return commits.map((c) => `${c.lane}\t${c.sha.slice(0, 7)}\t${c.msg.replace(/[\t\n\r]+/g, " ").slice(0, 72)}`).join("\n");
 }

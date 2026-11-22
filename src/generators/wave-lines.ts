@@ -42,7 +42,7 @@ const presets: Preset<P>[] = [
 export const waveLines: Generator<P> = {
   id: "wave-lines",
   name: "Wave Lines",
-  description: "Stacked horizontal lines that ripple into ridges — the pulsar / terrain-slice look, with a gradient stroke.",
+  description: "Stacked horizontal lines that ripple into ridges: the pulsar / terrain-slice look, with a gradient stroke.",
   params,
   presets,
   render(p, size, rng) {
