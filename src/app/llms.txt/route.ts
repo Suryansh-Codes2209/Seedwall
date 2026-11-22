@@ -21,6 +21,7 @@ export function GET(): Response {
     `- [Gallery](${absoluteUrl("/gallery")}): the Cutting Mat pack (desktop + phone, with and without text) and generated samples, all free to download.`,
     `- [Today's seed](${absoluteUrl("/today")}): one wallpaper a day, the same for everyone. Every seed from 1 to 999999 has a page at /s/<seed>.`,
     `- GitHub wallpapers: ${absoluteUrl("/u/<username>")} draws someone's real public contribution graph and commit history.`,
+    `- [Daily wallpaper on any device](${absoluteUrl("/daily")}): set today's wallpaper automatically on iPhone and iPad (Shortcuts), Android (Tasker or MacroDroid), Windows (a PowerShell script and a scheduled task) and Linux (cron with GNOME or feh).`,
     `- [Mac app](${absoluteUrl("/mac")}): a menu-bar app that sets a new wallpaper every day.`,
     `- [Claude connector and plugin](${absoluteUrl("/claude")}): render any generator from claude.ai or Claude Code, for hero backgrounds, OG images and banners.`,
     "",

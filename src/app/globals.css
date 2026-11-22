@@ -487,3 +487,7 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
 .prose h2 { font-size: 22px; margin-top: 18px; }
 .prose p, .prose li { color: var(--muted); }
 .prose pre { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; overflow-x: auto; font-size: 13px; }
+.prose ol, .prose ul { padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.code-block { position: relative; }
+.code-block pre { margin: 0; padding-right: 76px; max-height: 420px; }
+.code-copy { position: absolute; top: 7px; right: 7px; }
