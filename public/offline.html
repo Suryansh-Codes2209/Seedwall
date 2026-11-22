@@ -8,7 +8,7 @@
 <style>
   @font-face { font-family: "SW Grotesk"; src: url("/fonts/SchibstedGrotesk-Regular.ttf") format("truetype"); font-display: swap; }
   @font-face { font-family: "SW Mono"; src: url("/fonts/JetBrainsMono-Regular.ttf") format("truetype"); font-display: swap; }
-  :root { --bg: #0d0e11; --ink: #eceef2; --muted: #9a9fab; --accent: #4f7bff; --line: rgb(255 255 255 / 0.1); }
+  :root { --bg: #0a0d1a; --ink: #eef1fa; --muted: #9aa4c2; --accent: #2a63f6; --accent-text: #7ea6ff; --orange: #ffa46b; --line: rgb(150 170 230 / 0.13); }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
   body { background: var(--bg); color: var(--ink); font-family: "SW Grotesk", system-ui, sans-serif; overflow: hidden; }
@@ -16,21 +16,21 @@
   .card {
     position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
     width: min(520px, calc(100vw - 32px)); padding: 28px 28px 24px; border-radius: 10px;
-    background: rgb(13 14 17 / 0.86); border: 1px solid var(--line); backdrop-filter: blur(10px);
+    background: rgb(10 13 26 / 0.86); border: 1px solid var(--line); backdrop-filter: blur(10px);
     box-shadow: 0 20px 60px rgb(0 0 0 / 0.5);
   }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.02em; font-size: 18px; }
-  .brand b { color: var(--accent); font-weight: 700; }
-  .eyebrow { margin-top: 22px; font: 500 11px "SW Mono", ui-monospace, monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .brand b { color: var(--orange); font-weight: 700; }
+  .eyebrow { margin-top: 22px; font: 500 11px "SW Mono", ui-monospace, monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange); }
   h1 { margin: 8px 0 10px; font-size: clamp(30px, 6vw, 42px); line-height: 1.05; letter-spacing: -0.035em; }
   p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 15px; }
   .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; align-items: center; }
   button {
-    height: 38px; padding: 0 16px; border-radius: 4px; border: 1px solid rgb(255 255 255 / 0.22); background: transparent;
+    height: 38px; padding: 0 16px; border-radius: 10px; border: 1px solid rgb(150 170 230 / 0.26); background: transparent;
     color: var(--ink); font: 500 14px "SW Grotesk", system-ui, sans-serif; cursor: pointer;
   }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
   .seed { margin-left: auto; font: 12px "SW Mono", ui-monospace, monospace; color: var(--muted); }
   .status { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font: 12px "SW Mono", ui-monospace, monospace; color: var(--muted); }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff6b6b; box-shadow: 0 0 0 0 rgb(255 107 107 / 0.6); animation: pulse 1.8s infinite; }
@@ -42,7 +42,7 @@
 <canvas id="c" aria-hidden="true"></canvas>
 <main class="card" role="main">
   <div class="brand">
-    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="#4f7bff"/><path d="M1 11.5H31M1 20.5H31M11.5 1V31M20.5 1V31" stroke="#fff" stroke-opacity=".14" stroke-width=".8"/><path d="M8.4 23.6L10.6 21.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="5.8" cy="26.2" r="1.7" fill="#fff"/><path d="M12 20C8.8 16.8 9.6 11.6 13.6 8.6C16.4 6.5 21.6 5.6 25.4 6.6C26.4 10.4 25.5 15.6 23.4 18.4C20.4 22.4 15.2 23.2 12 20Z" fill="#fff"/><path d="M14.6 17.4C16.6 15.4 18.8 13.2 21.4 10.6" stroke="#4f7bff" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="#2a63f6"/><path d="M1 11.5H31M1 20.5H31M11.5 1V31M20.5 1V31" stroke="#fff" stroke-opacity=".14" stroke-width=".8"/><path d="M8.4 23.6L10.6 21.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="5.8" cy="26.2" r="1.7" fill="#fff"/><path d="M12 20C8.8 16.8 9.6 11.6 13.6 8.6C16.4 6.5 21.6 5.6 25.4 6.6C26.4 10.4 25.5 15.6 23.4 18.4C20.4 22.4 15.2 23.2 12 20Z" fill="#ffa46b"/><path d="M14.6 17.4C16.6 15.4 18.8 13.2 21.4 10.6" stroke="#0a0d1a" stroke-width="1.5" stroke-linecap="round"/></svg>
     <span>Seed<b>wall</b></span>
   </div>
   <div class="eyebrow">No connection</div>

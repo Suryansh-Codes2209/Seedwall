@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Schibsted_Grotesk } from "next/font/google";
+import { Instrument_Serif, JetBrains_Mono, Schibsted_Grotesk } from "next/font/google";
 import { AdSlot } from "@/components/AdSlot";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -12,6 +12,8 @@ import "./globals.css";
 
 const grotesk = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-schibsted", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+/** Only the italic: it sets the one highlighted word in display headings. */
+const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: "italic", variable: "--font-instrument", display: "swap" });
 
 const TITLE = `${SITE.name}: generative desktop & phone wallpapers`;
 const DESCRIPTION = `Free wallpaper generator: ${GENERATORS.length} generative looks (cutting mat, flow field, synthwave, git graph and more), editor themes like Dracula and Tokyo Night, your own quote or none. Download full-size PNGs for MacBook, iPhone, 4K or any custom size.`;
@@ -82,22 +84,24 @@ const STRUCTURED_DATA = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f2ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d0e11" },
-  ],
+  // Midnight is the default theme; ThemeToggle rewrites this tag when the visitor picks light.
+  themeColor: "#0a0d1a",
+  colorScheme: "dark light",
 };
 
 /** Google Tag Manager container. */
 const GTM_ID = "GTM-WZ63MQTH";
 const gtmScript = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`;
 
-/** Applies the saved theme before paint so there's no flash. */
-const themeScript = `try{var t=localStorage.getItem("ws.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+/**
+ * Applies the theme before paint so there's no flash. Midnight (dark) is the default;
+ * light only applies when the visitor picked it with the toggle.
+ */
+const themeScript = `try{var t=localStorage.getItem("ws.theme")==="light"?"light":"dark";document.documentElement.dataset.theme=t;if(t==="light"){var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content","#fbf7f1")}}catch(e){document.documentElement.dataset.theme="dark"}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${grotesk.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${grotesk.variable} ${mono.variable} ${serif.variable}`} data-theme="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <JsonLd data={STRUCTURED_DATA} />
