@@ -24,6 +24,7 @@ import { CollectionPanel } from "./CollectionPanel";
 import { ThemePicker } from "./ThemePicker";
 import { SafeAreaToggle } from "./SafeAreaToggle";
 import { SpanPanel } from "./SpanPanel";
+import { PhotoColors } from "./PhotoColors";
 import type { PreviewZone } from "./Preview";
 
 export function Studio() {
@@ -303,6 +304,10 @@ export function Studio() {
               setToast(`Applied ${getTheme(id)?.name ?? id}`);
             }}
           />
+        </section>
+        <section className="col-section">
+          <span className="label">Colours from a photo</span>
+          <PhotoColors gen={gen} params={state.params} onApply={(params) => setState((s) => ({ ...s, params }))} onMessage={setToast} />
         </section>
         <section className="col-section">
           <ParamsPanel gen={gen} params={state.params} onChange={setParam} />
