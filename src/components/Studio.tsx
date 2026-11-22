@@ -2,13 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { GENERATORS, applyTheme, getGenerator, renderWallpaper, resolveParams, type ParamValue } from "@/generators";
+import { GENERATORS, applyTheme, getGenerator, renderWallpaper, resolveParams, type Params, type ParamValue } from "@/generators";
 import { getTheme } from "@/generators/shared/themes";
+import { SAFE_AREA, lockScreenZones, safeAreaApplies, type SafeAreaMode } from "@/generators/shared/safeArea";
 import { decodeState, encodeState, initialState, type StudioState } from "@/lib/studioState";
 import { scopeSvgIds } from "@/lib/scopeSvg";
 import { downloadBlob, svgToPngBlob } from "@/lib/svgToPng";
 import { trackDownload } from "@/lib/analytics";
 import { useDebounced } from "@/lib/useDebounced";
+import { setTargets, setZipName } from "@/lib/exportSet";
+import { composePng, nextFrame, pngBytes, renderSvgAsync } from "@/lib/renderAsync";
+import { cropSvg, spanFilename, type SpanLayout } from "@/lib/span";
+import { seedwallName } from "@/lib/exportSet";
+import { buildZip, type ZipEntry } from "@/lib/zip";
 import { saveToCollection } from "@/lib/collection";
 import { DevicePicker } from "./DevicePicker";
 import { ParamsPanel } from "./ParamsPanel";
@@ -16,12 +22,17 @@ import { Preview } from "./Preview";
 import { LiveThumb } from "./LiveThumb";
 import { CollectionPanel } from "./CollectionPanel";
 import { ThemePicker } from "./ThemePicker";
+import { SafeAreaToggle } from "./SafeAreaToggle";
+import { SpanPanel } from "./SpanPanel";
+import { PhotoColors } from "./PhotoColors";
+import type { PreviewZone } from "./Preview";
 
 export function Studio() {
   const search = useSearchParams();
   const [state, setState] = useState<StudioState>(() => decodeState(new URLSearchParams(search.toString())));
   const [toast, setToast] = useState("");
   const [exporting, setExporting] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number; label: string } | null>(null);
   const [collectionVersion, setCollectionVersion] = useState(0);
 
   const gen = getGenerator(state.gen) ?? GENERATORS[0]!;
@@ -50,16 +61,19 @@ export function Studio() {
     setState((s) => ({ ...s, params: { ...s.params, [key]: value } }));
   }, []);
 
+  // Settings that belong to the screen, not the look, survive a change of generator or preset.
+  const carried = (s: StudioState) => ({ "text.none": s.params["text.none"] ?? false, [SAFE_AREA]: s.params[SAFE_AREA] ?? "off" });
+
   const pickGenerator = (id: string) => {
     const next = initialState(id);
-    setState((s) => ({ ...next, device: s.device, w: s.w, h: s.h, params: { ...next.params, "text.none": s.params["text.none"] ?? false } }));
+    setState((s) => ({ ...next, device: s.device, w: s.w, h: s.h, params: { ...next.params, ...carried(s) } }));
   };
 
   const pickPreset = (presetId: string) => {
     setState((s) => {
       const g = getGenerator(s.gen);
       if (!g) return s;
-      return { ...s, preset: presetId, params: { ...resolveParams(g, presetId), "text.none": s.params["text.none"] ?? false } };
+      return { ...s, preset: presetId, params: { ...resolveParams(g, presetId), ...carried(s) } };
     });
   };
 
@@ -89,7 +103,95 @@ export function Studio() {
     }
   };
 
+  /** Monitor span: render the full canvas once, then rasterise one slice per screen. */
+  const downloadSpan = (layout: SpanLayout, params: Params, kind: "slices" | "wide") => {
+    const g = state.gen;
+    const seed = typeof params.seed === "number" ? params.seed : 0;
+    let full: Promise<string> | null = null;
+    const canvasSvg = () => (full ??= renderSvgAsync(g, params, layout.canvas.w, layout.canvas.h));
+    const n = layout.slices.length;
+    const slice = (i: number) => async () => {
+      const r = layout.slices[i]!;
+      return pngBytes(cropSvg(await canvasSvg(), r), r.w, r.h);
+    };
+    const jobs = layout.slices.map((r, i) => ({ label: `screen ${i + 1} (${r.w}×${r.h})`, filename: spanFilename(g, seed, i, n, "png"), make: slice(i) }));
+    trackDownload({ source: "studio", format: "png", generator: g, width: layout.canvas.w, height: layout.canvas.h });
+    if (kind === "slices") {
+      void exportZip(jobs, seedwallName(g, seed, "span", "zip"), `Saved ${n} screens`);
+      return;
+    }
+    void (async () => {
+      if (progress) return;
+      try {
+        const parts: { data: Uint8Array; x: number; y: number }[] = [];
+        for (const [i, job] of jobs.entries()) {
+          setProgress({ done: i, total: n + 1, label: job.label });
+          await nextFrame();
+          parts.push({ data: await job.make(), ...layout.placements[i]! });
+        }
+        setProgress({ done: n, total: n + 1, label: "the wide image" });
+        await nextFrame();
+        const { w, h } = layout.combined;
+        downloadBlob(await composePng(parts, w, h), seedwallName(g, seed, `span-${w}x${h}`, "png"));
+        setToast(`Saved one ${w}×${h} image`);
+      } catch (e) {
+        setToast(e instanceof Error ? e.message : "Export failed");
+      } finally {
+        setProgress(null);
+      }
+    })();
+  };
+
+  /** Renders each job in turn (off the main thread where possible), zips the PNGs and downloads the zip. */
+  const exportZip = async (jobs: { label: string; filename: string; make: () => Promise<Uint8Array> }[], zipName: string, done: string) => {
+    if (progress) return;
+    const files: ZipEntry[] = [];
+    try {
+      for (const [i, job] of jobs.entries()) {
+        setProgress({ done: i, total: jobs.length, label: job.label });
+        await nextFrame();
+        files.push({ name: job.filename, data: await job.make() });
+      }
+      setProgress({ done: jobs.length, total: jobs.length, label: "Zipping" });
+      await nextFrame();
+      downloadBlob(new Blob([buildZip(files) as Uint8Array<ArrayBuffer>], { type: "application/zip" }), zipName);
+      setToast(done);
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setProgress(null);
+    }
+  };
+
+  const downloadSet = () => {
+    const targets = setTargets(state);
+    void exportZip(
+      targets.map((t) => ({
+        label: `${t.label} (${t.w}×${t.h})`,
+        filename: t.filename,
+        make: async () => pngBytes(await renderSvgAsync(state.gen, t.params, t.w, t.h), t.w, t.h),
+      })),
+      setZipName(state),
+      "Saved the set: desktop, iPhone, Android and iPad",
+    );
+    for (const t of targets) trackDownload({ source: "studio", format: "png", generator: state.gen, width: t.w, height: t.h });
+  };
+
   const presetTitle = gen.presets.find((p) => p.id === state.preset)?.title ?? state.preset;
+  const safeOffered = safeAreaApplies(state.device, state.w, state.h);
+  const safeMode = (state.params[SAFE_AREA] ?? "off") as SafeAreaMode;
+  // Soft looks (gradients, glows) don't clear any areas, so say when the toggle changes nothing.
+  const safeHasEffect = useMemo(() => {
+    const g = getGenerator(debounced.gen);
+    const mode = debounced.params[SAFE_AREA];
+    if (!g || !mode || mode === "off") return true;
+    const size = { w: 120, h: 260 };
+    return renderWallpaper(g, debounced.params, size) !== renderWallpaper(g, { ...debounced.params, [SAFE_AREA]: "off" }, size);
+  }, [debounced]);
+  const previewZones: PreviewZone[] = lockScreenZones({ w: debounced.w, h: debounced.h }, debounced.params[SAFE_AREA]).map((z, i) => ({
+    ...z,
+    label: i === 0 ? "Clock and date" : "Buttons",
+  }));
 
   return (
     <div className="studio">
@@ -134,6 +236,9 @@ export function Studio() {
             <button type="button" className="btn btn-primary" onClick={downloadPng} disabled={exporting}>
               {exporting ? "Rendering…" : "Download PNG"}
             </button>
+            <button type="button" className="btn" onClick={downloadSet} disabled={progress !== null} title="Desktop, iPhone, Android and iPad in one zip">
+              {progress ? `Set ${Math.min(progress.done + 1, progress.total)}/${progress.total}` : "Download set"}
+            </button>
             <button type="button" className="btn" onClick={() => {
                 downloadBlob(new Blob([fullSvg()], { type: "image/svg+xml" }), filename("svg"));
                 trackDownload({ source: "studio", format: "svg", generator: state.gen, width: state.w, height: state.h });
@@ -157,7 +262,16 @@ export function Studio() {
           </div>
         </div>
 
-        <Preview svg={scoped} w={debounced.w} h={debounced.h} busy={busy} />
+        {progress && (
+          <div className="export-progress" role="status" aria-live="polite">
+            <progress value={progress.done} max={progress.total} />
+            <span>
+              {progress.done < progress.total ? `Rendering ${progress.label}, ${progress.done + 1} of ${progress.total}` : "Zipping it up"}
+            </span>
+          </div>
+        )}
+
+        <Preview svg={scoped} w={debounced.w} h={debounced.h} busy={busy} zones={previewZones} />
 
         <div className="stage-bar">
           <p className="preview-dims">
@@ -169,7 +283,23 @@ export function Studio() {
       <aside className="studio-col params-col" aria-label="Controls">
         <section className="col-section">
           <span className="label">Device</span>
-          <DevicePicker device={state.device} w={state.w} h={state.h} onChange={(device, w, h) => setState((s) => ({ ...s, device, w, h }))} />
+          <DevicePicker
+            device={state.device}
+            w={state.w}
+            h={state.h}
+            onChange={(device, w, h) =>
+              setState((s) => {
+                // The safe area only makes sense on a lock screen; switch it off for desktops.
+                const keep = safeAreaApplies(device, w, h) || (s.params[SAFE_AREA] ?? "off") === "off";
+                return { ...s, device, w, h, params: keep ? s.params : { ...s.params, [SAFE_AREA]: "off" } };
+              })
+            }
+          />
+          {safeOffered && <SafeAreaToggle mode={safeMode} hasEffect={safeHasEffect} onChange={(m) => setParam(SAFE_AREA, m)} />}
+        </section>
+        <section className="col-section">
+          <span className="label">Multi-monitor</span>
+          <SpanPanel gen={state.gen} params={state.params} busy={progress !== null} onDownload={downloadSpan} />
         </section>
         <section className="col-section">
           <span className="label">Syntax theme</span>
@@ -182,6 +312,10 @@ export function Studio() {
               setToast(`Applied ${getTheme(id)?.name ?? id}`);
             }}
           />
+        </section>
+        <section className="col-section">
+          <span className="label">Colours from a photo</span>
+          <PhotoColors gen={gen} params={state.params} onApply={(params) => setState((s) => ({ ...s, params }))} onMessage={setToast} />
         </section>
         <section className="col-section">
           <ParamsPanel gen={gen} params={state.params} onChange={setParam} />

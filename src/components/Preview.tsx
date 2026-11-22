@@ -2,15 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 
+/** A dashed guide drawn over the preview, in canvas pixels. */
+export interface PreviewZone {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label?: string;
+}
+
 interface Props {
   svg: string;
   w: number;
   h: number;
   busy?: boolean;
+  zones?: readonly PreviewZone[];
 }
 
 /** Shows the full-size SVG inline, scaled to fit the stage while keeping its aspect ratio. */
-export function Preview({ svg, w, h, busy }: Props) {
+export function Preview({ svg, w, h, busy, zones }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 0, h: 0 });
 
@@ -42,8 +52,19 @@ export function Preview({ svg, w, h, busy }: Props) {
         style={{ width: dw, height: dh }}
         role="img"
         aria-label={`Wallpaper preview, ${w} by ${h} pixels`}
-        dangerouslySetInnerHTML={{ __html: svg }}
-      />
+      >
+        <div className="preview-art" dangerouslySetInnerHTML={{ __html: svg }} />
+        {zones?.map((z, i) => (
+          <div
+            key={i}
+            className="preview-zone"
+            aria-hidden="true"
+            style={{ left: `${(z.x / w) * 100}%`, top: `${(z.y / h) * 100}%`, width: `${(z.w / w) * 100}%`, height: `${(z.h / h) * 100}%` }}
+          >
+            {z.label && <span>{z.label}</span>}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

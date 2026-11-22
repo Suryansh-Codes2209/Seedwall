@@ -95,6 +95,7 @@ export function SiteFooter() {
             <li><Link href="/studio">Studio</Link></li>
             <li><Link href="/paint">Paint my photo</Link></li>
             <li><Link href={DAILY_HREF}>Today&apos;s seed</Link></li>
+            <li><Link href="/daily">Daily on any device<span className="new-tag">New</span></Link></li>
             <li><Link href="/gallery">Gallery</Link></li>
             <li><Link href="/#personal-h">Your GitHub wallpaper</Link></li>
           </ul>

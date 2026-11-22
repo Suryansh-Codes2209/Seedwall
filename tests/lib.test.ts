@@ -42,7 +42,7 @@ describe("url state", () => {
 describe("text layout", () => {
   const base: TextParams = {
     "text.none": false, "text.line1": "Small commits.", "text.line2": "Big momentum.", "text.paragraph": "Some paragraph text here.",
-    "text.position": "center", "text.font": "serif", "text.size": 3.6, "text.color": "#ffffff",
+    "text.position": "center", "text.font": "serif", "text.size": 3.6, "text.color": "#ffffff", "text.safeArea": "off",
   };
 
   it("measures mono text as 0.6em per glyph", () => {

@@ -45,7 +45,10 @@ export default function MacPage() {
 cd Seedwall/mac && ./build.sh
 open build/Seedwall.app`}</pre>
         <h2>Or script it</h2>
-        <p>The app uses a public image API, so it also works from a shell script or a Shortcut:</p>
+        <p>
+          Not on a Mac? I wrote <Link href="/daily">setup steps for iPhone, iPad, Android, Windows and Linux</Link>. The app
+          uses a public image API, so it also works from a shell script or a Shortcut:
+        </p>
         <pre>{`curl -o wall.png "https://seedwall.suryansh.work/api/daily?w=3024&h=1964"
 curl -o mine.png "https://seedwall.suryansh.work/api/u/<username>?look=skyline&d=macbook14"
 curl "https://seedwall.suryansh.work/api/daily?format=json"`}</pre>
