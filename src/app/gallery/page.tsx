@@ -7,7 +7,7 @@ import { AUTHOR, absoluteUrl, pageMetadata } from "@/config/seo";
 import { getGallery } from "@/lib/galleryData";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Wallpaper Gallery — free desktop & phone wallpapers",
+  title: "Wallpaper Gallery: free desktop & phone wallpapers",
   description:
     "Free downloads: the Cutting Mat wallpaper pack for MacBook and iPhone, with and without text, plus samples from every Seedwall generator. Download directly or open any one in the studio to customise it.",
   path: "/gallery",
@@ -43,7 +43,7 @@ export default async function GalleryPage() {
       <div className="section-head">
         <div>
           <span className="eyebrow">Gallery</span>
-          <h1 style={{ fontSize: 40, marginTop: 6 }}>Ready-made wallpapers</h1>
+          <h1 className="page-h1">Ready-made <em>wallpapers</em></h1>
           <p>The Cutting Mat pack from Google Drive plus samples from every generator. Click one to download it or open it in the studio.</p>
         </div>
         <DrivePackButton primary />

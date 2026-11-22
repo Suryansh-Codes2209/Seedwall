@@ -7,7 +7,7 @@ export interface SyntaxTheme {
   name: string;
   bg: string;
   fg: string;
-  /** Most characteristic first — generators with one accent get accents[0]. */
+  /** Most characteristic first. Generators with one accent get accents[0]. */
   accents: readonly string[];
 }
 

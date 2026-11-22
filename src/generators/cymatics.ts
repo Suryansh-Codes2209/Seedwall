@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { contourPaths } from "./shared/contours";
 import { range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   sand: string;
   line: string;
@@ -28,6 +29,7 @@ const params: ParamSchema<P> = {
   grains: { kind: "range", label: "Grains of sand", min: 2000, max: 24000, step: 1000, default: 14000, group: "Sand" },
   lines: { kind: "toggle", label: "Draw nodal lines", default: false, group: "Sand" },
   seed: { kind: "seed", label: "Seed", default: 11 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Sound has", "text.line2": "a *shape*.", "text.color": "#f2e9d8", "text.size": 5, "text.position": "lower" }),
 };
 
@@ -46,6 +48,7 @@ export const cymatics: Generator<P> = {
   description: "Chladni figures: the patterns sand settles into on a vibrating plate. Two numbers pick the note, and every note has its own shape.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const half = 50 * u * p.zoom;

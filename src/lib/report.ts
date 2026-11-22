@@ -2,7 +2,7 @@ import { AUTHOR, REPO_URL } from "@/config/seo";
 
 /**
  * A mailto: link that pre-fills a bug report. Called in the browser, so it can
- * include the page the person was on — they just press Send.
+ * include the page the person was on. They just press Send.
  */
 export function reportMailto(opts: { subject?: string; error?: string; digest?: string } = {}): string {
   const page = typeof window !== "undefined" ? window.location.href : "";

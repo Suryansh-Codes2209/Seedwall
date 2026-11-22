@@ -58,7 +58,7 @@ function tile(kind: string, x: number, y: number, s: number, fg: string, alt: st
 export const geometric: Generator<P> = {
   id: "geometric",
   name: "Geometric",
-  description: "Tiled shapes — Bauhaus mixes, circles, triangles or hexagons — in a chosen palette.",
+  description: "Tiled shapes (Bauhaus mixes, circles, triangles or hexagons) in a chosen palette.",
   params,
   presets,
   render(p, size, rng) {

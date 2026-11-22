@@ -1,4 +1,4 @@
-/** mulberry32 — tiny, fast, deterministic PRNG. Returns floats in [0, 1). */
+/** mulberry32: tiny, fast, deterministic PRNG. Returns floats in [0, 1). */
 export function createRng(seed: number): () => number {
   let a = Math.floor(seed) >>> 0;
   return () => {

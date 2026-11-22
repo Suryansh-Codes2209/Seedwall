@@ -5,7 +5,7 @@ import { scopeSvgIds } from "@/lib/scopeSvg";
 import { encodeState } from "@/lib/studioState";
 
 export const metadata: Metadata = {
-  title: "404 — this seed didn't grow",
+  title: "404: this seed didn't grow",
   robots: { index: false, follow: true },
 };
 
@@ -15,7 +15,7 @@ const OVERRIDES = {
   "text.line2": "This seed didn't *grow*.",
   "text.paragraph": "The page you were after isn't here. It may have moved, or the link had a typo. Every other seed on this site still works.",
   "text.size": 6,
-  caption: "ERROR 404 — NOTHING PLANTED AT THIS ADDRESS",
+  caption: "ERROR 404 · NOTHING PLANTED AT THIS ADDRESS",
 };
 
 export default function NotFound() {
@@ -29,16 +29,16 @@ export default function NotFound() {
       <div className="nf-art" role="img" aria-label="A cutting-mat wallpaper reading: 404. This seed didn't grow." dangerouslySetInnerHTML={{ __html: svg }} />
       <div className="nf-body">
         <span className="eyebrow">Error 404</span>
-        <h1>Nothing grew here.</h1>
+        <h1>Nothing <em>grew</em> here.</h1>
         <p>
-          This address doesn&apos;t point at a page. While you&apos;re here, the error above is a real wallpaper. Every
-          generator on Seedwall made something; this one just made a 404.
+          There&apos;s no page at this address. This error is a real wallpaper, though, drawn by the same code as
+          everything else here. You can keep it if you like.
         </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/">Back to home</Link>
           <Link className="btn" href="/studio">Open the studio</Link>
           <Link className="btn" href="/gallery">Browse the gallery</Link>
-          <Link className="btn btn-ghost" href={keepIt}>Keep this 404 as a wallpaper →</Link>
+          <Link className="btn btn-ghost" href={keepIt}>Keep this 404 as a wallpaper</Link>
         </div>
       </div>
     </div>

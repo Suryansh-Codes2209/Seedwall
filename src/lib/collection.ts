@@ -5,7 +5,7 @@ const KEY = "ws.collection.v1";
 export interface SavedWallpaper {
   id: string;
   title: string;
-  /** Encoded studio query string — survives param schema changes gracefully. */
+  /** Encoded studio query string. It survives param schema changes gracefully. */
   query: string;
   savedAt: string;
 }

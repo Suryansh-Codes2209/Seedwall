@@ -3,10 +3,10 @@ import type { RealCommit } from "@/generators/git-graph";
 /**
  * Real GitHub data for personal wallpapers.
  *
- * With GITHUB_TOKEN set (any token, no scopes needed — public data only) it's
+ * With GITHUB_TOKEN set (any token, no scopes needed, since it reads public data only) it's
  * one GraphQL query with a 5,000/hour budget. Without it we read the public
  * contributions page plus a few REST calls, which share GitHub's 60/hour
- * anonymous limit — fine for development, tight in production.
+ * anonymous limit: fine for development, tight in production.
  * Results are cached by Next's fetch cache for REVALIDATE seconds.
  */
 export const REVALIDATE = 6 * 3600;
@@ -21,7 +21,7 @@ export interface GitHubProfile {
   total: number;
   /** First day of the grid (a Sunday), YYYY-MM-DD. */
   start: string;
-  /** One digit 0–4 per day, oldest first. */
+  /** One digit from 0 to 4 per day, oldest first. */
   levels: string;
   longestStreak: number;
   currentStreak: number;

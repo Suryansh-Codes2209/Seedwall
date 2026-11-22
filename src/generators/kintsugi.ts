@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { lighten } from "./shared/color";
 import { range } from "./shared/rng";
 import { esc, grainFilter, grainRect, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   gold: string;
   cracks: number;
@@ -26,6 +27,7 @@ const params: ParamSchema<P> = {
   impact: { kind: "select", label: "Where it broke", options: [{ value: "off", label: "Off centre" }, { value: "edge", label: "From an edge" }, { value: "two", label: "Twice" }], default: "off", group: "Break" },
   grain: { kind: "range", label: "Grain", min: 0, max: 0.3, step: 0.01, default: 0.1, group: "Break" },
   seed: { kind: "seed", label: "Seed", default: 12 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Broken, then *golden*.", "text.line2": "", "text.color": "#e9dcc0", "text.position": "bottom-left", "text.font": "display", "text.size": 4.2 }),
 };
 
@@ -45,6 +47,7 @@ export const kintsugi: Generator<P> = {
   description: "A glazed surface that broke and was mended with gold, so the cracks are the most beautiful part. Every seed breaks it a different way.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const step = 1.4 * u;

@@ -14,19 +14,19 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
   return (
     <div className="container section narrow">
       <span className="eyebrow">Something broke</span>
-      <h1 className="page-h1">This seed didn&apos;t render.</h1>
+      <h1 className="page-h1">This seed didn&apos;t <em>render</em>.</h1>
       <p className="lead">
-        Something went wrong on this page. That&apos;s a bug on our side, not something you did. Try again, and if it keeps
-        happening, one click sends the details to Suryansh.
+        Something went wrong on this page. That&apos;s a bug on my side, not something you did. Try again, and if it keeps
+        happening, one click sends me the details.
       </p>
       <div className="hero-actions">
         <button type="button" className="btn btn-primary" onClick={reset}>Try again</button>
         <ReportLink className="btn" error={error.message} digest={error.digest}>Email the details</ReportLink>
         <Link className="btn" href="/">Back to home</Link>
       </div>
-      <p className="preview-dims" style={{ textAlign: "left", marginTop: 18 }}>
+      <p className="page-meta">
         Or write to <a href={`mailto:${AUTHOR.email}`}>{AUTHOR.email}</a>
-        {error.digest ? <> · reference <code>{error.digest}</code></> : null}
+        {error.digest ? <>, reference <code>{error.digest}</code></> : null}
       </p>
     </div>
   );

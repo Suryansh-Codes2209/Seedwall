@@ -41,12 +41,14 @@ const presets: Preset<P>[] = [
   { id: "rose-quartz", title: "Rose quartz", params: { bg: "#fde2e4", c1: "#f4acb7", c2: "#9d8189", c3: "#ffe5d9", vein: "#ffffff", bands: 14, swirl: 3, seed: 3 } },
   { id: "malachite", title: "Malachite", params: { bg: "#0b3d2e", c1: "#13795b", c2: "#1fab89", c3: "#062a20", vein: "#9be7c4", bands: 30, swirl: 2.5, detail: 2, seed: 8 } },
   { id: "nebula", title: "Nebula (quote)", params: { bg: "#0b0221", c1: "#7b2cbf", c2: "#ff4d6d", c3: "#3a0ca3", vein: "#ffd6ff", swirl: 7, detail: 0.9, seed: 27, "text.none": false, "text.color": "#ffffff" } },
+  { id: "black-gold", title: "Black marble, gold veins", params: { bg: "#0d0d0f", c1: "#222226", c2: "#111113", c3: "#34333a", vein: "#e8c46a", bands: 22, swirl: 5, detail: 1.2, grain: 0.04, seed: 9, "text.color": "#e9d9a8" } },
+  { id: "black-copper", title: "Black marble, copper veins", params: { bg: "#100d0b", c1: "#241d18", c2: "#120f0d", c3: "#3a3028", vein: "#dd8a55", bands: 22, swirl: 4.5, detail: 1.4, grain: 0.04, seed: 16, "text.color": "#efc9a8" } },
 ];
 
 export const marble: Generator<P> = {
   id: "marble",
   name: "Liquid Marble",
-  description: "Domain-warped stripes filled as smooth iso-bands — swirling marble and ink, with optional fine veins.",
+  description: "Domain-warped stripes filled as smooth iso-bands: swirling marble and ink, with optional fine veins.",
   params,
   presets,
   render(p, size, rng) {

@@ -2,7 +2,7 @@ import { applyTheme, getGenerator, resolveParams, type Params } from "@/generato
 import { formatHistory, type RealCommit } from "@/generators/git-graph";
 import { getTheme } from "@/generators/shared/themes";
 
-/** The slice of a GitHub profile a personal wallpaper needs — plain data, safe to send to the client. */
+/** The slice of a GitHub profile a personal wallpaper needs: plain data, safe to send to the client. */
 export interface PersonalData {
   login: string;
   total: number;

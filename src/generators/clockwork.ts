@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { pick, range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ink: string;
   accent: string;
@@ -23,6 +24,7 @@ const params: ParamSchema<P> = {
   style: { kind: "select", label: "Drawing", options: [{ value: "line", label: "Line" }, { value: "solid", label: "Solid" }], default: "line", group: "Train" },
   spokes: { kind: "toggle", label: "Spoked wheels", default: true, group: "Train" },
   seed: { kind: "seed", label: "Seed", default: 8 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Every tooth turns *another*.", "text.line2": "", "text.color": "#d8d4cc", "text.position": "bottom-left", "text.font": "mono", "text.size": 3 }),
 };
 
@@ -55,6 +57,7 @@ export const clockwork: Generator<P> = {
   description: "A train of spur gears that really mesh: each one is sized in whole teeth, set at the exact distance from its neighbour, and turned so tooth meets gap.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const m = p.module * 1.1 * u;

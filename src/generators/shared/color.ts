@@ -28,6 +28,27 @@ export function luminance(hex: string): number {
   return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
 }
 
+/** WCAG contrast ratio between two colours, 1 to 21. */
+export function contrastRatio(a: string, b: string): number {
+  const la = luminance(a);
+  const lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/**
+ * `fg` if it already reads on `bg` at `min`:1, otherwise `fg` mixed towards white or black
+ * (whichever contrasts more with `bg`) just far enough to pass. One of the two always passes 4.5.
+ */
+export function ensureContrast(fg: string, bg: string, min = 4.5): string {
+  if (contrastRatio(fg, bg) >= min) return fg;
+  const target = contrastRatio("#ffffff", bg) >= contrastRatio("#000000", bg) ? "#ffffff" : "#000000";
+  for (let t = 0.05; t < 1; t += 0.05) {
+    const c = mix(fg, target, t);
+    if (contrastRatio(c, bg) >= min) return c;
+  }
+  return target;
+}
+
 export const isDark = (hex: string): boolean => luminance(hex) < 0.36;
 
 /** Ink that reads on a given background. */

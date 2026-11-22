@@ -12,7 +12,7 @@ const heroGen = getGenerator("topographic");
 const HERO_PARAMS = heroGen ? resolveParams(heroGen, "survey", { "text.none": true }) : undefined;
 
 export const metadata: Metadata = pageMetadata({
-  title: "Seedwall for Claude — generative hero backgrounds, OG images and banners",
+  title: "Seedwall for Claude: generative hero backgrounds, OG images and banners",
   description:
     "Use Seedwall from Claude: a claude.ai connector and a Claude Code plugin that render any generator at any size and wire it into your site as a hero background, section background, OG image or README banner.",
   path: "/claude",
@@ -23,8 +23,8 @@ export default function ClaudePage() {
     <div className="container section">
       <section className="gen-hero">
         <div>
-          <span className="eyebrow">Seedwall for Claude · connector + plugin</span>
-          <h1>Generative art, anywhere on your site.</h1>
+          <span className="eyebrow">Seedwall for Claude</span>
+          <h1>Ask Claude for a background that <em>fits</em> your site.</h1>
           <p>
             Ask Claude for a hero background in your brand colours and it picks a generator, renders it at the right size,
             looks at the preview, and wires it in. It works in claude.ai through a connector, and in your codebase through a
@@ -34,7 +34,7 @@ export default function ClaudePage() {
             <a className="btn btn-primary" href="#claude-code">Add to Claude Code</a>
             <a className="btn" href="#claude-ai">Add to claude.ai</a>
           </div>
-          <p className="preview-dims" style={{ textAlign: "left", marginTop: 12 }}>Free · open source · no account needed</p>
+          <p className="page-meta">Free and open source. No account needed.</p>
         </div>
         <div className="card-media">
           <LiveThumb gen="topographic" preset="survey" params={HERO_PARAMS} w={2400} h={1500} label="A text-free topographic hero background" />
@@ -86,7 +86,7 @@ claude plugin install seedwall@seedwall`}</pre>
         <pre>{`curl -o hero.svg "https://seedwall.suryansh.work/api/render?g=aurora&w=1920&h=1080&format=svg"
 curl "https://seedwall.suryansh.work/api/generators"`}</pre>
         <p>
-          Source: <a href={MCP_REPO} target="_blank" rel="noreferrer">github.com/Suryansh-Codes2209/seedwall-mcp ↗</a>
+          Source: <a href={MCP_REPO} target="_blank" rel="noreferrer">github.com/Suryansh-Codes2209/seedwall-mcp</a>
         </p>
       </div>
     </div>

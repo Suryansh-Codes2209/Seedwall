@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { pick } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   fg: string;
   c1: string;
@@ -43,6 +44,7 @@ const params: ParamSchema<P> = {
   history: { kind: "text", label: "Real commits", default: "", maxLength: 6000, hidden: true, help: "One per line, oldest first: lane<TAB>sha<TAB>message" },
   repos: { kind: "text", label: "Lane names", default: "", maxLength: 400, hidden: true, help: "Repo name per lane, separated by |" },
   seed: { kind: "seed", label: "Seed", default: 42 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "git commit -m", "text.line2": "\"*ship it*\"", "text.font": "mono", "text.size": 4, "text.color": "#e6edf3", "text.position": "top-right" }),
 };
 
@@ -73,7 +75,7 @@ export function parseHistory(history: string): RealCommit[] {
   return out;
 }
 
-/** Inverse of parseHistory — what the server writes into the param. */
+/** Inverse of parseHistory: what the server writes into the param. */
 export function formatHistory(commits: readonly RealCommit[]): string {
   return commits.map((c) => `${c.lane}\t${c.sha.slice(0, 7)}\t${c.msg.replace(/[\t\n\r]+/g, " ").slice(0, 72)}`).join("\n");
 }
@@ -106,6 +108,7 @@ export const gitGraph: Generator<P> = {
   description: "A stylised git log: coloured branch lanes forking and merging, commit dots, short hashes and messages.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const horizontal = p.direction === "horizontal" || (p.direction === "auto" && size.w >= size.h);

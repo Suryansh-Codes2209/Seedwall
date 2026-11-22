@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { mix } from "./shared/color";
 import { createNoise2D, fbm } from "./shared/noise";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   warm: string;
   cool: string;
@@ -28,6 +29,7 @@ const params: ParamSchema<P> = {
   pos: { kind: "select", label: "Pole star", options: [{ value: "high", label: "High" }, { value: "centre", label: "Centre" }, { value: "corner", label: "Upper corner" }], default: "high", group: "Sky" },
   horizon: { kind: "range", label: "Land", min: 0, max: 0.4, step: 0.01, default: 0.14, group: "Sky" },
   seed: { kind: "seed", label: "Seed", default: 17 },
+  ...backgroundParams(),
   ...textParams({ "text.none": false, "text.line1": "सब घूमे,", "text.line2": "ध्रुव अटल।", "text.color": "#ffffff", "text.position": "lower", "text.font": "hindi", "text.size": 4.6 }),
 };
 
@@ -45,6 +47,7 @@ export const dhruva: Generator<P> = {
   description: "Dhruva, the child whose devotion to Vishnu made him the pole star: a long exposure where the whole sky wheels around one point that never moves.",
   params,
   presets,
+  trueBlack: { bg: ["bg", "land"] },
   render(p, size, rng) {
     const u = unit(size);
     const px = p.pos === "corner" ? size.w * 0.82 : size.w / 2;

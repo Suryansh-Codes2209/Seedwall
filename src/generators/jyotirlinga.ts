@@ -4,9 +4,10 @@ import { createNoise2D, fbm } from "./shared/noise";
 import { range } from "./shared/rng";
 import { blurFilter, esc, n, rect, svgDoc, unit } from "./shared/svg";
 import { freeCols } from "./shared/layout";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   top: string;
   bottom: string;
   hot: string;
@@ -32,6 +33,7 @@ const params: ParamSchema<P> = {
   clouds: { kind: "range", label: "Cloud layers", min: 0, max: 6, step: 1, default: 3, group: "Pillar", help: "The pillar runs through every world, above the clouds and below them." },
   seekers: { kind: "toggle", label: "Brahma and Vishnu searching", default: true, group: "Pillar", help: "Two small lights: one flying up to find the top, one digging down to find the bottom." },
   seed: { kind: "seed", label: "Seed", default: 5 },
+  ...backgroundParams(),
   ...textParams({ "text.none": false, "text.line1": "न आदि,", "text.line2": "न अंत।", "text.color": "#fff4dc", "text.position": "bottom-left", "text.font": "hindi", "text.size": 4.6 }),
 };
 
@@ -49,6 +51,7 @@ export const jyotirlinga: Generator<P> = {
   description: "The endless pillar of light from the Lingodbhava story. Brahma flew up and Vishnu dug down to find its ends, and neither did. Here it runs off both edges of the screen.",
   params,
   presets,
+  trueBlack: { bg: ["top", "bottom", "mist"] },
   render(p, size, rng) {
     const u = unit(size);
     const noise = createNoise2D(rng);

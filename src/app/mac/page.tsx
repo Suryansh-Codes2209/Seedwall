@@ -4,8 +4,8 @@ import { LiveThumb } from "@/components/LiveThumb";
 import { REPO_URL, pageMetadata } from "@/config/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Seedwall for Mac — a new wallpaper every day",
-  description: "A tiny menu-bar app that sets a fresh Seedwall wallpaper every morning: today's seed, a random one, a pinned favourite, or your own GitHub contribution graph. Rendered at your screen's native resolution.",
+  title: "Seedwall for Mac: a new wallpaper every day",
+  description: "A small menu-bar app that sets a new Seedwall wallpaper once a day: today's seed, a random one, a pinned favourite, or your own GitHub contribution graph, rendered at your screen's native resolution.",
   path: "/mac",
 });
 
@@ -14,10 +14,10 @@ export default function MacPage() {
     <div className="container section">
       <section className="gen-hero">
         <div>
-          <span className="eyebrow">Seedwall for Mac · menu bar</span>
-          <h1>A new wallpaper every morning.</h1>
+          <span className="eyebrow">Seedwall for Mac</span>
+          <h1>A new wallpaper every <em>morning</em>.</h1>
           <p>
-            A tiny menu-bar app. At midnight it sets the next seed on every display, rendered at that display&apos;s native
+            A small menu-bar app. At midnight it sets the next seed on every display, rendered at that display&apos;s native
             resolution. Pick today&apos;s seed (the same one everyone gets), a random one, a favourite you pin, or your own
             GitHub graph, redrawn daily.
           </p>
@@ -25,7 +25,7 @@ export default function MacPage() {
             <a className="btn btn-primary" href={`${REPO_URL}/releases/latest`}>Download for macOS</a>
             <Link className="btn" href="/today">See today&apos;s seed</Link>
           </div>
-          <p className="preview-dims" style={{ textAlign: "left", marginTop: 12 }}>macOS 13 or later · Apple silicon · free</p>
+          <p className="page-meta">Free. Needs macOS 13 or later on Apple silicon.</p>
         </div>
         <div className="card-media">
           <LiveThumb gen="contributions" preset="skyline" w={2400} h={1500} label="A GitHub skyline wallpaper" />
@@ -45,7 +45,10 @@ export default function MacPage() {
 cd Seedwall/mac && ./build.sh
 open build/Seedwall.app`}</pre>
         <h2>Or script it</h2>
-        <p>The app uses a public image API, so it also works from a shell script or a Shortcut:</p>
+        <p>
+          Not on a Mac? I wrote <Link href="/daily">setup steps for iPhone, iPad, Android, Windows and Linux</Link>. The app
+          uses a public image API, so it also works from a shell script or a Shortcut:
+        </p>
         <pre>{`curl -o wall.png "https://seedwall.suryansh.work/api/daily?w=3024&h=1964"
 curl -o mine.png "https://seedwall.suryansh.work/api/u/<username>?look=skyline&d=macbook14"
 curl "https://seedwall.suryansh.work/api/daily?format=json"`}</pre>

@@ -2,7 +2,7 @@
 
 import { THEMES } from "@/generators/shared/themes";
 
-/** One-click editor themes — recolours whichever generator is open. */
+/** One-click editor themes. Recolours whichever generator is open. */
 export function ThemePicker({ onApply }: { onApply: (themeId: string) => void }) {
   return (
     <div className="theme-grid" role="group" aria-label="Apply a syntax theme">

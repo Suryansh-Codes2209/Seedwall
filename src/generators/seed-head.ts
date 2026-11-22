@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { mix } from "./shared/color";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -27,6 +28,7 @@ const params: ParamSchema<P> = {
   arms: { kind: "select", label: "Highlight spirals", options: [{ value: "0", label: "None" }, { value: "13", label: "13" }, { value: "21", label: "21" }, { value: "34", label: "34" }, { value: "55", label: "55" }], default: "21", group: "Spiral", help: "Sunflower spirals come in Fibonacci numbers." },
   origin: { kind: "select", label: "Centre", options: [{ value: "center", label: "Centre" }, { value: "bottom", label: "Bottom edge" }, { value: "corner", label: "Corner" }], default: "center", group: "Spiral" },
   seed: { kind: "seed", label: "Seed", default: 6 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Grow in", "text.line2": "*spirals*.", "text.color": "#f4e285", "text.size": 5 }),
 };
 
@@ -44,6 +46,7 @@ export const seedHead: Generator<P> = {
   description: "Phyllotaxis: thousands of seeds, each turned by the golden angle from the last, packing into the spirals of a sunflower.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const cx = p.origin === "corner" ? size.w * 0.12 : size.w / 2;

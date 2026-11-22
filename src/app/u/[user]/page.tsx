@@ -44,7 +44,7 @@ export default async function UserPage({ params, searchParams }: Props) {
         <p className="lead">
           {problem === "not-found"
             ? "Check the spelling and try again. Only public activity is used."
-            : "We hit GitHub's rate limit or it didn't answer. Give it a few minutes, then reload."}
+            : "Seedwall hit GitHub's rate limit, or GitHub didn't answer. Give it a few minutes, then reload."}
         </p>
         <GitHubForm initial={problem === "not-found" ? "" : login} cta={problem === "not-found" ? "Try again" : "Retry"} />
         <p className="hero-actions">

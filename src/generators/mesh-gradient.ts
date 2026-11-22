@@ -34,6 +34,9 @@ const presets: Preset<P>[] = [
   { id: "violet-dusk", title: "Violet dusk", params: { bg: "#1a1033", c1: "#7b2ff7", c2: "#f107a3", c3: "#ff9a8b", c4: "#3a0ca3", seed: 21 } },
   { id: "mint", title: "Mint", params: { bg: "#e9fbf3", c1: "#9ef0c9", c2: "#c6f6ff", c3: "#ffe6a7", c4: "#b9b7ff", seed: 8, grain: 0.08, "text.color": "#1b2a24" } },
   { id: "ember-quote", title: "Ember + quote", params: { bg: "#240a05", c1: "#ff5e3a", c2: "#ff9f1c", c3: "#c9184a", c4: "#6a040f", seed: 33, "text.none": false, "text.line1": "Keep the *fire* small", "text.line2": "and steady." } },
+  { id: "soft-pastel", title: "Soft pastel", params: { bg: "#f6f1ee", c1: "#eea2bb", c2: "#9fc2ef", c3: "#c7b1f2", c4: "#f6cf8f", blobs: 6, softness: 20, grain: 0.05, seed: 3, "text.color": "#3a3340" } },
+  { id: "dusk", title: "Dusk", params: { bg: "#2a2342", c1: "#f2a07b", c2: "#8f63d2", c3: "#ff7f8e", c4: "#3f3268", blobs: 7, softness: 24, grain: 0.08, seed: 14 } },
+  { id: "earth-tones", title: "Earth tones", params: { bg: "#e8dccb", c1: "#c47a52", c2: "#8b9a6a", c3: "#dcb68f", c4: "#6e5443", blobs: 7, softness: 20, grain: 0.1, seed: 3, "text.color": "#3b2d24" } },
 ];
 
 export const meshGradient: Generator<P> = {

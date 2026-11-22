@@ -2128,5 +2128,125 @@
     "hasTextFree": true,
     "createdAt": "2026-11-19T13:08:31.882Z",
     "source": "samples"
+  },
+  {
+    "id": "nebula-violet-1440p-notext",
+    "title": "Nebula · Violet",
+    "generator": "nebula",
+    "presetId": "violet",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "nebula",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/nebula-violet-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/nebula-violet-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-22T14:33:02.097Z",
+    "source": "samples"
+  },
+  {
+    "id": "nebula-veil-iphone-notext",
+    "title": "Nebula · Teal veil",
+    "generator": "nebula",
+    "presetId": "veil",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "nebula",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/nebula-veil-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/nebula-veil-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-22T14:33:05.058Z",
+    "source": "samples"
+  },
+  {
+    "id": "nebula-ember-macbook14-notext",
+    "title": "Nebula · Ember",
+    "generator": "nebula",
+    "presetId": "ember",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "nebula",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/nebula-ember-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/nebula-ember-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-22T14:33:08.216Z",
+    "source": "samples"
+  },
+  {
+    "id": "frutiger-aero-sky-bubbles-1440p-notext",
+    "title": "Frutiger Aero · Sky bubbles",
+    "generator": "frutiger-aero",
+    "presetId": "sky-bubbles",
+    "params": {},
+    "device": "1440p",
+    "width": 2560,
+    "height": 1440,
+    "tags": [
+      "frutiger-aero",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/frutiger-aero-sky-bubbles-1440p-notext-preview.webp",
+    "downloadUrl": "/gallery/frutiger-aero-sky-bubbles-1440p-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-22T13:55:24.667Z",
+    "source": "samples"
+  },
+  {
+    "id": "frutiger-aero-meadow-iphone-notext",
+    "title": "Frutiger Aero · Meadow",
+    "generator": "frutiger-aero",
+    "presetId": "meadow",
+    "params": {},
+    "device": "iphone",
+    "width": 1290,
+    "height": 2796,
+    "tags": [
+      "frutiger-aero",
+      "phone",
+      "sample"
+    ],
+    "previewUrl": "/gallery/frutiger-aero-meadow-iphone-notext-preview.webp",
+    "downloadUrl": "/gallery/frutiger-aero-meadow-iphone-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-22T13:55:25.306Z",
+    "source": "samples"
+  },
+  {
+    "id": "frutiger-aero-lagoon-macbook14-notext",
+    "title": "Frutiger Aero · Lagoon",
+    "generator": "frutiger-aero",
+    "presetId": "lagoon",
+    "params": {},
+    "device": "macbook14",
+    "width": 3024,
+    "height": 1964,
+    "tags": [
+      "frutiger-aero",
+      "desktop",
+      "sample"
+    ],
+    "previewUrl": "/gallery/frutiger-aero-lagoon-macbook14-notext-preview.webp",
+    "downloadUrl": "/gallery/frutiger-aero-lagoon-macbook14-notext.png",
+    "hasTextFree": true,
+    "createdAt": "2026-11-22T13:55:26.586Z",
+    "source": "samples"
   }
 ]

@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset, Size } from "./types";
 import { contourPaths } from "./shared/contours";
 import { createNoise2D, fbm } from "./shared/noise";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   line: string;
   line2: string;
@@ -24,6 +25,7 @@ const params: ParamSchema<P> = {
   scale: { kind: "range", label: "Terrain scale", min: 0.6, max: 5, step: 0.1, default: 2, group: "Terrain" },
   weight: { kind: "range", label: "Line weight", min: 0.04, max: 0.4, step: 0.01, default: 0.12, group: "Terrain" },
   seed: { kind: "seed", label: "Seed", default: 5 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "Find your", "text.line2": "*elevation*.", "text.color": "#2b2b2b", "text.size": 5 }),
 };
 
@@ -52,6 +54,7 @@ export const topographic: Generator<P> = {
   description: "Contour lines traced from a seeded noise field, with optional two-tone index contours.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const cell = 1.8 * u;

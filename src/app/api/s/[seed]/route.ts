@@ -3,7 +3,7 @@ import { parseSeed, wallpaperFromSeed } from "@/lib/seed";
 
 export const runtime = "nodejs";
 
-/** GET /api/s/48213?d=macbook14 | ?w=3024&h=1964 [&format=svg|json] — one seed, one wallpaper, cached forever. */
+/** GET /api/s/48213?d=macbook14 | ?w=3024&h=1964 [&format=svg|json]: one seed, one wallpaper, cached forever. */
 export async function GET(req: Request, { params }: { params: Promise<{ seed: string }> }) {
   const seed = parseSeed((await params).seed.replace(/\.(png|svg)$/, ""));
   if (seed === null) return new Response("Seeds are whole numbers from 1 to 999999", { status: 404 });

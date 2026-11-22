@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { range } from "./shared/rng";
 import { blurFilter, esc, grainFilter, grainRect, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -25,6 +26,7 @@ const params: ParamSchema<P> = {
   grain: { kind: "range", label: "Film grain", min: 0, max: 0.4, step: 0.01, default: 0.1, group: "Aurora" },
   stars: { kind: "toggle", label: "Stars", default: true, group: "Aurora" },
   seed: { kind: "seed", label: "Seed", default: 23 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Look up.", "text.line2": "", "text.font": "display", "text.size": 8, "text.position": "lower" }),
 };
 
@@ -42,6 +44,7 @@ export const aurora: Generator<P> = {
   description: "Layered, blurred ribbons of light over a night sky, with optional stars and film grain.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const colors = [p.c1, p.c2, p.c3];

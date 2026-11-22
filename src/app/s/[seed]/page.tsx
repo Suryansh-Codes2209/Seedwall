@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ seed: str
   const wp = wallpaperFromSeed(seed);
   const name = getGenerator(wp.gen)?.name ?? wp.gen;
   return pageMetadata({
-    title: `Seed #${seed} — ${name} wallpaper`,
+    title: `Seed #${seed}: ${name} wallpaper`,
     description: `Wallpaper seed ${seed} on Seedwall: a ${name} wallpaper that looks the same for everyone. Download it for any screen, or try another seed.`,
     path: `/s/${seed}`,
     image: `/api/s/${seed}?w=1200&h=630`,

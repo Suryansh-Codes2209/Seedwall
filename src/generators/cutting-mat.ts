@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset, Size } from "./types";
 import { darken, lighten, mix } from "./shared/color";
 import { range } from "./shared/rng";
 import { blurFilter, esc, grainFilter, grainRect, line, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ink: string;
   style: string;
@@ -52,6 +53,7 @@ const schema: ParamSchema<P> = {
   guides: { kind: "toggle", label: "Angled guides + arcs", default: true, group: "Grid" },
   caption: { kind: "text", label: "Side caption", default: "COMPILE. DEBUG. DEPLOY. REPEAT.", group: "Grid", maxLength: 60 },
   seed: { kind: "seed", label: "Seed", default: 7 },
+  ...backgroundParams(),
   ...textParams({
     "text.paragraph":
       "Great software is rarely written in one heroic night. It is built from small, steady commits that quietly compound into something real.",
@@ -189,7 +191,7 @@ function gridLayer(p: P, mat: Mat, u: number): string {
   for (let i = 0; i <= cols; i++) (i % 5 === 0 ? major : minor).push(line(x0 + i * cell, y0, x0 + i * cell, y1));
   for (let j = 0; j <= rows; j++) (j % 5 === 0 ? major : minor).push(line(x0, y1 - j * cell, x1, y1 - j * cell));
 
-  // Sub-grid (half cells) — very faint, gives the "printed mat" density.
+  // Sub-grid (half cells), very faint, gives the "printed mat" density.
   const sub: string[] = [];
   if (cell > 1.6 * u) {
     for (let i = 0; i < cols; i++) sub.push(line(x0 + (i + 0.5) * cell, y0, x0 + (i + 0.5) * cell, y1));
@@ -320,6 +322,7 @@ export const cuttingMat: Generator<P> = {
     "A drafting cutting mat: bold or fine grid, + marks or dots, angled guides and arcs, edge ticks and numbers, with clear zones kept around your quote.",
   params: schema,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const mat = matGeometry(p, size, u);

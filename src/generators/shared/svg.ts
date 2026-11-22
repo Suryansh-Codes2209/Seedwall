@@ -21,7 +21,7 @@ export const rect = (x: number, y: number, w: number, h: number, attrs: string):
 export const line = (x1: number, y1: number, x2: number, y2: number): string =>
   `M${n(x1)} ${n(y1)}L${n(x2)} ${n(y2)}`;
 
-/** Film grain as an SVG filter — works in browsers and resvg alike. */
+/** Film grain as an SVG filter. Works in browsers and resvg alike. */
 export function grainFilter(id: string, amount: number, freq = 0.85): string {
   const a = Math.max(0, Math.min(1, amount));
   return (

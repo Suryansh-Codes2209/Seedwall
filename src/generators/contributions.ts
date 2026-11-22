@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset, Size } from "./types";
 import { darken, mix } from "./shared/color";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   fg: string;
   accent: string;
@@ -57,6 +58,7 @@ const params: ParamSchema<P> = {
   data: { kind: "text", label: "Activity levels", default: "", maxLength: 400, hidden: true },
   start: { kind: "text", label: "First day", default: "", maxLength: 10, hidden: true },
   seed: { kind: "seed", label: "Seed", default: 2024 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "Ship *every* day.", "text.line2": "", "text.font": "mono", "text.size": 3.2, "text.color": "#e6edf3", "text.position": "top-left" }),
 };
 
@@ -126,6 +128,7 @@ export const contributions: Generator<P> = {
   description: "A year of commits as a wallpaper: the familiar contribution grid as squares, dots or a 3D skyline. Feed it your real GitHub history at /u/your-name.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const real = parseLevels(p.data ?? "");
