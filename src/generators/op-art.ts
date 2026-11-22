@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { range } from "./shared/rng";
 import { esc, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ink: string;
   accent: string;
@@ -27,6 +28,7 @@ const params: ParamSchema<P> = {
   bulges: { kind: "range", label: "Bulges", min: 0, max: 5, step: 1, default: 3, group: "Warp" },
   strength: { kind: "range", label: "Strength", min: 0.1, max: 1, step: 0.05, default: 0.85, group: "Warp" },
   seed: { kind: "seed", label: "Seed", default: 4 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Look", "text.line2": "*again*.", "text.color": "#e63946", "text.size": 6 }),
 };
 
@@ -44,6 +46,7 @@ export const opArt: Generator<P> = {
   description: "Flat stripes or checks pushed around invisible spheres, so a still image seems to bulge out of the screen.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const cx = size.w / 2, cy = size.h / 2;

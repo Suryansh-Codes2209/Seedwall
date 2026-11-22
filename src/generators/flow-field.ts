@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { createNoise2D, fbm } from "./shared/noise";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -27,6 +28,7 @@ const params: ParamSchema<P> = {
   curl: { kind: "range", label: "Curl", min: 0.5, max: 4, step: 0.1, default: 1.4, group: "Field" },
   weight: { kind: "range", label: "Line weight", min: 0.03, max: 0.5, step: 0.01, default: 0.12, group: "Field" },
   seed: { kind: "seed", label: "Seed", default: 12 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Go with the flow.", "text.line2": "", "text.font": "display", "text.size": 7 }),
 };
 
@@ -44,6 +46,7 @@ export const flowField: Generator<P> = {
   description: "Thousands of thin curved lines drifting through a seeded noise field, in two or three colours.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const noise = createNoise2D(rng);

@@ -1,8 +1,9 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { esc, grainFilter, grainRect, n, svgDoc } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   bg2: string;
   fill: string;
@@ -28,6 +29,7 @@ const params: ParamSchema<P> = {
   angle: { kind: "range", label: "Gradient angle", min: 0, max: 360, step: 1, default: 135, group: "Background" },
   grain: { kind: "range", label: "Film grain", min: 0, max: 0.4, step: 0.01, default: 0, group: "Background" },
   seed: { kind: "seed", label: "Seed", default: 1 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "Less, but *better*.", "text.line2": "", "text.font": "display", "text.size": 11, "text.color": "#1f1a14", "text.paragraph": "" }),
 };
 
@@ -45,6 +47,7 @@ export const minimalType: Generator<P> = {
   description: "A flat colour or gentle gradient with one large quote in the font of your choice.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size) {
     let defs = "";
     let fill = esc(p.bg);

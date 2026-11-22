@@ -3,9 +3,10 @@ import { mix } from "./shared/color";
 import { range } from "./shared/rng";
 import { blurFilter, esc, n, rect, svgDoc, unit } from "./shared/svg";
 import { freeRows } from "./shared/layout";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   hot: string;
   fire: string;
@@ -31,6 +32,7 @@ const params: ParamSchema<P> = {
   sparks: { kind: "range", label: "Sparks", min: 0, max: 400, step: 10, default: 160, group: "Chakra" },
   petals: { kind: "range", label: "Lotus petals at the hub", min: 0, max: 16, step: 1, default: 8, group: "Chakra" },
   seed: { kind: "seed", label: "Seed", default: 3 },
+  ...backgroundParams(),
   ...textParams({ "text.none": false, "text.line1": "चक्र घूमे,", "text.line2": "धर्म बचे।", "text.color": "#fff3d6", "text.position": "bottom-left", "text.font": "hindi", "text.size": 4.6 }),
 };
 
@@ -48,6 +50,7 @@ export const sudarshan: Generator<P> = {
   description: "Vishnu's spinning discus: a serrated rim of fire, a wheel of fine spokes, a lotus at the hub, and sparks thrown off the edge as it turns.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const portrait = size.h > size.w;

@@ -3,9 +3,10 @@ import { mix } from "./shared/color";
 import { range } from "./shared/rng";
 import { blurFilter, esc, n, rect, svgDoc, unit } from "./shared/svg";
 import { freeRows } from "./shared/layout";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   sky: string;
   horizon: string;
   sea: string;
@@ -33,6 +34,7 @@ const params: ParamSchema<P> = {
   rays: { kind: "range", label: "Rays", min: 0, max: 120, step: 2, default: 48, group: "Creation" },
   stars: { kind: "range", label: "New stars", min: 0, max: 800, step: 10, default: 360, group: "Creation" },
   seed: { kind: "seed", label: "Seed", default: 6 },
+  ...backgroundParams(),
   ...textParams({ "text.none": false, "text.line1": "नाभि से कमल,", "text.line2": "कमल से सृष्टि।", "text.color": "#ffe9c2", "text.position": "top-left", "text.font": "hindi", "text.size": 4.6 }),
 };
 
@@ -50,6 +52,7 @@ export const padmanabha: Generator<P> = {
   description: "From Vishnu, asleep on the cosmic ocean, a lotus rises on a single stem. Brahma sits in it and creates the world, so the light of creation spreads out from the flower.",
   params,
   presets,
+  trueBlack: { bg: ["sky", "horizon", "sea"] },
   render(p, size, rng) {
     const u = unit(size);
     const portrait = size.h > size.w;

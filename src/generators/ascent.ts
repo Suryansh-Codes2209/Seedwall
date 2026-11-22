@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   planet: string;
   ink: string;
@@ -27,6 +28,7 @@ const params: ParamSchema<P> = {
   labels: { kind: "toggle", label: "Flight events", default: true, group: "Flight" },
   booster: { kind: "toggle", label: "Booster coming home", default: true, group: "Flight" },
   seed: { kind: "seed", label: "Seed", default: 14 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Leave the *ground*.", "text.line2": "", "text.color": "#e9edf5", "text.position": "top-left", "text.font": "grotesk", "text.size": 4 }),
 };
 
@@ -54,6 +56,7 @@ export const ascent: Generator<P> = {
   description: "A rocket's climb drawn as a flight plan: the gravity turn over a curved horizon, the flight events along the way, and the booster falling back to land.",
   params,
   presets,
+  trueBlack: { bg: ["bg", "planet"] },
   render(p, size, rng) {
     const u = unit(size);
     const portrait = size.h > size.w;

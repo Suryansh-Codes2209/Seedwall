@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { isDark, mix } from "./shared/color";
 import { range } from "./shared/rng";
 import { blurFilter, esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   hot: string;
   warm: string;
@@ -28,6 +29,7 @@ const params: ParamSchema<P> = {
   glow: { kind: "range", label: "Glow", min: 0, max: 1, step: 0.05, default: 0.7, group: "Black hole" },
   stars: { kind: "toggle", label: "Stars", default: true, group: "Black hole" },
   seed: { kind: "seed", label: "Seed", default: 17 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Nothing escapes", "text.line2": "*curiosity*.", "text.color": "#fff1d6", "text.size": 4.5, "text.position": "lower" }),
 };
 
@@ -46,6 +48,7 @@ export const eventHorizon: Generator<P> = {
   description: "A black hole drawn in lines: the glowing disk in front, and its far side bent up and over the shadow by gravity.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const cx = size.w / 2, cy = size.h * 0.48;

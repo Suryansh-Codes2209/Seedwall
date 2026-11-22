@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { pick, range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, measure, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   fg: string;
   accent: string;
@@ -25,6 +26,7 @@ const params: ParamSchema<P> = {
   prompt: { kind: "text", label: "Prompt line", default: "~/projects/seedwall $ npm run ship", group: "Terminal", maxLength: 80 },
   cursor: { kind: "toggle", label: "Cursor", default: true, group: "Terminal" },
   seed: { kind: "seed", label: "Seed", default: 1 },
+  ...backgroundParams(),
   ...textParams({ "text.line1": "// it works on", "text.line2": "my *machine*", "text.font": "mono", "text.size": 4.6, "text.color": "#e6edf3" }),
 };
 
@@ -78,6 +80,7 @@ export const terminal: Generator<P> = {
   description: "A dark editor / terminal: faint syntax-coloured code, a prompt line with a blinking-block cursor, and your quote on top.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const mono = fontStack("mono");

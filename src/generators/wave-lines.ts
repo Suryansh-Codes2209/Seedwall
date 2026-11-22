@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { createNoise2D, fbm } from "./shared/noise";
 import { range } from "./shared/rng";
 import { esc, n, rect, smoothPath, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -28,6 +29,7 @@ const params: ParamSchema<P> = {
   occlude: { kind: "toggle", label: "Hide lines behind peaks", default: true, group: "Waves" },
   weight: { kind: "range", label: "Line weight", min: 0.05, max: 0.6, step: 0.01, default: 0.18, group: "Waves" },
   seed: { kind: "seed", label: "Seed", default: 79 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "UNKNOWN PLEASURES", "text.line2": "", "text.font": "grotesk", "text.size": 2.4, "text.position": "bottom-left" }),
 };
 
@@ -45,6 +47,7 @@ export const waveLines: Generator<P> = {
   description: "Stacked horizontal lines that ripple into ridges: the pulsar / terrain-slice look, with a gradient stroke.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const noise = createNoise2D(rng);

@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset, Size } from "./types";
 import { darken, lighten, mix } from "./shared/color";
 import { range } from "./shared/rng";
 import { blurFilter, esc, grainFilter, grainRect, line, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, fontStack, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ink: string;
   style: string;
@@ -52,6 +53,7 @@ const schema: ParamSchema<P> = {
   guides: { kind: "toggle", label: "Angled guides + arcs", default: true, group: "Grid" },
   caption: { kind: "text", label: "Side caption", default: "COMPILE. DEBUG. DEPLOY. REPEAT.", group: "Grid", maxLength: 60 },
   seed: { kind: "seed", label: "Seed", default: 7 },
+  ...backgroundParams(),
   ...textParams({
     "text.paragraph":
       "Great software is rarely written in one heroic night. It is built from small, steady commits that quietly compound into something real.",
@@ -320,6 +322,7 @@ export const cuttingMat: Generator<P> = {
     "A drafting cutting mat: bold or fine grid, + marks or dots, angled guides and arcs, edge ticks and numbers, with clear zones kept around your quote.",
   params: schema,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const mat = matGeometry(p, size, u);

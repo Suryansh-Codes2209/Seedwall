@@ -1,9 +1,10 @@
 import type { Generator, ParamSchema, Preset } from "./types";
 import { range } from "./shared/rng";
 import { blurFilter, esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   c1: string;
   c2: string;
@@ -42,6 +43,7 @@ const params: ParamSchema<P> = {
   weight: { kind: "range", label: "Line weight", min: 0.03, max: 0.4, step: 0.01, default: 0.09, group: "Curve" },
   glow: { kind: "toggle", label: "Glow", default: true, group: "Curve" },
   seed: { kind: "seed", label: "Seed", default: 3 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "One equation.", "text.line2": "", "text.font": "display", "text.size": 4, "text.position": "bottom-left" }),
 };
 
@@ -99,6 +101,7 @@ export const spirograph: Generator<P> = {
   description: "Spirograph, rose and Lissajous curves drawn as thin glowing lines. Intricate, from a single equation.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const R = (Math.min(size.w, size.h) / 2) * p.scale;

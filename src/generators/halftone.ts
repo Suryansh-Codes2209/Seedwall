@@ -2,9 +2,10 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { createNoise2D, fbm } from "./shared/noise";
 import { range } from "./shared/rng";
 import { esc, n, rect, svgDoc, unit } from "./shared/svg";
+import { backgroundParams, type BackgroundParams } from "./shared/background";
 import { clearZonesMask, layoutText, textParams, type TextParams } from "./shared/text";
 
-type P = TextParams & {
+type P = TextParams & BackgroundParams & {
   bg: string;
   ink: string;
   ink2: string;
@@ -49,6 +50,7 @@ const params: ParamSchema<P> = {
   angle: { kind: "range", label: "Angle", min: 0, max: 360, step: 1, default: 120, group: "Dots" },
   invert: { kind: "toggle", label: "Invert", default: false, group: "Dots" },
   seed: { kind: "seed", label: "Seed", default: 6 },
+  ...backgroundParams(),
   ...textParams({ "text.none": true, "text.line1": "Print is", "text.line2": "not *dead*.", "text.font": "grotesk", "text.size": 6, "text.color": "#1d3557" }),
 };
 
@@ -66,6 +68,7 @@ export const halftone: Generator<P> = {
   description: "Print-style halftone: a grid of dots that grow from tiny to huge across a linear, radial, noise or wave gradient.",
   params,
   presets,
+  trueBlack: { bg: ["bg"] },
   render(p, size, rng) {
     const u = unit(size);
     const c = p.cell * u;
