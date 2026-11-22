@@ -14,8 +14,8 @@ export default function MacPage() {
     <div className="container section">
       <section className="gen-hero">
         <div>
-          <span className="eyebrow">Seedwall for Mac · menu bar</span>
-          <h1>A new wallpaper every morning.</h1>
+          <span className="eyebrow">Seedwall for Mac</span>
+          <h1>A new wallpaper every <em>morning</em>.</h1>
           <p>
             A small menu-bar app. At midnight it sets the next seed on every display, rendered at that display&apos;s native
             resolution. Pick today&apos;s seed (the same one everyone gets), a random one, a favourite you pin, or your own
@@ -25,7 +25,7 @@ export default function MacPage() {
             <a className="btn btn-primary" href={`${REPO_URL}/releases/latest`}>Download for macOS</a>
             <Link className="btn" href="/today">See today&apos;s seed</Link>
           </div>
-          <p className="preview-dims" style={{ textAlign: "left", marginTop: 12 }}>macOS 13 or later · Apple silicon · free</p>
+          <p className="page-meta">Free. Needs macOS 13 or later on Apple silicon.</p>
         </div>
         <div className="card-media">
           <LiveThumb gen="contributions" preset="skyline" w={2400} h={1500} label="A GitHub skyline wallpaper" />

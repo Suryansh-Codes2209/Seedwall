@@ -30,7 +30,7 @@ export default async function HomePage() {
       <section className="container section split" aria-labelledby="personal-h">
         <div className="split-card">
           <span className="eyebrow">From your real data</span>
-          <h2 id="personal-h">Your year of commits, as a wallpaper.</h2>
+          <h2 id="personal-h">Your year of commits, as a <em>wallpaper</em>.</h2>
           <p>Type a GitHub username. Seedwall reads the public contribution graph and recent commits and draws them as a grid, a 3D skyline or a branch graph. Nobody else gets the same one, and you get a link to share.</p>
           <GitHubForm />
           <div className="split-art">
@@ -41,10 +41,10 @@ export default async function HomePage() {
           <span className="eyebrow">Today&apos;s seed, {today}</span>
           <h2>Seed #{daily.seed}</h2>
           <p>One wallpaper a day, the same for everyone. Every seed has its own link: send yours with “here&apos;s my seed”.</p>
+          <span className="btn">Open seed #{daily.seed}</span>
           <div className="split-art">
             <LiveThumb gen={daily.gen} params={daily.params} w={1600} h={1000} label={`Today's wallpaper, seed ${daily.seed}`} />
           </div>
-          <span className="btn">Open seed #{daily.seed}</span>
         </Link>
       </section>
       <section className="container section" aria-labelledby="featured-h">

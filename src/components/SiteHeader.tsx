@@ -56,7 +56,7 @@ export function SiteHeader() {
   return (
     <>
       <span ref={sentinel} className="header-sentinel" aria-hidden="true" />
-      <header className="site-header" data-scrolled={scrolled} style={{ viewTransitionName: "site-header" }}>
+      <header className="site-header" data-scrolled={scrolled}>
         <div className="container header-row">
           <Link href="/" className="brand" aria-label="Seedwall home">
             <Logo />

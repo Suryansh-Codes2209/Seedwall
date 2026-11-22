@@ -29,16 +29,16 @@ export default function NotFound() {
       <div className="nf-art" role="img" aria-label="A cutting-mat wallpaper reading: 404. This seed didn't grow." dangerouslySetInnerHTML={{ __html: svg }} />
       <div className="nf-body">
         <span className="eyebrow">Error 404</span>
-        <h1>Nothing grew here.</h1>
+        <h1>Nothing <em>grew</em> here.</h1>
         <p>
-          There&apos;s no page at this address. The error above is a real wallpaper, though, drawn by the same code as
+          There&apos;s no page at this address. This error is a real wallpaper, though, drawn by the same code as
           everything else here. You can keep it if you like.
         </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/">Back to home</Link>
           <Link className="btn" href="/studio">Open the studio</Link>
           <Link className="btn" href="/gallery">Browse the gallery</Link>
-          <Link className="btn btn-ghost" href={keepIt}>Keep this 404 as a wallpaper →</Link>
+          <Link className="btn btn-ghost" href={keepIt}>Keep this 404 as a wallpaper</Link>
         </div>
       </div>
     </div>

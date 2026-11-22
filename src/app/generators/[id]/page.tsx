@@ -70,7 +70,7 @@ export default async function GeneratorPage({ params }: { params: Promise<{ id: 
       <JsonLd data={structured} />
       <section className="gen-hero">
         <div>
-          <span className="eyebrow">Generator · {gen.id}</span>
+          <span className="eyebrow">Generator</span>
           <h1>{gen.name}</h1>
           <p>{gen.description}</p>
           <div className="hero-actions">
