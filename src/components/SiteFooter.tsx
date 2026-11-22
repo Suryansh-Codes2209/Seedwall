@@ -1,18 +1,9 @@
 import Link from "next/link";
-import { DEVICES } from "@/config/devices";
-import { NEW_GENERATORS, SITE } from "@/config/site";
+import { SITE } from "@/config/site";
+import { AUTHOR, REPO_URL } from "@/config/seo";
 import { GENERATORS } from "@/generators";
 import { Logo } from "./Logo";
 import { ReportLink } from "./ReportLink";
-import { REPO_URL } from "@/config/seo";
-
-const AUTHOR = { name: "Suryansh Chaudhary", url: "https://suryansh.work/", email: "suryansh.codes2001@gmail.com" } as const;
-
-/**
- * A short, hand-picked list keeps the footer the same height however many
- * generators exist. The rest are one click away.
- */
-const FOOTER_GENERATORS = ["event-horizon", "cymatics", "attractor", "contributions", "cutting-mat", "git-graph"];
 
 const GITHUB_ICON = "M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57v-2.1c-3.34.73-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.08-.74.09-.73.09-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22v3.29c0 .32.21.7.82.58A12 12 0 0 0 12 .3Z";
 
@@ -38,13 +29,19 @@ const SOCIALS = [
   },
 ] as const;
 
+/**
+ * Where "a wallpaper a day" lives. /today redirects to today's seed; point this at the
+ * daily page once it exists.
+ */
+const DAILY_HREF = "/today";
+
 function Socials() {
   return (
     <ul className="socials" aria-label="Suryansh on social media">
       {SOCIALS.map((s) => (
         <li key={s.label}>
-          <a href={s.href} target="_blank" rel="noreferrer me" aria-label={`${s.label}: ${s.handle}`} title={`${s.label} · ${s.handle}`}>
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+          <a href={s.href} target="_blank" rel="noreferrer me" aria-label={`${s.label}: ${s.handle}`} title={`${s.label}: ${s.handle}`}>
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
               <path d={s.d} fill="currentColor" />
             </svg>
           </a>
@@ -54,107 +51,82 @@ function Socials() {
   );
 }
 
-/** Decorative cutting-mat ruler: numbered major ticks, plain minor ticks. */
-function Ruler() {
-  const majors = Array.from({ length: 21 }, (_, i) => i);
+/** Opens in a new tab: an arrow after the text says so, and is hidden from screen readers. */
+function Ext({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="footer-ruler" aria-hidden="true">
-      {majors.map((i) => (
-        <span key={i} style={{ left: `${i * 5}%` }}>{i * 5}</span>
-      ))}
-    </div>
+    <a href={href} target="_blank" rel="noreferrer">
+      {children}
+      <span className="ext" aria-hidden="true">↗</span>
+      <span className="visually-hidden"> (opens in a new tab)</span>
+    </a>
   );
 }
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
-  const presetCount = GENERATORS.reduce((n, g) => n + g.presets.length, 0);
 
   return (
     <footer className="site-footer">
-      <Ruler />
-      <div className="container footer-grid">
-        <div className="footer-brand">
-          <Link href="/" aria-label="Seedwall home" className="footer-logo">
-            <Logo size={30} />
-          </Link>
-          <p>
-            Wallpapers grown from a seed. Every one is a few hundred lines of TypeScript that turn colours, words and a single
-            number into an SVG. The same seed always grows the same wallpaper.
-          </p>
-          <dl className="footer-stats">
-            <div><dt>Generators</dt><dd>{GENERATORS.length}</dd></div>
-            <div><dt>Presets</dt><dd>{presetCount}</dd></div>
-            <div><dt>Devices</dt><dd>{DEVICES.length}+</dd></div>
-            <div><dt>Seeds</dt><dd>10⁶</dd></div>
-          </dl>
-          <a href={`${REPO_URL}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer" className="footer-contribute">
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-              <path d={GITHUB_ICON} fill="currentColor" />
-            </svg>
-            <span>Open source · <strong>Contribute a generator</strong> ↗</span>
-          </a>
-        </div>
-
-        <nav className="footer-col" aria-label="Explore">
-          <span className="label">Explore</span>
-          <Link href="/studio">Studio</Link>
-          <Link href="/paint">Paint my photo<span className="new-tag">New</span></Link>
-          <Link href="/gallery">Gallery</Link>
-          <Link href="/today">Today&apos;s seed</Link>
-          <Link href="/mac">Mac app</Link>
-          <Link href="/claude">Claude plugin<span className="new-tag">New</span></Link>
-          <Link href="/#personal-h">Your GitHub wallpaper</Link>
-          {SITE.driveUrl ? (
-            <a href={SITE.driveUrl} target="_blank" rel="noreferrer">Full pack on Drive ↗</a>
-          ) : (
-            <span className="muted">Full pack (coming soon)</span>
-          )}
-        </nav>
-
-        <nav className="footer-col" aria-label="Generators">
-          <span className="label">Generators</span>
-          {FOOTER_GENERATORS.map((id) => GENERATORS.find((g) => g.id === id))
-            .filter((g) => g !== undefined)
-            .map((g) => (
-              <Link key={g.id} href={`/generators/${g.id}`}>
-                {g.name}
-                {NEW_GENERATORS.includes(g.id) && <span className="new-tag">New</span>}
-              </Link>
-            ))}
-          <Link href="/#generators" className="more-link">All {GENERATORS.length} generators →</Link>
-        </nav>
-
-        <div className="footer-col">
-          <span className="label">Start here</span>
-          <Link href="/studio?g=cutting-mat&p=blue-bold">Blue cutting mat</Link>
-          <Link href="/studio?g=cutting-mat&p=black-light&d=iphone">Black mat for iPhone</Link>
-          <Link href="/studio?g=aurora&p=borealis&d=4k">4K aurora</Link>
-          <Link href="/studio?g=terminal&p=github-dark&d=ultrawide">Ultrawide terminal</Link>
-          <Link href="/studio?g=minimal-type&p=paper">Just a quote</Link>
-        </div>
-
-        <div className="footer-col">
-          <span className="label">Get in touch</span>
-          <a href={`mailto:${AUTHOR.email}`} className="footer-email">{AUTHOR.email.split("@")[0]}<wbr />@{AUTHOR.email.split("@")[1]}</a>
-          <ReportLink>Report a bug</ReportLink>
-          <a href={`${REPO_URL}/issues/new`} target="_blank" rel="noreferrer">Open a GitHub issue ↗</a>
-          <a href={`${REPO_URL}/issues/new?template=design-idea.yml`} target="_blank" rel="noreferrer">Suggest a generator ↗</a>
-          <a href={REPO_URL} target="_blank" rel="noreferrer">Source on GitHub ↗</a>
+      <div className="container footer-lockup">
+        <p className="footer-big">
+          Every number from 1 to 999,999 is a <em>wallpaper</em>.
+        </p>
+        <div className="footer-cta">
+          <Link className="btn btn-primary btn-lg" href="/studio">Open the studio</Link>
+          <Link className="btn btn-lg" href={DAILY_HREF}>See today&apos;s seed</Link>
         </div>
       </div>
 
-      <div className="container footer-bottom">
-        <div className="credit-row">
-          <p className="credit">
-            Designed &amp; developed by{" "}
-            <a href={AUTHOR.url} target="_blank" rel="noreferrer" className="credit-link">
-              {AUTHOR.name}
-            </a>
+      <div className="container footer-grid">
+        <div className="footer-brand">
+          <Link href="/" aria-label="Seedwall home" className="footer-logo">
+            <Logo size={32} />
+          </Link>
+          <p>
+            {GENERATORS.length} generators, each a few hundred lines of TypeScript that turn colours, words and one number into an
+            SVG. The same seed always grows the same wallpaper.
           </p>
           <Socials />
         </div>
-        <p className="mono">© {year} Seedwall · <a href={SITE.url}>{SITE.url.replace(/^https?:\/\//, "")}</a></p>
+
+        <nav className="footer-col" aria-labelledby="fc-make">
+          <h2 id="fc-make" className="footer-h">Make</h2>
+          <ul>
+            <li><Link href="/studio">Studio</Link></li>
+            <li><Link href="/paint">Paint my photo</Link></li>
+            <li><Link href={DAILY_HREF}>Today&apos;s seed</Link></li>
+            <li><Link href="/gallery">Gallery</Link></li>
+            <li><Link href="/#personal-h">Your GitHub wallpaper</Link></li>
+          </ul>
+        </nav>
+
+        <nav className="footer-col" aria-labelledby="fc-tools">
+          <h2 id="fc-tools" className="footer-h">Tools</h2>
+          <ul>
+            <li><Link href="/mac">Mac app</Link></li>
+            <li><Link href="/claude">Claude connector</Link></li>
+            <li><Ext href={`${REPO_URL}#seeds-github-wallpapers-and-the-image-api`}>Image API</Ext></li>
+            {SITE.driveUrl && <li><Ext href={SITE.driveUrl}>Full pack on Drive</Ext></li>}
+          </ul>
+        </nav>
+
+        <nav className="footer-col" aria-labelledby="fc-about">
+          <h2 id="fc-about" className="footer-h">About</h2>
+          <ul>
+            <li><Ext href={REPO_URL}>Source on GitHub</Ext></li>
+            <li><Ext href={`${REPO_URL}/blob/main/CONTRIBUTING.md`}>Add a generator</Ext></li>
+            <li><ReportLink>Report a bug</ReportLink></li>
+            <li><Ext href={AUTHOR.url}>Who made this</Ext></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div className="container footer-bottom">
+        <p>
+          © {year} Seedwall. Designed and built by{" "}
+          <a href={AUTHOR.url} target="_blank" rel="noreferrer" className="credit-link">{AUTHOR.name}</a>.
+        </p>
+        <p className="footer-quip">Made by one person who changes his wallpaper far too often.</p>
       </div>
     </footer>
   );
