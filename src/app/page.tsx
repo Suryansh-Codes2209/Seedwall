@@ -29,7 +29,7 @@ export default async function HomePage() {
       <Hero />
       <section className="container section split" aria-labelledby="personal-h">
         <div className="split-card">
-          <span className="eyebrow">New · from your real data</span>
+          <span className="eyebrow">From your real data</span>
           <h2 id="personal-h">Your year of commits, as a wallpaper.</h2>
           <p>Type a GitHub username. Seedwall reads the public contribution graph and recent commits and draws them as a grid, a 3D skyline or a branch graph. Nobody else gets the same one, and you get a link to share.</p>
           <GitHubForm />
@@ -38,13 +38,13 @@ export default async function HomePage() {
           </div>
         </div>
         <Link className="split-card daily-card" href={`/s/${daily.seed}`}>
-          <span className="eyebrow">Today&apos;s seed · {today}</span>
+          <span className="eyebrow">Today&apos;s seed, {today}</span>
           <h2>Seed #{daily.seed}</h2>
           <p>One wallpaper a day, the same for everyone. Every seed has its own link: send yours with “here&apos;s my seed”.</p>
           <div className="split-art">
             <LiveThumb gen={daily.gen} params={daily.params} w={1600} h={1000} label={`Today's wallpaper, seed ${daily.seed}`} />
           </div>
-          <span className="btn">Open seed #{daily.seed} →</span>
+          <span className="btn">Open seed #{daily.seed}</span>
         </Link>
       </section>
       <section className="container section" aria-labelledby="featured-h">
@@ -53,7 +53,7 @@ export default async function HomePage() {
             <h2 id="featured-h">Featured wallpapers</h2>
             <p>From the Cutting Mat pack on Google Drive and the generators. Click to download.</p>
           </div>
-          <Link className="btn" href="/gallery">See all {drive.length + getSampleItems().length} →</Link>
+          <Link className="btn" href="/gallery">See all {drive.length + getSampleItems().length}</Link>
         </div>
         <GalleryGrid compact items={featured} generators={GENERATORS.map((g) => ({ id: g.id, name: g.name }))} />
       </section>
@@ -64,7 +64,7 @@ export default async function HomePage() {
             <h2 id="new-h">Art you don&apos;t usually see on a wallpaper.</h2>
             <p>A black hole drawn in lines, the shape sand takes when a plate rings, chaos that draws the same figure forever, and patterns that never repeat.</p>
           </div>
-          <Link className="btn" href={`/studio?g=${fresh[0]?.id ?? ""}`}>Open in the studio →</Link>
+          <Link className="btn" href={`/studio?g=${fresh[0]?.id ?? ""}`}>Open in the studio</Link>
         </div>
         <div className="grid-cards">
           {fresh.map((g) => (
