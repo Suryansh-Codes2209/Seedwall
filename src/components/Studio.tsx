@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { GENERATORS, applyTheme, getGenerator, renderWallpaper, resolveParams, type ParamValue } from "@/generators";
 import { getTheme } from "@/generators/shared/themes";
+import { SAFE_AREA, lockScreenZones, safeAreaApplies, type SafeAreaMode } from "@/generators/shared/safeArea";
 import { decodeState, encodeState, initialState, type StudioState } from "@/lib/studioState";
 import { scopeSvgIds } from "@/lib/scopeSvg";
 import { downloadBlob, svgToPngBlob } from "@/lib/svgToPng";
@@ -16,6 +17,8 @@ import { Preview } from "./Preview";
 import { LiveThumb } from "./LiveThumb";
 import { CollectionPanel } from "./CollectionPanel";
 import { ThemePicker } from "./ThemePicker";
+import { SafeAreaToggle } from "./SafeAreaToggle";
+import type { PreviewZone } from "./Preview";
 
 export function Studio() {
   const search = useSearchParams();
@@ -50,16 +53,19 @@ export function Studio() {
     setState((s) => ({ ...s, params: { ...s.params, [key]: value } }));
   }, []);
 
+  // Settings that belong to the screen, not the look, survive a change of generator or preset.
+  const carried = (s: StudioState) => ({ "text.none": s.params["text.none"] ?? false, [SAFE_AREA]: s.params[SAFE_AREA] ?? "off" });
+
   const pickGenerator = (id: string) => {
     const next = initialState(id);
-    setState((s) => ({ ...next, device: s.device, w: s.w, h: s.h, params: { ...next.params, "text.none": s.params["text.none"] ?? false } }));
+    setState((s) => ({ ...next, device: s.device, w: s.w, h: s.h, params: { ...next.params, ...carried(s) } }));
   };
 
   const pickPreset = (presetId: string) => {
     setState((s) => {
       const g = getGenerator(s.gen);
       if (!g) return s;
-      return { ...s, preset: presetId, params: { ...resolveParams(g, presetId), "text.none": s.params["text.none"] ?? false } };
+      return { ...s, preset: presetId, params: { ...resolveParams(g, presetId), ...carried(s) } };
     });
   };
 
@@ -90,6 +96,12 @@ export function Studio() {
   };
 
   const presetTitle = gen.presets.find((p) => p.id === state.preset)?.title ?? state.preset;
+  const safeOffered = safeAreaApplies(state.device, state.w, state.h);
+  const safeMode = (state.params[SAFE_AREA] ?? "off") as SafeAreaMode;
+  const previewZones: PreviewZone[] = lockScreenZones({ w: debounced.w, h: debounced.h }, debounced.params[SAFE_AREA]).map((z, i) => ({
+    ...z,
+    label: i === 0 ? "Clock and date" : "Buttons",
+  }));
 
   return (
     <div className="studio">
@@ -157,7 +169,7 @@ export function Studio() {
           </div>
         </div>
 
-        <Preview svg={scoped} w={debounced.w} h={debounced.h} busy={busy} />
+        <Preview svg={scoped} w={debounced.w} h={debounced.h} busy={busy} zones={previewZones} />
 
         <div className="stage-bar">
           <p className="preview-dims">
@@ -169,7 +181,19 @@ export function Studio() {
       <aside className="studio-col params-col" aria-label="Controls">
         <section className="col-section">
           <span className="label">Device</span>
-          <DevicePicker device={state.device} w={state.w} h={state.h} onChange={(device, w, h) => setState((s) => ({ ...s, device, w, h }))} />
+          <DevicePicker
+            device={state.device}
+            w={state.w}
+            h={state.h}
+            onChange={(device, w, h) =>
+              setState((s) => {
+                // The safe area only makes sense on a lock screen; switch it off for desktops.
+                const keep = safeAreaApplies(device, w, h) || (s.params[SAFE_AREA] ?? "off") === "off";
+                return { ...s, device, w, h, params: keep ? s.params : { ...s.params, [SAFE_AREA]: "off" } };
+              })
+            }
+          />
+          {safeOffered && <SafeAreaToggle mode={safeMode} onChange={(m) => setParam(SAFE_AREA, m)} />}
         </section>
         <section className="col-section">
           <span className="label">Syntax theme</span>

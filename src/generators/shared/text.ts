@@ -1,6 +1,7 @@
 import type { ParamSchema, Size } from "../types";
 import { FONT_METRICS } from "./fontMetrics";
 import { esc, n, unit } from "./svg";
+import { SAFE_AREA_MODES, lockScreenZones } from "./safeArea";
 
 /* ---------- fonts ---------- */
 
@@ -119,6 +120,8 @@ export type TextParams = {
   "text.font": string;
   "text.size": number;
   "text.color": string;
+  /** Lock-screen safe area (see shared/safeArea.ts). Hidden; the studio shows its own toggle. */
+  "text.safeArea": string;
 };
 
 /** Spread into every generator's schema. Override defaults per generator with `textParams({...})`. */
@@ -146,6 +149,7 @@ export function textParams(defaults: Partial<TextParams> = {}): ParamSchema<Text
     },
     "text.size": { kind: "range", label: "Text size", min: 1.5, max: 16, step: 0.1, default: defaults["text.size"] ?? 3.6, group: g },
     "text.color": { kind: "color", label: "Text colour", default: defaults["text.color"] ?? "#ffffff", group: g, role: "fg" },
+    "text.safeArea": { kind: "select", label: "Keep the clock area clear", options: SAFE_AREA_MODES, default: "off", group: g, hidden: true },
   };
 }
 
@@ -187,8 +191,9 @@ function wrap(text: string, font: string, size: number, maxW: number): string[] 
 }
 
 export function layoutText(p: TextParams, size: Size, opts: LayoutOptions = {}): TextLayout {
-  const empty: TextLayout = { svg: "", zones: [], quote: null };
-  if (p["text.none"]) return empty;
+  // Lock-screen zones are kept clear whether or not there is text. Off adds nothing.
+  const safe = lockScreenZones(size, p["text.safeArea"]);
+  if (p["text.none"]) return { svg: "", zones: safe, quote: null };
 
   const u = unit(size);
   const font = p["text.font"];
@@ -272,7 +277,7 @@ export function layoutText(p: TextParams, size: Size, opts: LayoutOptions = {}):
 
   return {
     svg: `<g class="ws-text">${parts.join("")}</g>`,
-    zones,
+    zones: safe.length ? [...zones, ...safe] : zones,
     quote: quoteLines.length ? { x: qx, y: qy, w: qw, h: qh } : null,
   };
 }
