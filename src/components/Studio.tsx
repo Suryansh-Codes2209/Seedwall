@@ -10,6 +10,9 @@ import { scopeSvgIds } from "@/lib/scopeSvg";
 import { downloadBlob, svgToPngBlob } from "@/lib/svgToPng";
 import { trackDownload } from "@/lib/analytics";
 import { useDebounced } from "@/lib/useDebounced";
+import { setTargets, setZipName } from "@/lib/exportSet";
+import { nextFrame, pngBytes, renderSvgAsync } from "@/lib/renderAsync";
+import { buildZip, type ZipEntry } from "@/lib/zip";
 import { saveToCollection } from "@/lib/collection";
 import { DevicePicker } from "./DevicePicker";
 import { ParamsPanel } from "./ParamsPanel";
@@ -25,6 +28,7 @@ export function Studio() {
   const [state, setState] = useState<StudioState>(() => decodeState(new URLSearchParams(search.toString())));
   const [toast, setToast] = useState("");
   const [exporting, setExporting] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number; label: string } | null>(null);
   const [collectionVersion, setCollectionVersion] = useState(0);
 
   const gen = getGenerator(state.gen) ?? GENERATORS[0]!;
@@ -95,6 +99,41 @@ export function Studio() {
     }
   };
 
+  /** Renders each job in turn (off the main thread where possible), zips the PNGs and downloads the zip. */
+  const exportZip = async (jobs: { label: string; filename: string; make: () => Promise<Uint8Array> }[], zipName: string, done: string) => {
+    if (progress) return;
+    const files: ZipEntry[] = [];
+    try {
+      for (const [i, job] of jobs.entries()) {
+        setProgress({ done: i, total: jobs.length, label: job.label });
+        await nextFrame();
+        files.push({ name: job.filename, data: await job.make() });
+      }
+      setProgress({ done: jobs.length, total: jobs.length, label: "Zipping" });
+      await nextFrame();
+      downloadBlob(new Blob([buildZip(files) as Uint8Array<ArrayBuffer>], { type: "application/zip" }), zipName);
+      setToast(done);
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setProgress(null);
+    }
+  };
+
+  const downloadSet = () => {
+    const targets = setTargets(state);
+    void exportZip(
+      targets.map((t) => ({
+        label: `${t.label} (${t.w}×${t.h})`,
+        filename: t.filename,
+        make: async () => pngBytes(await renderSvgAsync(state.gen, t.params, t.w, t.h), t.w, t.h),
+      })),
+      setZipName(state),
+      "Saved the set: desktop, iPhone, Android and iPad",
+    );
+    for (const t of targets) trackDownload({ source: "studio", format: "png", generator: state.gen, width: t.w, height: t.h });
+  };
+
   const presetTitle = gen.presets.find((p) => p.id === state.preset)?.title ?? state.preset;
   const safeOffered = safeAreaApplies(state.device, state.w, state.h);
   const safeMode = (state.params[SAFE_AREA] ?? "off") as SafeAreaMode;
@@ -146,6 +185,9 @@ export function Studio() {
             <button type="button" className="btn btn-primary" onClick={downloadPng} disabled={exporting}>
               {exporting ? "Rendering…" : "Download PNG"}
             </button>
+            <button type="button" className="btn" onClick={downloadSet} disabled={progress !== null} title="Desktop, iPhone, Android and iPad in one zip">
+              {progress ? `Set ${Math.min(progress.done + 1, progress.total)}/${progress.total}` : "Download set"}
+            </button>
             <button type="button" className="btn" onClick={() => {
                 downloadBlob(new Blob([fullSvg()], { type: "image/svg+xml" }), filename("svg"));
                 trackDownload({ source: "studio", format: "svg", generator: state.gen, width: state.w, height: state.h });
@@ -168,6 +210,15 @@ export function Studio() {
             </button>
           </div>
         </div>
+
+        {progress && (
+          <div className="export-progress" role="status" aria-live="polite">
+            <progress value={progress.done} max={progress.total} />
+            <span>
+              {progress.done < progress.total ? `Rendering ${progress.label}, ${progress.done + 1} of ${progress.total}` : "Zipping it up"}
+            </span>
+          </div>
+        )}
 
         <Preview svg={scoped} w={debounced.w} h={debounced.h} busy={busy} zones={previewZones} />
 
