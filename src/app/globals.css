@@ -400,7 +400,7 @@ code, kbd, .mono { font-family: var(--font-mono); }
 
 .grid-cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
-.card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+
 .card-media { aspect-ratio: 16 / 10; background: var(--surface-2); overflow: hidden; position: relative; }
 .card-media > * { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; }
@@ -411,7 +411,7 @@ code, kbd, .mono { font-family: var(--font-mono); }
 
 .thumb { display: block; width: 100%; height: 100%; }
 .thumb svg { display: block; width: 100%; height: 100%; }
-.thumb-loading { background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, transparent 10px 20px); }
+
 
 /* ---------- studio ---------- */
 .studio { display: grid; grid-template-columns: 260px minmax(0, 1fr) 320px; gap: 0; min-height: calc(100dvh - var(--header-h)); }
@@ -475,7 +475,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; heigh
 
 .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .theme-chip { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 8px 9px; border-radius: var(--radius); border: 1px solid var(--line-strong); cursor: pointer; font: 500 12px var(--font-ui); text-align: left; transition: transform 0.12s, border-color 0.12s; }
-.theme-chip:hover { transform: translateY(-1px); border-color: var(--accent); }
+.theme-chip:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .theme-chip:hover { transform: translateY(-1px); } }
 .theme-dots { display: flex; gap: 3px; }
 .theme-dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
 .theme-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
@@ -541,7 +542,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; heigh
 .filters .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .gallery-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .gallery-item { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); padding: 0; cursor: pointer; text-align: left; color: var(--ink); display: flex; flex-direction: column; transition: border-color 0.15s, transform 0.15s; }
-.gallery-item:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+
 .gallery-item .gi-media { aspect-ratio: 16 / 10; background: var(--surface-2); overflow: hidden; }
 .gallery-item.portrait .gi-media { aspect-ratio: 16 / 10; display: grid; place-items: center; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -615,9 +616,6 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
   .section-head h2 { font-size: 24px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
-}
 
 /* ---------- seeds, personal wallpapers ---------- */
 .viewer { display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: calc(100dvh - var(--header-h)); }
@@ -657,7 +655,7 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
 .split-card p { color: var(--muted); max-width: 56ch; }
 .split-art { margin-top: 10px; aspect-ratio: 16 / 10; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); line-height: 0; }
 .daily-card { transition: border-color 0.15s, transform 0.15s; }
-.daily-card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+
 .daily-card .btn { align-self: flex-start; margin-top: auto; }
 @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
 
@@ -668,3 +666,167 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
 .prose h2 { font-size: 22px; margin-top: 18px; }
 .prose p, .prose li { color: var(--muted); }
 .prose pre { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; overflow-x: auto; font-size: 13px; }
+
+/* ---------- motion ----------
+   Fast and quiet. Movement animates only transform/opacity (or the individual translate/scale
+   properties), so nothing shifts layout. Spatial motion is opt-in under
+   prefers-reduced-motion: no-preference; colour fades stay for everyone. */
+
+/* Page enter/exit (React <ViewTransition> in app/template.tsx). The header is named
+   "site-header" and held still so only the page content moves. */
+::view-transition { pointer-events: none; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-group(site-header) { animation: none; z-index: 100; }
+::view-transition-old(site-header) { display: none; }
+::view-transition-new(site-header) { animation: none; }
+::view-transition-old(.page-exit) { animation: 140ms ease-in both vt-fade-out; }
+::view-transition-new(.page-enter) { animation: 220ms ease-out 80ms both vt-fade-in; }
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(.page-exit) { animation: 140ms ease-in both vt-fade-out, 140ms ease-in both vt-sink; }
+  ::view-transition-new(.page-enter) { animation: 220ms ease-out 80ms both vt-fade-in, 380ms var(--ease-out) 80ms both vt-rise; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-sink { to { translate: 0 -8px; } }
+@keyframes vt-rise { from { translate: 0 14px; } }
+
+/* Focus rings: the orange ring settles in from a wider offset. */
+:focus-visible { transition: outline-offset 0.18s var(--ease-out); }
+@media (prefers-reduced-motion: no-preference) {
+  :focus-visible { animation: ring-in 0.28s var(--ease-out); }
+}
+@keyframes ring-in { from { outline-offset: 7px; outline-color: transparent; } }
+
+/* Press feedback on everything clickable that looks like a control. */
+.btn, .icon-btn, .menu-btn, .chip, .socials a, .look-dot, .showcase-open, .preset-btn, .theme-chip, .gen-list button {
+  transition-property: color, background-color, border-color, box-shadow, scale, translate, transform, opacity;
+  transition-duration: 0.15s;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :is(.btn, .icon-btn, .menu-btn, .chip, .socials a, .showcase-open, .preset-btn, .theme-chip):active:not([disabled]) { scale: 0.96; }
+}
+
+/* Scroll reveal: cards and section heads fade and rise as they enter the viewport.
+   Decorative, so browsers without scroll-driven animations simply show them. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    .grid-cards > *, .gallery-grid > *, .split-card, .section-head, .prose > h2, .nf-art {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+@keyframes reveal { from { opacity: 0; translate: 0 28px; scale: 0.98; } }
+
+/* Lift on generator cards, gallery items and the daily card: the card rises, the art zooms
+   a touch, and a blue-to-cantaloupe glow fades in underneath (opacity only). */
+.card, .gallery-item, .daily-card { position: relative; isolation: isolate; }
+.card::after, .gallery-item::after, .daily-card::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 18px 40px -12px var(--glow-blue), 0 10px 30px -14px var(--glow-orange);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.card:hover::after, .gallery-item:hover::after, .daily-card:hover::after,
+.card:focus-visible::after, .gallery-item:focus-visible::after { opacity: 1; }
+.card .card-media > *, .gallery-item .gi-media img { transition: scale 0.6s var(--ease-out); }
+@media (prefers-reduced-motion: no-preference) {
+  .card, .gallery-item, .daily-card { transition: border-color 0.2s, transform 0.35s var(--ease-out); }
+  .card:hover, .gallery-item:hover, .daily-card:hover { transform: translateY(-4px); }
+  .card:hover .card-media > *, .gallery-item:hover .gi-media img { scale: 1.04; }
+}
+
+/* Skeleton shimmer while a live preview is still drawing, then the art fades in. */
+.thumb-loading { position: relative; overflow: hidden; background: var(--surface-2); }
+.thumb-loading::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--ink) 7%, transparent) 50%, transparent 80%);
+  transform: translateX(-100%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .thumb-loading::after { animation: shimmer 1.3s ease-in-out infinite; }
+  .thumb svg, .preview svg { animation: art-in 0.45s ease both; }
+}
+@keyframes shimmer { to { transform: translateX(100%); } }
+@keyframes art-in { from { opacity: 0; } }
+
+/* Dialog: fades and scales in from @starting-style, and back out on close. Browsers that
+   can't keep a closing dialog in the top layer get data-closing from WallpaperDialog. */
+dialog.wp-dialog {
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.24s;
+  transition-timing-function: var(--ease-out);
+  transition-behavior: allow-discrete;
+}
+:is(dialog.wp-dialog[open]):where(:not([data-closing])) {
+  opacity: 1;
+  @starting-style { opacity: 0; }
+}
+dialog.wp-dialog::backdrop {
+  background: rgb(5 7 15 / 0);
+  -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 0.24s;
+  transition-behavior: allow-discrete;
+}
+:is(dialog.wp-dialog[open]):where(:not([data-closing]))::backdrop {
+  background: rgb(5 7 15 / 0.72);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  @starting-style { background: rgb(5 7 15 / 0); -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  dialog.wp-dialog { transform: translateY(16px) scale(0.97); }
+  :is(dialog.wp-dialog[open]):where(:not([data-closing])) {
+    transform: none;
+    @starting-style { transform: translateY(16px) scale(0.97); }
+  }
+}
+@media (prefers-reduced-motion: reduce) { dialog.wp-dialog { transition-duration: 0.1s; } }
+
+/* Phone menu popover: grows from the Menu button's corner. */
+.menu-panel {
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.2s;
+  transition-timing-function: var(--ease-out);
+  transition-behavior: allow-discrete;
+}
+.menu-panel:popover-open {
+  opacity: 1;
+  @starting-style { opacity: 0; }
+}
+.menu-panel::backdrop { transition-property: opacity, display, overlay; transition-duration: 0.2s; transition-behavior: allow-discrete; opacity: 0; }
+.menu-panel:popover-open::backdrop { opacity: 1; @starting-style { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .menu-panel { transform: translateY(-8px) scale(0.96); }
+  .menu-panel:popover-open {
+    transform: none;
+    @starting-style { transform: translateY(-8px) scale(0.96); }
+  }
+  .menu-panel:popover-open li { animation: menu-item-in 0.32s var(--ease-out) both; }
+  .menu-panel:popover-open li:nth-child(2) { animation-delay: 25ms; }
+  .menu-panel:popover-open li:nth-child(3) { animation-delay: 50ms; }
+  .menu-panel:popover-open li:nth-child(4) { animation-delay: 75ms; }
+  .menu-panel:popover-open li:nth-child(5) { animation-delay: 100ms; }
+  .menu-panel:popover-open li:nth-child(6) { animation-delay: 125ms; }
+  .menu-panel:popover-open li:nth-child(7) { animation-delay: 150ms; }
+}
+@keyframes menu-item-in { from { opacity: 0; translate: 0 -6px; } }
+
+/* Toasts slide up into place. */
+.toast { animation: vt-fade-in 0.2s ease both; }
+@media (prefers-reduced-motion: no-preference) {
+  .toast { animation: vt-fade-in 0.2s ease both, toast-up 0.35s var(--ease-out) both; }
+}
+@keyframes toast-up { from { translate: 0 12px; } }
+
+/* Non-motion details that still need guarding. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .theme-toggle svg, .menu-icon i, .nav-wide a::after, .logo-seed { transition: opacity 0.15s; }
+  .toggle input::after { transition: none; }
+}
