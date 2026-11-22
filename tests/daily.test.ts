@@ -51,7 +51,7 @@ describe("/daily setup page", () => {
 
   it("has no em or en dashes in its copy", () => {
     for (const f of ["src/app/daily/page.tsx", "src/app/daily/scripts.ts", "public/daily/seedwall-daily.ps1"])
-      expect(readFileSync(f, "utf8"), f).not.toMatch(/[–—]/);
+      expect(readFileSync(f, "utf8"), f).not.toMatch(/[\u2013\u2014]/);
   });
 
   it("is in the sitemap and llms.txt", async () => {
