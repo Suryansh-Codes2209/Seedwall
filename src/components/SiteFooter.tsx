@@ -127,7 +127,7 @@ export function SiteFooter() {
           © {year} Seedwall. Designed and built by{" "}
           <a href={AUTHOR.url} target="_blank" rel="noreferrer" className="credit-link">{AUTHOR.name}</a>.
         </p>
-        <p className="footer-quip">Made by one person who changes his wallpaper far too often.</p>
+        <p className="footer-quip">Made by one person who changes wallpapers far too often.</p>
       </div>
     </footer>
   );
