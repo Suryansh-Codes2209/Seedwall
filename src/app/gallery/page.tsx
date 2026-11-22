@@ -7,7 +7,7 @@ import { AUTHOR, absoluteUrl, pageMetadata } from "@/config/seo";
 import { getGallery } from "@/lib/galleryData";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Wallpaper Gallery — free desktop & phone wallpapers",
+  title: "Wallpaper Gallery: free desktop & phone wallpapers",
   description:
     "Free downloads: the Cutting Mat wallpaper pack for MacBook and iPhone, with and without text, plus samples from every Seedwall generator. Download directly or open any one in the studio to customise it.",
   path: "/gallery",

@@ -1,6 +1,6 @@
 # Seedwall
 
-Browse, customise and generate desktop and phone wallpapers — **https://seedwall.suryansh.work**
+Browse, customise and generate desktop and phone wallpapers at **https://seedwall.suryansh.work**
 
 - **/studio**: pick a generator and preset, then change colours, text (or go text-free), device and seed. Download a full-size PNG or SVG, copy a share link, or save to your collection.
 - **/paint**: turn a photo into a palette-knife impasto painting at any device size. It runs in the browser (`src/lib/paintPhoto.ts`), so the photo is never uploaded.

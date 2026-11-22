@@ -41,7 +41,7 @@ export function GalleryGrid({ items, generators, compact }: Props) {
   /** Descriptive alt: generator + title (Drive titles like "Frame 3" mean nothing alone), shape and size. */
   const altFor = (i: GalleryItem) => {
     const name = genName.get(i.generator);
-    const label = name && !i.title.startsWith(name) ? `${name} – ${i.title}` : i.title;
+    const label = name && !i.title.startsWith(name) ? `${name} (${i.title})` : i.title;
     return `${label}: ${i.height > i.width ? "phone" : "desktop"} wallpaper, ${i.width}×${i.height}`;
   };
 

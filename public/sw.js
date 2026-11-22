@@ -1,5 +1,5 @@
 /*
- * Seedwall service worker — deliberately tiny.
+ * Seedwall service worker. Deliberately tiny.
  * It never caches the site itself (pages stay fresh). It only:
  *   1. precaches /offline.html and the two fonts it uses, and
  *   2. serves that page when a page navigation fails because the network is down.

@@ -10,7 +10,7 @@ import { WallpaperStage } from "./WallpaperStage";
 
 interface Props {
   seed: number;
-  /** Set when this is today's seed — shown as a badge. */
+  /** Set when this is today's seed, and shown as a badge. */
   daily?: string;
 }
 
@@ -35,7 +35,7 @@ export function SeedView({ seed, daily }: Props) {
           <dt>Preset</dt>
           <dd>{preset?.title ?? wp.preset}</dd>
           <dt>Theme</dt>
-          <dd>{theme?.name ?? "—"}</dd>
+          <dd>{theme?.name ?? "None"}</dd>
           <dt>Text</dt>
           <dd>{wp.params["text.none"] ? "None" : "Quote"}</dd>
         </dl>
@@ -56,7 +56,7 @@ export function SeedView({ seed, daily }: Props) {
           }}
         >
           <label className="visually-hidden" htmlFor="seed-jump">Go to seed</label>
-          <input id="seed-jump" name="seed" className="input mono" type="number" min={1} max={SEED_MAX} placeholder="Any seed, 1–999999" />
+          <input id="seed-jump" name="seed" className="input mono" type="number" min={1} max={SEED_MAX} placeholder="Any seed, 1 to 999999" />
           <button type="submit" className="btn">Go</button>
         </form>
       </section>

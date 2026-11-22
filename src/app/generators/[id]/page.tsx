@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!gen) return {};
   return pageMetadata({
     title: `${gen.name} wallpaper generator`,
-    description: `${gen.description} ${gen.presets.length} presets, editor themes, your own quote or none — free PNG downloads for any screen.`,
+    description: `${gen.description} ${gen.presets.length} presets, editor themes, your own quote or none. Free PNG downloads for any screen.`,
     path: `/generators/${gen.id}`,
     image: `/og/${gen.id}.png`,
     imageAlt: `${gen.name} wallpaper made with Seedwall`,
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 function describe(def: ParamDef): string {
   switch (def.kind) {
-    case "range": return `${def.min}–${def.max}`;
+    case "range": return `${def.min} to ${def.max}`;
     case "select": return def.options.map((o) => o.value).join(" · ");
     case "color": return "hex colour";
     case "toggle": return "on / off";

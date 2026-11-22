@@ -20,7 +20,7 @@ export function ThemeToggle() {
     try {
       localStorage.setItem("ws.theme", next);
     } catch {
-      /* storage unavailable — theme still applies for this visit */
+      /* storage unavailable; the theme still applies for this visit */
     }
     setTheme(next);
   };

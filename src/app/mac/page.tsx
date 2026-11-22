@@ -4,7 +4,7 @@ import { LiveThumb } from "@/components/LiveThumb";
 import { REPO_URL, pageMetadata } from "@/config/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Seedwall for Mac — a new wallpaper every day",
+  title: "Seedwall for Mac: a new wallpaper every day",
   description: "A tiny menu-bar app that sets a fresh Seedwall wallpaper every morning: today's seed, a random one, a pinned favourite, or your own GitHub contribution graph. Rendered at your screen's native resolution.",
   path: "/mac",
 });

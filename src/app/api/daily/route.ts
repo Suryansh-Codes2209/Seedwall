@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Today's wallpaper — the same seed for everyone on a given day.
+ * Today's wallpaper: the same seed for everyone on a given day.
  *   GET /api/daily?d=macbook14            → PNG (UTC day)
  *   GET /api/daily?date=2026-11-07&w=…    → that day's PNG (pass the local date to rotate at local midnight)
  *   GET /api/daily?format=json            → { date, seed, page, image, … } for apps

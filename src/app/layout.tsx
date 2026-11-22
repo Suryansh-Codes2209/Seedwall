@@ -13,7 +13,7 @@ import "./globals.css";
 const grotesk = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-schibsted", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
 
-const TITLE = `${SITE.name} — generative desktop & phone wallpapers`;
+const TITLE = `${SITE.name}: generative desktop & phone wallpapers`;
 const DESCRIPTION = `Free wallpaper generator: ${GENERATORS.length} generative looks (cutting mat, flow field, synthwave, git graph and more), editor themes like Dracula and Tokyo Night, your own quote or none. Download pixel-perfect PNGs for MacBook, iPhone, 4K and any size.`;
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     type: "website",
     locale: "en_US",
-    images: [{ url: "/og/default.png", width: 1200, height: 630, alt: "Seedwall — wallpapers grown from a seed" }],
+    images: [{ url: "/og/default.png", width: 1200, height: 630, alt: "Seedwall: wallpapers grown from a seed" }],
   },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og/default.png"], creator: AUTHOR.xHandle, site: AUTHOR.xHandle },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },

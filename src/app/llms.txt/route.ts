@@ -19,7 +19,7 @@ export function GET(): Response {
     `- [Studio](${absoluteUrl("/studio")}): pick a generator and preset, change colours, apply an editor theme, write a quote or go text-free, download PNG/SVG.`,
     `- [Paint my photo](${absoluteUrl("/paint")}): turn a photo into a palette-knife impasto painting in the browser (nothing is uploaded), download PNG/SVG.`,
     `- [Gallery](${absoluteUrl("/gallery")}): the Cutting Mat pack (desktop + phone, with and without text) and generated samples, all free to download.`,
-    `- [Today's seed](${absoluteUrl("/today")}): one wallpaper a day, the same for everyone. Every seed 1–999999 has a page at /s/<seed>.`,
+    `- [Today's seed](${absoluteUrl("/today")}): one wallpaper a day, the same for everyone. Every seed from 1 to 999999 has a page at /s/<seed>.`,
     `- GitHub wallpapers: ${absoluteUrl("/u/<username>")} draws someone's real public contribution graph and commit history.`,
     `- [Mac app](${absoluteUrl("/mac")}): a menu-bar app that sets a new wallpaper every day.`,
     `- [Claude connector and plugin](${absoluteUrl("/claude")}): render any generator from claude.ai or Claude Code, for hero backgrounds, OG images and banners.`,

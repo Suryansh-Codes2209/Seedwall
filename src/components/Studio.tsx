@@ -160,7 +160,9 @@ export function Studio() {
         <Preview svg={scoped} w={debounced.w} h={debounced.h} busy={busy} />
 
         <div className="stage-bar">
-          <p className="preview-dims">Rendered from code · deterministic for seed {String(state.params.seed ?? "—")}</p>
+          <p className="preview-dims">
+            {state.params.seed === undefined ? "Rendered from code." : `Rendered from code. Seed ${String(state.params.seed)} gives this exact result every time.`}
+          </p>
         </div>
       </section>
 

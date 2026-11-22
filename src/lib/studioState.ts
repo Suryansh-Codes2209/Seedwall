@@ -64,7 +64,7 @@ export function decodeState(query: URLSearchParams): StudioState {
       const parsed: unknown = JSON.parse(b64urlDecode(x));
       if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) overrides = parsed as Record<string, unknown>;
     } catch {
-      /* malformed share link — fall back to the preset */
+      /* malformed share link: fall back to the preset */
     }
   }
 

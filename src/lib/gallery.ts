@@ -1,4 +1,4 @@
-/** One wallpaper in the gallery — from the Drive pack or rendered into public/gallery. */
+/** One wallpaper in the gallery, from the Drive pack or rendered into public/gallery. */
 export interface GalleryItem {
   id: string;
   title: string;

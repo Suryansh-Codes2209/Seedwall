@@ -5,7 +5,7 @@ import { scopeSvgIds } from "@/lib/scopeSvg";
 import { encodeState } from "@/lib/studioState";
 
 export const metadata: Metadata = {
-  title: "404 — this seed didn't grow",
+  title: "404: this seed didn't grow",
   robots: { index: false, follow: true },
 };
 
@@ -15,7 +15,7 @@ const OVERRIDES = {
   "text.line2": "This seed didn't *grow*.",
   "text.paragraph": "The page you were after isn't here. It may have moved, or the link had a typo. Every other seed on this site still works.",
   "text.size": 6,
-  caption: "ERROR 404 — NOTHING PLANTED AT THIS ADDRESS",
+  caption: "ERROR 404 · NOTHING PLANTED AT THIS ADDRESS",
 };
 
 export default function NotFound() {

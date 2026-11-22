@@ -9,7 +9,7 @@ import { getTheme } from "@/generators/shared/themes";
  * text, then becomes the generator's own seed. The pools below are FROZEN
  * literals, not GENERATORS/THEMES: adding a generator, preset or theme must
  * never change what an existing link shows. To include new looks, add a
- * POOL_V2 used for seeds above some threshold — don't edit V1.
+ * POOL_V2 used for seeds above some threshold. Don't edit V1.
  */
 export const SEED_MAX = 999_999;
 
@@ -47,7 +47,7 @@ export interface SeedWallpaper {
   params: Params;
 }
 
-/** FNV-1a, 32-bit — stable string → int hash. */
+/** FNV-1a, 32-bit: stable string → int hash. */
 export function hashString(s: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
@@ -81,7 +81,7 @@ export function wallpaperFromSeed(seed: number): SeedWallpaper {
   return { seed: s, gen: genId, preset, theme, params };
 }
 
-/** Today's seed (UTC unless a YYYY-MM-DD date is given) — the same for everyone on that day. */
+/** Today's seed (UTC unless a YYYY-MM-DD date is given): the same for everyone on that day. */
 export function dailySeed(date: string = isoDate(new Date())): number {
   return 1 + (hashString(`seedwall:daily:${date}`) % SEED_MAX);
 }
@@ -95,6 +95,6 @@ export const randomSeed = (): number => 1 + Math.floor(Math.random() * SEED_MAX)
 
 export const seedPath = (seed: number): string => `/s/${seed}`;
 
-/** Every generator/preset in the frozen pool — for tests. */
+/** Every generator/preset in the frozen pool, for tests. */
 export const SEED_POOL_ENTRIES = POOL_V1.flatMap(([g, ps]) => ps.map((p) => [g, p] as const));
 export const SEED_THEMES = THEMES_V1;

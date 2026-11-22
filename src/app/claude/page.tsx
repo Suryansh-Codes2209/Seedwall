@@ -12,7 +12,7 @@ const heroGen = getGenerator("topographic");
 const HERO_PARAMS = heroGen ? resolveParams(heroGen, "survey", { "text.none": true }) : undefined;
 
 export const metadata: Metadata = pageMetadata({
-  title: "Seedwall for Claude — generative hero backgrounds, OG images and banners",
+  title: "Seedwall for Claude: generative hero backgrounds, OG images and banners",
   description:
     "Use Seedwall from Claude: a claude.ai connector and a Claude Code plugin that render any generator at any size and wire it into your site as a hero background, section background, OG image or README banner.",
   path: "/claude",

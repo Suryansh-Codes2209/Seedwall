@@ -27,7 +27,7 @@ export function DevicePicker({ device, w, h, onChange }: Props) {
       >
         {DEVICES.map((d) => (
           <option key={d.id} value={d.id}>
-            {d.label} — {d.w}×{d.h}
+            {d.label} ({d.w}×{d.h})
           </option>
         ))}
         <option value="custom">Custom size…</option>

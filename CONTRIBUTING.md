@@ -49,14 +49,14 @@ Helpers worth knowing: `shared/rng.ts` (`range`, `pick`), `shared/noise.ts`, `sh
 
 Import paths are relative to a generator file in `src/generators/`.
 
-**`shared/noise.ts`** — seeded 2D gradient (Perlin-style) noise. `createNoise2D(rng)` returns `(x, y) => number`, roughly in `[-1, 1]`; `fbm()` sums octaves for smoother fields.
+**`shared/noise.ts`**: seeded 2D gradient (Perlin-style) noise. `createNoise2D(rng)` returns `(x, y) => number`, roughly in `[-1, 1]`; `fbm()` sums octaves for smoother fields.
 
 ```ts
 import { createNoise2D, fbm } from "./shared/noise";
 const h = fbm(createNoise2D(rng), x * 0.01, y * 0.01, 4); // fractal height at (x, y)
 ```
 
-**`shared/color.ts`** — hex/RGB conversion and contrast-safe ink. `mix()` interpolates two hex colours; `autoInk()` picks white or near-black text for a background.
+**`shared/color.ts`**: hex/RGB conversion and contrast-safe ink. `mix()` interpolates two hex colours; `autoInk()` picks white or near-black text for a background.
 
 ```ts
 import { autoInk, mix } from "./shared/color";
@@ -64,7 +64,7 @@ const ink = autoInk(p.bg);                  // "#ffffff" or "#1b1b1b"
 const mid = mix("#101418", "#ff7a59", 0.5); // linear mix, t in [0, 1]
 ```
 
-**`shared/contours.ts`** — marching squares over a scalar grid. `contourPaths()` returns SVG path data for the region where the field is above `t`; pass `closed: true` for filled loops (use with `fill-rule="evenodd"`).
+**`shared/contours.ts`**: marching squares over a scalar grid. `contourPaths()` returns SVG path data for the region where the field is above `t`; pass `closed: true` for filled loops (use with `fill-rule="evenodd"`).
 
 ```ts
 import { contourPaths } from "./shared/contours";

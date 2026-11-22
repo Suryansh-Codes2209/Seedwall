@@ -3,7 +3,7 @@ import { SITE } from "@/config/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${SITE.name} — generative wallpapers`,
+    name: `${SITE.name}: generative wallpapers`,
     short_name: SITE.name,
     description: SITE.tagline,
     start_url: "/",

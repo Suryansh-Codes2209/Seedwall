@@ -28,7 +28,7 @@ interface Props {
   footer?: ReactNode;
 }
 
-/** Preview + device + download / share — the stage shared by seed and personal pages. */
+/** Preview, device, download and share: the stage shared by seed and personal pages. */
 export function WallpaperStage({ gen, preset, params, name, sharePath, title, subtitle, side, footer }: Props) {
   const fallback = getDevice(DEFAULT_DEVICE)!;
   const [size, setSize] = useState({ device: fallback.id as string, w: fallback.w, h: fallback.h });

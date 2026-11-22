@@ -265,7 +265,7 @@ code, kbd, .mono { font-family: var(--font-mono); }
 .param-group:first-child { border-top: 0; padding-top: 0; }
 .param-group > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .param-group > summary::-webkit-details-marker { display: none; }
-.param-group > summary::after { content: "–"; font-family: var(--font-mono); color: var(--muted); }
+.param-group > summary::after { content: "\2212"; font-family: var(--font-mono); color: var(--muted); }
 .param-group:not([open]) > summary::after { content: "+"; }
 .param-group:not([open]) > summary { margin-bottom: 0; }
 .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }

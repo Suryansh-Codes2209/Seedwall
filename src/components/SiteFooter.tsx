@@ -43,7 +43,7 @@ function Socials() {
     <ul className="socials" aria-label="Suryansh on social media">
       {SOCIALS.map((s) => (
         <li key={s.label}>
-          <a href={s.href} target="_blank" rel="noreferrer me" aria-label={`${s.label} — ${s.handle}`} title={`${s.label} · ${s.handle}`}>
+          <a href={s.href} target="_blank" rel="noreferrer me" aria-label={`${s.label}: ${s.handle}`} title={`${s.label} · ${s.handle}`}>
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
               <path d={s.d} fill="currentColor" />
             </svg>
@@ -80,7 +80,7 @@ export function SiteFooter() {
           </Link>
           <p>
             Wallpapers grown from a seed. Every one is a few hundred lines of TypeScript that turn colours, words and a single
-            number into an SVG — the same seed always grows the same wallpaper.
+            number into an SVG. The same seed always grows the same wallpaper.
           </p>
           <dl className="footer-stats">
             <div><dt>Generators</dt><dd>{GENERATORS.length}</dd></div>
@@ -108,7 +108,7 @@ export function SiteFooter() {
           {SITE.driveUrl ? (
             <a href={SITE.driveUrl} target="_blank" rel="noreferrer">Full pack on Drive ↗</a>
           ) : (
-            <span className="muted">Full pack — coming soon</span>
+            <span className="muted">Full pack (coming soon)</span>
           )}
         </nav>
 

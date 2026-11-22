@@ -7,7 +7,7 @@ export function GeneratorCard({ gen, isNew = false }: { gen: AnyGenerator; isNew
   return (
     <Link href={`/generators/${gen.id}`} className="card">
       <div className="card-media">
-        <LiveThumb gen={gen.id} preset={first?.id} w={1600} h={1000} label={`${gen.name} — ${first?.title ?? "default"}`} />
+        <LiveThumb gen={gen.id} preset={first?.id} w={1600} h={1000} label={`${gen.name}, ${first?.title ?? "default"} preset`} />
       </div>
       <div className="card-body">
         <h3>
