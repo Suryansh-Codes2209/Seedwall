@@ -58,7 +58,7 @@ describe.each(GENERATORS.map((g) => [g.id, g] as const))("%s", (_id, gen) => {
 });
 
 describe("seed sensitivity", () => {
-  it.each(["cutting-mat", "mesh-gradient", "topographic", "blueprint", "terminal", "geometric", "aurora", "flow-field", "wave-lines", "landscape", "truchet", "git-graph", "circuit", "halftone", "spirograph", "code-city", "marble", "contributions", "event-horizon", "cymatics", "attractor", "quasicrystal", "op-art", "seed-head", "trinetra", "jyotirlinga", "sudarshan", "padmanabha", "dhruva", "kintsugi", "ascent", "clockwork", "impasto"])("%s changes with the seed", (id) => {
+  it.each(["cutting-mat", "mesh-gradient", "topographic", "blueprint", "terminal", "geometric", "aurora", "flow-field", "wave-lines", "landscape", "truchet", "git-graph", "circuit", "halftone", "spirograph", "code-city", "marble", "contributions", "event-horizon", "cymatics", "attractor", "quasicrystal", "op-art", "seed-head", "trinetra", "jyotirlinga", "sudarshan", "padmanabha", "dhruva", "kintsugi", "ascent", "clockwork", "impasto", "nebula"])("%s changes with the seed", (id) => {
     const gen = GENERATORS.find((g) => g.id === id)!;
     const a = renderWallpaper(gen, resolveParams(gen, gen.presets[0]?.id, { seed: 1 }), { w: 1600, h: 1000 });
     const b = renderWallpaper(gen, resolveParams(gen, gen.presets[0]?.id, { seed: 2 }), { w: 1600, h: 1000 });
@@ -89,8 +89,7 @@ describe("true black (OLED)", () => {
 
   it.each(supported.map((g) => [g.id, g] as const))("%s: off renders exactly as before, on paints #000000", (_id, gen) => {
     for (const preset of gen.presets) {
-      const base = resolveParams(gen, preset.id);
-      expect(base[TRUE_BLACK]).toBe(false);
+      const base = resolveParams(gen, preset.id, { [TRUE_BLACK]: false });
       const { [TRUE_BLACK]: _omit, ...without } = base;
       const size = { w: 900, h: 600 };
       expect(renderWallpaper(gen, base, size), preset.id).toBe(renderWallpaper(gen, without, size));
