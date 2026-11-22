@@ -5,7 +5,7 @@ import { REPO_URL, pageMetadata } from "@/config/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Seedwall for Mac: a new wallpaper every day",
-  description: "A tiny menu-bar app that sets a fresh Seedwall wallpaper every morning: today's seed, a random one, a pinned favourite, or your own GitHub contribution graph. Rendered at your screen's native resolution.",
+  description: "A small menu-bar app that sets a new Seedwall wallpaper once a day: today's seed, a random one, a pinned favourite, or your own GitHub contribution graph, rendered at your screen's native resolution.",
   path: "/mac",
 });
 
@@ -17,7 +17,7 @@ export default function MacPage() {
           <span className="eyebrow">Seedwall for Mac · menu bar</span>
           <h1>A new wallpaper every morning.</h1>
           <p>
-            A tiny menu-bar app. At midnight it sets the next seed on every display, rendered at that display&apos;s native
+            A small menu-bar app. At midnight it sets the next seed on every display, rendered at that display&apos;s native
             resolution. Pick today&apos;s seed (the same one everyone gets), a random one, a favourite you pin, or your own
             GitHub graph, redrawn daily.
           </p>

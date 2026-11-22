@@ -16,8 +16,8 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
       <span className="eyebrow">Something broke</span>
       <h1 className="page-h1">This seed didn&apos;t render.</h1>
       <p className="lead">
-        Something went wrong on this page. That&apos;s a bug on our side, not something you did. Try again, and if it keeps
-        happening, one click sends the details to Suryansh.
+        Something went wrong on this page. That&apos;s a bug on my side, not something you did. Try again, and if it keeps
+        happening, one click sends me the details.
       </p>
       <div className="hero-actions">
         <button type="button" className="btn btn-primary" onClick={reset}>Try again</button>

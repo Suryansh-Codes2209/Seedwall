@@ -24,7 +24,7 @@ export default function ClaudePage() {
       <section className="gen-hero">
         <div>
           <span className="eyebrow">Seedwall for Claude · connector + plugin</span>
-          <h1>Generative art, anywhere on your site.</h1>
+          <h1>Ask Claude for a background that fits your site.</h1>
           <p>
             Ask Claude for a hero background in your brand colours and it picks a generator, renders it at the right size,
             looks at the preview, and wires it in. It works in claude.ai through a connector, and in your codebase through a

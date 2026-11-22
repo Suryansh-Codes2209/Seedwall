@@ -14,7 +14,7 @@ const grotesk = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-schibs
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
 
 const TITLE = `${SITE.name}: generative desktop & phone wallpapers`;
-const DESCRIPTION = `Free wallpaper generator: ${GENERATORS.length} generative looks (cutting mat, flow field, synthwave, git graph and more), editor themes like Dracula and Tokyo Night, your own quote or none. Download pixel-perfect PNGs for MacBook, iPhone, 4K and any size.`;
+const DESCRIPTION = `Free wallpaper generator: ${GENERATORS.length} generative looks (cutting mat, flow field, synthwave, git graph and more), editor themes like Dracula and Tokyo Night, your own quote or none. Download full-size PNGs for MacBook, iPhone, 4K or any custom size.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

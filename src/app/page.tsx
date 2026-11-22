@@ -31,7 +31,7 @@ export default async function HomePage() {
         <div className="split-card">
           <span className="eyebrow">New · from your real data</span>
           <h2 id="personal-h">Your year of commits, as a wallpaper.</h2>
-          <p>Type a GitHub username. Seedwall reads the public contribution graph and recent commits and draws them as a grid, a 3D skyline or a branch graph. It&apos;s yours alone, and the link is yours to share.</p>
+          <p>Type a GitHub username. Seedwall reads the public contribution graph and recent commits and draws them as a grid, a 3D skyline or a branch graph. Nobody else gets the same one, and you get a link to share.</p>
           <GitHubForm />
           <div className="split-art">
             <LiveThumb gen="contributions" preset="skyline" w={1600} h={1000} label="A contribution graph drawn as a neon skyline" />

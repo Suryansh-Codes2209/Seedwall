@@ -17,9 +17,9 @@ export function Hero() {
             from a <em>seed</em>.
           </h1>
           <p className="lead">
-            {GENERATORS.length} generators, from drafting-table cutting mats and flow fields to black holes, strange attractors and the shapes sound makes in sand. Change
-            the colours, apply one of {THEMES.length} editor themes, write your own quote or go text-free, then download a
-            pixel-perfect PNG for any screen.
+            {GENERATORS.length} generators, from drafting-table cutting mats and flow fields to black holes and the shapes
+            sound makes in sand. Pick your colours or one of {THEMES.length} editor themes, add a quote or leave it out, and
+            download a PNG at your screen&apos;s exact size.
           </p>
           <div className="hero-actions">
             <Link className="btn btn-primary" href="/studio">Open the studio</Link>

@@ -31,8 +31,8 @@ export default function NotFound() {
         <span className="eyebrow">Error 404</span>
         <h1>Nothing grew here.</h1>
         <p>
-          This address doesn&apos;t point at a page. While you&apos;re here, the error above is a real wallpaper. Every
-          generator on Seedwall made something; this one just made a 404.
+          There&apos;s no page at this address. The error above is a real wallpaper, though, drawn by the same code as
+          everything else here. You can keep it if you like.
         </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" href="/">Back to home</Link>
