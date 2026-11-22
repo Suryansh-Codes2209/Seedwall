@@ -2,7 +2,7 @@ import type { Generator, ParamSchema, Preset } from "./types";
 import { backgroundParams, liftForBlack, type BackgroundParams } from "./shared/background";
 import { hexToRgb, mix } from "./shared/color";
 import { pick, range } from "./shared/rng";
-import { blurFilter, esc, grainFilter, grainRect, n, rect, svgDoc, unit } from "./shared/svg";
+import { blurFilter, esc, n, rect, svgDoc, unit } from "./shared/svg";
 import { clearZonesMask, layoutText, textParams, type Box, type TextParams } from "./shared/text";
 
 type P = TextParams & BackgroundParams & {
@@ -57,11 +57,15 @@ const presets: Preset<P>[] = [
   { id: "oled-quote", title: "Black + quote", params: { c1: "#3d2bd9", c2: "#ff4fa3", c3: "#1fb6ff", shape: "drift", clouds: 0.6, stars: 1.4, seed: 23, "background.trueBlack": true, "text.none": false } },
 ];
 
-/** feColorMatrix that turns turbulence into one flat colour whose alpha follows the noise. */
-function tintMatrix(hex: string, gain: number, cut: number): string {
+/** feColorMatrix that turns turbulence into one flat colour whose alpha follows one noise channel (0 = red … 3 = alpha). */
+function tintMatrix(hex: string, gain: number, cut: number, channel = 0): string {
   const { r, g, b } = hexToRgb(hex);
-  return `0 0 0 0 ${n(r / 255)} 0 0 0 0 ${n(g / 255)} 0 0 0 0 ${n(b / 255)} ${n(gain)} 0 0 0 ${n(-cut)}`;
+  const alpha = [0, 0, 0, 0].map((_, i) => (i === channel ? n(gain) : "0")).join(" ");
+  return `0 0 0 0 ${n(r / 255)} 0 0 0 0 ${n(g / 255)} 0 0 0 0 ${n(b / 255)} ${alpha} ${n(-cut)}`;
 }
+
+/** Side of the film-grain tile, in pixels. */
+const GRAIN_TILE = 256;
 
 /** Shrinks a text zone check to "does this circle touch any zone". */
 const touches = (zones: Box[], x: number, y: number, r: number): boolean =>
@@ -112,6 +116,8 @@ export const nebula: Generator<P> = {
     const blobs: string[] = [];
     const bend = p.shape === "band" ? 0 : range(rng, -0.12, 0.12) * length;
     const nx = -(b[1] - a[1]) / (length || 1), ny = (b[0] - a[0]) / (length || 1);
+    // Bounding box of the blobs, so the noise filters only run where there is gas.
+    let x0b = Infinity, y0b = Infinity, x1b = -Infinity, y1b = -Infinity;
     for (let i = 0; i < count; i++) {
       const t = count === 1 ? 0.5 : i / (count - 1);
       const [x0, y0] = along(t, a[0], a[1], b[0], b[1]);
@@ -120,10 +126,17 @@ export const nebula: Generator<P> = {
       // Middle of the path is fuller than the ends.
       const fullness = p.shape === "band" ? 1 : 0.55 + 0.45 * Math.sin(t * Math.PI);
       const r = sizeU * u * range(rng, 0.45, 1.2) * fullness;
-      blobs.push(`<ellipse cx="${n(x)}" cy="${n(y)}" rx="${n(r * range(rng, 1, 1.6))}" ry="${n(r)}" transform="rotate(${n(range(rng, 0, 180))} ${n(x)} ${n(y)})" fill="url(#nb-blob)"/>`);
+      const rx = r * range(rng, 1, 1.6);
+      x0b = Math.min(x0b, x - rx); y0b = Math.min(y0b, y - rx); x1b = Math.max(x1b, x + rx); y1b = Math.max(y1b, y + rx);
+      blobs.push(`<ellipse cx="${n(x)}" cy="${n(y)}" rx="${n(rx)}" ry="${n(r)}" transform="rotate(${n(range(rng, 0, 180))} ${n(x)} ${n(y)})" fill="url(#nb-blob)"/>`);
     }
     defs.push(`<radialGradient id="nb-blob"><stop offset="0" stop-color="#fff"/><stop offset="0.3" stop-color="#fff" stop-opacity="0.75"/><stop offset="0.65" stop-color="#fff" stop-opacity="0.3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>`);
     const shape = blobs.join("");
+    // The filter region: the blobs plus room for the blur, clipped to the screen.
+    const pad = 4 * u;
+    const fx = Math.max(0, Math.floor(x0b - pad)), fy = Math.max(0, Math.floor(y0b - pad));
+    const fw = Math.max(1, Math.min(w, Math.ceil(x1b + pad)) - fx), fh = Math.max(1, Math.min(h, Math.ceil(y1b + pad)) - fy);
+    const region = `filterUnits="userSpaceOnUse" x="${fx}" y="${fy}" width="${fw}" height="${fh}"`;
 
     // Soft haze under everything (skipped on true black so space stays #000).
     if (!black) {
@@ -131,46 +144,46 @@ export const nebula: Generator<P> = {
       body.push(rect(0, 0, w, h, `fill="url(#nb-sky)"`));
     }
 
-    // Gas: each colour is its own turbulence layer, cut to the body and blurred a touch.
+    // Gas: noise in each colour, cut to the body and blurred a touch, plus dark lanes of dust.
     const amount = p.clouds;
     if (amount > 0) {
       const freq = 1 / (sizeU * u * 0.55);
       defs.push(blurFilter("nb-haze", sizeU * u * 0.6, size));
       body.push(`<g filter="url(#nb-haze)" opacity="${n(0.35 * amount)}"><g fill="${esc(p.c1)}">${shape.replaceAll(`fill="url(#nb-blob)"`, `fill="${esc(p.c1)}" fill-opacity="0.5"`)}</g></g>`);
-      // [colour, frequency, alpha gain, alpha cut, noise type]. Gain > 0 shows the noise's bright
-      // patches; gain < 0 on "turbulence" noise shows its creases, which read as thin filaments.
-      const layers: [string, number, number, number, string][] = [
-        [p.c1, freq * 0.8, 2.4, 0.95, "fractalNoise"],
-        [p.c3, freq * 1.3, 3, 1.35, "fractalNoise"],
-        [p.c2, freq * 0.9, -3.2, -0.95, "turbulence"],
-        [mix(p.c2, "#ffffff", 0.45), freq * 1.6, -4, -0.7, "turbulence"],
+      // One filter draws all the gas. Each feTurbulence makes four independent noise channels for
+      // the price of one, so two noise sources feed five layers: "fractalNoise" gives soft patches
+      // (red: gas 1, green: gas 3, blue: dust), and "turbulence" read through a negative gain shows
+      // its creases, which look like thin filaments (red: gas 2, green: white-hot gas 2).
+      // One rng draw per layer (and one for the dust) keeps the stars and core that follow in place.
+      const seeds = [0, 1, 2, 3].map(() => Math.floor(rng() * 9999));
+      if (p.dust) rng();
+      const fq = (f: number) => Math.round(f * 1e6) / 1e6;
+      // More gas lowers the cut, so more of the noise shows.
+      const more = 0.25 * amount;
+      // [noise result, channel, colour, alpha gain, alpha cut, blur in u, opacity]
+      const layers: [string, number, string, number, number, number, number][] = [
+        ["soft", 0, p.c1, 2.4, 0.95 - more, 0.8, Math.min(1, 0.55 + 0.45 * amount)],
+        ["soft", 1, p.c3, 3, 1.35 - more, 0.8, Math.min(1, 0.55 + 0.45 * amount)],
+        ["fil", 0, p.c2, -3.2, -0.95 - more, 0.25, Math.min(1, 0.4 + 0.45 * amount)],
+        ["fil", 1, mix(p.c2, "#ffffff", 0.45), -4, -0.7 - more, 0.25, Math.min(1, 0.4 + 0.45 * amount)],
       ];
-      layers.forEach(([c, f, gain, cut, type], i) => {
-        const id = `nb-gas${i}`;
-        defs.push(
-          `<filter id="${id}" filterUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}" color-interpolation-filters="sRGB">` +
-            `<feTurbulence type="${type}" baseFrequency="${Math.round(f * 1e6) / 1e6}" numOctaves="5" seed="${Math.floor(rng() * 9999)}" result="t"/>` +
-            `<feColorMatrix in="t" type="matrix" values="${tintMatrix(c, gain, cut - 0.25 * amount)}" result="c"/>` +
-            `<feComposite in="c" in2="SourceGraphic" operator="in" result="m"/>` +
-            `<feGaussianBlur in="m" stdDeviation="${n((i < 2 ? 0.8 : 0.25) * u)}"/>` +
-            `</filter>`,
-        );
-        body.push(`<g filter="url(#${id})" opacity="${n(Math.min(1, (i < 2 ? 0.55 : 0.4) + 0.45 * amount))}">${shape}</g>`);
-      });
-
-      // Dark lanes of dust cut through the glow.
-      if (p.dust) {
-        const dark = black ? "#000000" : mix(p.bg, "#000000", 0.4);
-        defs.push(
-          `<filter id="nb-dust" filterUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}" color-interpolation-filters="sRGB">` +
-            `<feTurbulence type="fractalNoise" baseFrequency="${Math.round(freq * 1.4 * 1e6) / 1e6}" numOctaves="3" seed="${Math.floor(rng() * 9999)}" result="t"/>` +
-            `<feColorMatrix in="t" type="matrix" values="${tintMatrix(dark, 4, 2.1)}" result="c"/>` +
-            `<feComposite in="c" in2="SourceGraphic" operator="in" result="m"/>` +
-            `<feGaussianBlur in="m" stdDeviation="${n(1.2 * u)}"/>` +
-            `</filter>`,
-        );
-        body.push(`<g filter="url(#nb-dust)" opacity="0.75">${shape}</g>`);
-      }
+      const dark = black ? "#000000" : mix(p.bg, "#000000", 0.4);
+      if (p.dust) layers.push(["soft", 2, dark, 4, 2.1, 1.2, 0.75]);
+      const steps = layers.map(([src, ch, c, gain, cut, blur, op], i) =>
+        `<feColorMatrix in="${src}" type="matrix" values="${tintMatrix(c, gain, cut, ch)}"/>` +
+        // The blobs are white, so k1 * noise * shape is "noise inside the shape" at this layer's opacity.
+        `<feComposite in2="SourceGraphic" operator="arithmetic" k1="${n(op)}"/>` +
+        `<feGaussianBlur stdDeviation="${n(blur * u)}" result="l${i}"/>`,
+      );
+      defs.push(
+        `<filter id="nb-gas" ${region} color-interpolation-filters="sRGB">` +
+          `<feTurbulence type="fractalNoise" baseFrequency="${fq(freq * 0.9)}" numOctaves="2" seed="${seeds[0]}" result="soft"/>` +
+          `<feTurbulence type="turbulence" baseFrequency="${fq(freq * 1.1)}" numOctaves="4" seed="${seeds[2]}" result="fil"/>` +
+          steps.join("") +
+          `<feMerge>${layers.map((_, i) => `<feMergeNode in="l${i}"/>`).join("")}</feMerge>` +
+          `</filter>`,
+      );
+      body.push(`<g filter="url(#nb-gas)">${shape}</g>`);
     }
 
     // Stars: count follows the area in units, so a phone and an ultrawide feel equally dense.
@@ -229,7 +242,17 @@ export const nebula: Generator<P> = {
       defs.push(clearZonesMask("nb-zones", size, text.zones));
     }
     const gas = body.slice(1).join("") + core;
-    if (grain > 0) defs.push(grainFilter("nb-grain", grain));
+    // Film grain, drawn once on a small seamless tile and repeated, instead of noise over the whole screen.
+    if (grain > 0) {
+      const t = GRAIN_TILE;
+      defs.push(
+        `<filter id="nb-grain" filterUnits="userSpaceOnUse" x="0" y="0" width="${t}" height="${t}">` +
+          `<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" stitchTiles="stitch"/>` +
+          `<feColorMatrix type="matrix" values="2.4 0 0 0 -0.7  2.4 0 0 0 -0.7  2.4 0 0 0 -0.7  0 0 0 0 ${n(Math.min(1, grain))}"/>` +
+          `</filter>` +
+          `<pattern id="nb-grain-tile" patternUnits="userSpaceOnUse" width="${t}" height="${t}"><rect width="${t}" height="${t}" fill="#fff" filter="url(#nb-grain)"/></pattern>`,
+      );
+    }
 
     return svgDoc(
       size,
@@ -237,7 +260,7 @@ export const nebula: Generator<P> = {
       body[0] +
         (text.zones.length ? `<g mask="url(#nb-fade)">${gas}</g>` : gas) +
         `<g${text.zones.length ? ` mask="url(#nb-zones)"` : ""}>${small.join("")}${bright.join("")}</g>` +
-        (grain > 0 ? grainRect(size, "nb-grain") : "") +
+        (grain > 0 ? rect(0, 0, w, h, `fill="url(#nb-grain-tile)"`) : "") +
         text.svg,
     );
   },
