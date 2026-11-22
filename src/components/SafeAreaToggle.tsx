@@ -5,11 +5,19 @@ import type { SafeAreaMode } from "@/generators/shared/safeArea";
 
 interface Props {
   mode: SafeAreaMode;
+  /** False when the current look has no shapes to move out of the way. */
+  hasEffect?: boolean;
   onChange: (mode: SafeAreaMode) => void;
 }
 
+function hint(on: boolean, hasEffect: boolean): string {
+  if (!on) return "Handy for a lock screen, so the time stays easy to read.";
+  if (hasEffect) return "The dashed box shows the area I keep free of shapes.";
+  return "This look is a soft blend with nothing to move, so it looks the same. Try Topographic or Cutting Mat.";
+}
+
 /** Lock-screen safe area for phones and tablets: keeps the clock (and optionally the bottom buttons) clear. */
-export function SafeAreaToggle({ mode, onChange }: Props) {
+export function SafeAreaToggle({ mode, hasEffect = true, onChange }: Props) {
   const id = useId();
   const on = mode !== "off";
   return (
@@ -31,7 +39,7 @@ export function SafeAreaToggle({ mode, onChange }: Props) {
         </label>
       )}
       <small className="hint">
-        {on ? "The dashed box shows the area I keep free of shapes." : "Handy for a lock screen, so the time stays easy to read."}
+        {hint(on, hasEffect)}
       </small>
     </div>
   );

@@ -180,6 +180,14 @@ export function Studio() {
   const presetTitle = gen.presets.find((p) => p.id === state.preset)?.title ?? state.preset;
   const safeOffered = safeAreaApplies(state.device, state.w, state.h);
   const safeMode = (state.params[SAFE_AREA] ?? "off") as SafeAreaMode;
+  // Soft looks (gradients, glows) don't clear any areas, so say when the toggle changes nothing.
+  const safeHasEffect = useMemo(() => {
+    const g = getGenerator(debounced.gen);
+    const mode = debounced.params[SAFE_AREA];
+    if (!g || !mode || mode === "off") return true;
+    const size = { w: 120, h: 260 };
+    return renderWallpaper(g, debounced.params, size) !== renderWallpaper(g, { ...debounced.params, [SAFE_AREA]: "off" }, size);
+  }, [debounced]);
   const previewZones: PreviewZone[] = lockScreenZones({ w: debounced.w, h: debounced.h }, debounced.params[SAFE_AREA]).map((z, i) => ({
     ...z,
     label: i === 0 ? "Clock and date" : "Buttons",
@@ -287,7 +295,7 @@ export function Studio() {
               })
             }
           />
-          {safeOffered && <SafeAreaToggle mode={safeMode} onChange={(m) => setParam(SAFE_AREA, m)} />}
+          {safeOffered && <SafeAreaToggle mode={safeMode} hasEffect={safeHasEffect} onChange={(m) => setParam(SAFE_AREA, m)} />}
         </section>
         <section className="col-section">
           <span className="label">Multi-monitor</span>
