@@ -146,22 +146,96 @@ code, kbd, .mono { font-family: var(--font-mono); }
 .label { font: 500 11px var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .eyebrow { font: 500 12px var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--orange-text); }
 
-/* ---------- header / footer ---------- */
-.site-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.site-header .container { display: flex; align-items: center; gap: 18px; height: 56px; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -0.01em; }
-.nav { display: flex; gap: 4px; margin-left: auto; align-items: center; }
-.nav a { text-decoration: none; padding: 6px 10px; border-radius: var(--radius); color: var(--muted); font-weight: 500; }
-.nav a:hover, .nav a[aria-current="page"] { color: var(--ink); background: var(--accent-soft); }
-@media (max-width: 520px) { .nav a.hide-sm { display: none; } .nav { gap: 0; } .site-header .container { gap: 10px; } }
-/* Narrow phones: the mark alone links home, so the nav and theme toggle fit without clipping. */
-@media (max-width: 420px) { .site-header .logo-word { display: none; } .nav a { padding: 6px 9px; } }
+/* ---------- header ----------
+   Sticky. Transparent over the top of the page; once the sentinel scrolls away
+   (data-scrolled="true") a blurred midnight glass layer fades in behind it. */
+.header-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 24px; pointer-events: none; }
+.site-header { position: sticky; top: 0; z-index: 30; isolation: isolate; }
+.site-header::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--header-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border-bottom: 1px solid var(--line);
+  opacity: 0; transition: opacity 0.25s ease;
+}
+.site-header[data-scrolled="true"]::before { opacity: 1; }
+.header-row { display: flex; align-items: center; gap: 16px; height: var(--header-h); }
+.brand { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; border-radius: var(--radius-sm); flex: none; }
+.header-tools { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: none; }
 
-/* logo */
-.logo { display: inline-flex; align-items: center; gap: 9px; }
+/* Wide: links sit in one capsule. The current page gets a filled pill and an orange bar. */
+.nav-wide { display: none; margin-left: auto; }
+.nav-wide ul { display: flex; align-items: center; gap: 2px; list-style: none; margin: 0; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--surface) 55%, transparent); }
+.nav-wide a {
+  position: relative; display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px;
+  color: var(--muted); font-weight: 500; font-size: 14.5px; text-decoration: none; white-space: nowrap;
+  transition: color 0.15s, background-color 0.15s;
+}
+.nav-wide a:hover { color: var(--ink); background: var(--accent-soft); }
+.nav-wide a[aria-current="page"] { color: var(--ink); background: var(--surface-2); font-weight: 600; }
+.nav-wide a::after {
+  content: ""; position: absolute; left: 50%; bottom: 4px; width: 14px; height: 2.5px; margin-left: -7px; border-radius: 2px;
+  background: var(--orange-text); transform: scaleX(0); transition: transform 0.25s var(--ease-out);
+}
+.nav-wide a[aria-current="page"]::after { transform: scaleX(1); }
+.nav-wide a:focus-visible { outline-offset: 1px; border-radius: 999px; }
+@media (min-width: 960px) {
+  .nav-wide { display: block; }
+  .header-tools { margin-left: 4px; }
+  .header-tools .menu-btn { display: none; }
+}
+
+/* Icon button (theme toggle) and the phone menu button: 44px targets. */
+.icon-btn, .menu-btn {
+  display: inline-grid; place-items: center; height: 44px; min-width: 44px; border-radius: 999px;
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 55%, transparent); color: var(--ink);
+  cursor: pointer; transition: border-color 0.15s, background-color 0.15s, scale 0.12s;
+}
+.icon-btn:hover, .menu-btn:hover { border-color: var(--line-strong); background: var(--surface-2); }
+.menu-btn { display: inline-flex; gap: 10px; padding: 0 16px 0 14px; font: 600 14px var(--font-ui); }
+.menu-icon { display: grid; gap: 5px; width: 16px; }
+.menu-icon i { display: block; height: 2px; border-radius: 2px; background: currentColor; transition: transform 0.25s var(--ease-out); }
+.menu-btn[data-open="true"] .menu-icon i:first-child { transform: translateY(3.5px) rotate(45deg); }
+.menu-btn[data-open="true"] .menu-icon i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+
+/* Theme toggle: both glyphs stacked; the sun shows in dark (switch to light), the moon in light. */
+.theme-toggle { position: relative; }
+.theme-toggle svg { grid-area: 1 / 1; transition: opacity 0.2s, transform 0.35s var(--ease-out); }
+.theme-toggle[data-theme-state="dark"] .tt-moon, .theme-toggle[data-theme-state="light"] .tt-sun { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+.theme-toggle .tt-sun { color: var(--orange-text); }
+
+/* Phone menu: a native popover (light dismiss, Esc and focus handling come free). */
+.menu-panel {
+  position: fixed; inset: calc(var(--header-h) - 4px) 12px auto 12px; margin: 0; width: auto; max-height: calc(100dvh - var(--header-h) - 16px); overflow: auto;
+  padding: 10px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 96%, transparent); color: var(--ink);
+  box-shadow: var(--shadow-lift);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  transform-origin: top right;
+}
+.menu-panel::backdrop { background: rgb(5 7 15 / 0.45); }
+.menu-panel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.menu-panel li a {
+  display: grid; gap: 1px; padding: 10px 14px; min-height: 56px; align-content: center; border-radius: var(--radius);
+  text-decoration: none; color: var(--ink); transition: background-color 0.15s;
+}
+.menu-panel li a:hover { background: var(--accent-soft); }
+.menu-panel li a[aria-current="page"] { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--orange-text); }
+.mp-label { font-weight: 600; font-size: 17px; letter-spacing: -0.01em; }
+.mp-note { color: var(--muted); font-size: 13px; }
+.menu-foot { display: grid; gap: 6px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+@media (min-width: 600px) { .menu-panel { left: auto; width: 360px; } }
+
+/* ---------- logo ---------- */
+.logo { display: inline-flex; align-items: center; gap: 10px; }
 .logo svg { flex: none; display: block; }
-.logo-word { font-weight: 700; font-size: 18px; letter-spacing: -0.03em; color: var(--ink); }
-.logo-word span { color: var(--orange-text); }
+.logo-word { font-weight: 700; font-size: 19px; letter-spacing: -0.035em; color: var(--ink); line-height: 1; }
+.logo-word em { font: italic 400 1.18em/1 var(--font-serif); letter-spacing: -0.01em; color: var(--orange-text); padding-left: 1px; }
+.logo-seed { transform-box: fill-box; transform-origin: 0% 100%; transition: transform 0.45s var(--ease-out); }
+@media (prefers-reduced-motion: no-preference) {
+  .brand:hover .logo-seed { transform: rotate(-8deg) scale(1.06); }
+}
 
 /* ---------- footer ---------- */
 /* The single ad, at the end of the page. Height is reserved so it never shifts the content above. */
@@ -239,7 +313,7 @@ code, kbd, .mono { font-family: var(--font-mono); }
 @media (max-width: 900px) { .hero-inner { grid-template-columns: 1fr; padding-top: 48px; } }
 
 /* ---------- sections & cards ---------- */
-.section { padding-top: 56px; }
+.section { padding-top: var(--header-h); }
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .section-head h2 { font-size: 28px; }
 .section-head p { color: var(--muted); margin-top: 6px; }
@@ -260,9 +334,9 @@ code, kbd, .mono { font-family: var(--font-mono); }
 .thumb-loading { background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, transparent 10px 20px); }
 
 /* ---------- studio ---------- */
-.studio { display: grid; grid-template-columns: 260px minmax(0, 1fr) 320px; gap: 0; min-height: calc(100dvh - 56px); }
+.studio { display: grid; grid-template-columns: 260px minmax(0, 1fr) 320px; gap: 0; min-height: calc(100dvh - var(--header-h)); }
 .studio > * { min-width: 0; }
-.studio-col { padding: 16px; border-right: 1px solid var(--line); overflow-y: auto; max-height: calc(100dvh - 56px); position: sticky; top: 56px; }
+.studio-col { padding: 16px; border-right: 1px solid var(--line); overflow-y: auto; max-height: calc(100dvh - var(--header-h)); position: sticky; top: var(--header-h); }
 .studio-col:last-child { border-right: 0; border-left: 1px solid var(--line); }
 .studio-stage { padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .gen-list { display: flex; flex-direction: column; gap: 2px; }
@@ -360,7 +434,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; heigh
   .studio .preset-btn { scroll-snap-align: start; }
 }
 @media (max-width: 760px) and (min-height: 600px) {
-  .studio-stage { position: sticky; top: 56px; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 6px 12px -10px rgb(0 0 0 / 0.3); }
+  .studio-stage { position: sticky; top: var(--header-h); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 6px 12px -10px rgb(0 0 0 / 0.3); }
   .studio-stage .preview-wrap { --preview-vh: 0.34; flex: none; }
   .studio-stage .actions { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .studio-stage .actions { gap: 6px; }
@@ -441,9 +515,6 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
   /* 16px stops iOS zooming in when a field is focused. */
   .input, .select { height: 44px; font-size: 16px; }
   .textarea { font-size: 16px; }
-  .nav a { min-height: 44px; display: inline-flex; align-items: center; }
-  .nav .btn-ghost { width: 44px; padding: 0; }
-  .brand { min-height: 44px; min-width: 44px; }
   .gen-list button { padding: 12px 12px; }
   .param-group > summary { min-height: 44px; margin-bottom: 4px; }
   .toggle { min-height: 44px; margin-bottom: 4px; }
@@ -473,9 +544,9 @@ dialog.wp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
 }
 
 /* ---------- seeds, personal wallpapers ---------- */
-.viewer { display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: calc(100dvh - 56px); }
+.viewer { display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: calc(100dvh - var(--header-h)); }
 .viewer-stage { padding: 20px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.viewer-side { padding: 16px; border-left: 1px solid var(--line); overflow-y: auto; max-height: calc(100dvh - 56px); position: sticky; top: 56px; }
+.viewer-side { padding: 16px; border-left: 1px solid var(--line); overflow-y: auto; max-height: calc(100dvh - var(--header-h)); position: sticky; top: var(--header-h); }
 @media (max-width: 900px) {
   .viewer { grid-template-columns: minmax(0, 1fr); }
   .viewer-stage { padding: 14px; }
