@@ -636,6 +636,7 @@ dialog.wp-dialog { border: 1px solid var(--line-strong); border-radius: var(--ra
 .gen-hero p { color: var(--muted); margin: 18px 0 0; font-size: 17.5px; max-width: 52ch; }
 .gen-hero .hero-actions { margin-top: 28px; }
 .page-meta { margin-top: 16px; font-size: 13.5px; color: var(--muted); }
+.section > .gen-hero:first-child { padding-top: 0; }
 @media (max-width: 860px) { .gen-hero { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 32px; } }
 .param-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .param-table th, .param-table td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
