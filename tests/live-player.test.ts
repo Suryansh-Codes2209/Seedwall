@@ -179,7 +179,17 @@ function fakeGl() {
       calls.draws++;
     },
   };
-  const canvas = { width: 0, height: 0, clientWidth: 64, clientHeight: 32, getContext: () => gl } as unknown as HTMLCanvasElement;
+  const events = new EventTarget();
+  const canvas = {
+    width: 0,
+    height: 0,
+    clientWidth: 64,
+    clientHeight: 32,
+    getContext: () => gl,
+    addEventListener: events.addEventListener.bind(events),
+    removeEventListener: events.removeEventListener.bind(events),
+    dispatchEvent: events.dispatchEvent.bind(events),
+  } as unknown as HTMLCanvasElement;
   return { canvas, calls };
 }
 
@@ -258,5 +268,49 @@ describe("createLivePlayer speed changes", () => {
     player.start();
     f.frame(9000);
     expect(calls.phases.at(-1)).toBeCloseTo(0.25, 6);
+  });
+});
+
+describe("createLivePlayer playback", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("stops playing and dispatches \"lost\" when the GL context is lost", () => {
+    const f = fakeFrames();
+    const { canvas, calls } = fakeGl();
+    const lost = vi.fn();
+    canvas.addEventListener("lost", lost);
+    const player = createLivePlayer(canvas, SCENE, {}, { scale: 1 })!;
+    player.start();
+    f.frame(100);
+    expect(calls.draws).toBe(1);
+
+    canvas.dispatchEvent(new Event("webglcontextlost"));
+    expect(lost).toHaveBeenCalledTimes(1);
+    expect(lost.mock.calls[0]![0]).toBeInstanceOf(CustomEvent);
+    expect(f.caf).toHaveBeenCalled();
+
+    // Nothing more is drawn, and start() can't bring the loop back on a lost context.
+    const requested = f.raf.mock.calls.length;
+    f.frame(200);
+    player.start();
+    f.frame(300);
+    expect(calls.draws).toBe(1);
+    expect(f.raf.mock.calls.length).toBe(requested);
+  });
+
+  it("never calls requestAnimationFrame under reduced motion", () => {
+    const f = fakeFrames();
+    const { canvas, calls } = fakeGl();
+    const player = createLivePlayer(canvas, SCENE, {}, { scale: 1, reducedMotion: true })!;
+    player.start();
+    player.setParams({ bg: "#ffffff" });
+    player.stop();
+    player.start();
+    expect(f.raf).not.toHaveBeenCalled();
+    expect(calls.draws).toBeGreaterThan(0); // the still frame
+    expect(calls.phases.every((p) => p === 0)).toBe(true);
   });
 });
