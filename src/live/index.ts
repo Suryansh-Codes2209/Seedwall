@@ -3,13 +3,14 @@ import { coerceParam } from "@/generators/render";
 import { chromeTide } from "./scenes/chrome-tide";
 import { glassOrbs } from "./scenes/glass-orbs";
 import { gridRun } from "./scenes/grid-run";
+import { monolith } from "./scenes/monolith";
 import { planetfall } from "./scenes/planetfall";
 import type { AnyLiveScene, LiveScene } from "./types";
 
 const reg = <P extends Params>(s: LiveScene<P>): AnyLiveScene => s as unknown as AnyLiveScene;
 
 /** Every live scene on the site. Add a scene = add a file + one line here. */
-export const LIVE_SCENES: readonly AnyLiveScene[] = [reg(glassOrbs), reg(chromeTide), reg(planetfall), reg(gridRun)];
+export const LIVE_SCENES: readonly AnyLiveScene[] = [reg(glassOrbs), reg(chromeTide), reg(planetfall), reg(gridRun), reg(monolith)];
 
 export function getLiveScene(id: string): AnyLiveScene | undefined {
   return LIVE_SCENES.find((s) => s.id === id);
