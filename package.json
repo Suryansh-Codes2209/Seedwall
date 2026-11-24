@@ -13,7 +13,8 @@
     "samples": "tsx scripts/samples.ts",
     "sync:drive": "tsx --env-file=.env scripts/sync-drive.ts",
     "fonts:metrics": "tsx scripts/font-metrics.ts",
-    "og": "tsx scripts/og.ts"
+    "og": "tsx scripts/og.ts",
+    "live:posters": "tsx scripts/live-posters.ts"
   },
   "dependencies": {
     "@resvg/resvg-js": "^2.6.2",
@@ -30,6 +31,7 @@
     "@types/react-dom": "^19.3.0",
     "fast-xml-parser": "^5.12.0",
     "opentype.js": "^2.0.0",
+    "playwright-core": "^1.65.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"

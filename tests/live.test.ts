@@ -65,12 +65,16 @@ describe("registry", () => {
     expect(getLiveScene("does-not-exist")).toBeUndefined();
   });
 
+  it("has at least one scene", () => {
+    expect(LIVE_SCENES.length).toBeGreaterThan(0);
+    expect(getLiveScene("glass-orbs")).toBeDefined();
+  });
+
   it("scene ids are unique", () => {
     expect(new Set(LIVE_SCENES.map((s) => s.id)).size).toBe(LIVE_SCENES.length);
   });
 });
 
-// Runs no tests until Task 3 adds the first scene (vitest accepts an empty table silently).
 describe.each(LIVE_SCENES.map((s) => [s.id, s] as const))("%s", (_id, s) => {
   it("has metadata and ≥4 unique presets", () => {
     expect(s.name).toBeTruthy();

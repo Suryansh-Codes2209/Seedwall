@@ -1,9 +1,12 @@
 import type { Params } from "@/generators/types";
 import { coerceParam } from "@/generators/render";
-import type { AnyLiveScene } from "./types";
+import { glassOrbs } from "./scenes/glass-orbs";
+import type { AnyLiveScene, LiveScene } from "./types";
+
+const reg = <P extends Params>(s: LiveScene<P>): AnyLiveScene => s as unknown as AnyLiveScene;
 
 /** Every live scene on the site. Add a scene = add a file + one line here. */
-export const LIVE_SCENES: readonly AnyLiveScene[] = [];
+export const LIVE_SCENES: readonly AnyLiveScene[] = [reg(glassOrbs)];
 
 export function getLiveScene(id: string): AnyLiveScene | undefined {
   return LIVE_SCENES.find((s) => s.id === id);
