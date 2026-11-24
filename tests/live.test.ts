@@ -71,6 +71,10 @@ describe("registry", () => {
     expect(getLiveScene("glass-orbs")).toBeDefined();
   });
 
+  it.each(["chrome-tide"])("registers %s", (id) => {
+    expect(getLiveScene(id)).toBeDefined();
+  });
+
   it("scene ids are unique", () => {
     expect(new Set(LIVE_SCENES.map((s) => s.id)).size).toBe(LIVE_SCENES.length);
   });
