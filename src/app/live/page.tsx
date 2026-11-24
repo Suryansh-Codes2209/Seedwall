@@ -8,7 +8,7 @@ const image = first ? `/live/${first.id}/${first.presets[0]?.id ?? ""}.jpg` : "/
 const meta = pageMetadata({
   title: "Live wallpapers: moving 3D desktop backgrounds",
   description:
-    "Free live wallpapers that loop seamlessly: 3D scenes rendered in your browser. Pick a preset, change the colours and seed, then download a still or a video loop, or play it on your Mac desktop.",
+    "Free live wallpapers that loop seamlessly: 3D scenes rendered in your browser. Pick a preset, change the colours and seed, then download a still or a video loop.",
   path: "/live",
   image,
   imageAlt: "Seedwall live wallpapers",
@@ -26,7 +26,7 @@ export default function LivePage() {
         <div>
           <span className="eyebrow">Live</span>
           <h1 className="page-h1">Live <em>wallpapers</em></h1>
-          <p>Moving 3D scenes that loop without a seam. Hover over one to play it, then open it to change the colours and download a still or a loop.</p>
+          <p>Moving 3D scenes that loop without a seam. Hover over one to play it, or on a touch screen scroll it to the middle of the screen. Open one to change the colours and download a still or a loop.</p>
         </div>
       </div>
       <LiveGrid />
