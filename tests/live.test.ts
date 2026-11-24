@@ -71,7 +71,7 @@ describe("registry", () => {
     expect(getLiveScene("glass-orbs")).toBeDefined();
   });
 
-  it.each(["chrome-tide", "planetfall", "grid-run", "monolith", "monsoon-glass", "diya-lake"])("registers %s", (id) => {
+  it.each(["chrome-tide", "planetfall", "grid-run", "monolith", "monsoon-glass", "diya-lake", "nebula-drift"])("registers %s", (id) => {
     expect(getLiveScene(id)).toBeDefined();
   });
 
