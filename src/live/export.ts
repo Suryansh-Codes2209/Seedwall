@@ -1,5 +1,5 @@
 import type { Params } from "@/generators/types";
-import { loopMultiplier, shouldDraw } from "./loop";
+import { effectiveLoopSeconds, shouldDraw } from "./loop";
 import { createLivePlayer, type LivePlayer } from "./player";
 import type { AnyLiveScene } from "./types";
 
@@ -42,12 +42,6 @@ export function exportMaxSide(): number {
   maxSide = gl ? (gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) as number) : 4096;
   gl?.getExtension("WEBGL_lose_context")?.loseContext();
   return maxSide;
-}
-
-/** Seconds one loop really lasts: the scene's loop scaled by the speed multiplier the player uses. */
-function effectiveLoopSeconds(scene: AnyLiveScene, params: Params): number {
-  const s = Number(params.speed ?? scene.params.speed?.default ?? 1);
-  return scene.loopSeconds * loopMultiplier(Number.isFinite(s) ? s : 1);
 }
 
 /**

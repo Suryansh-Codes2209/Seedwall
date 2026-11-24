@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ParamValue } from "@/generators/types";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
 import { browserVideoMime, captureStill, clampExportSize, exportFileName, exportMaxSide, recordLoop } from "@/live/export";
-import { loopMultiplier } from "@/live/loop";
+import { effectiveLoopSeconds } from "@/live/loop";
 import { decodeLiveState, liveHref, type LiveState } from "@/lib/liveState";
 import { useDebounced } from "@/lib/useDebounced";
 import { downloadBlob } from "@/lib/svgToPng";
@@ -62,8 +62,7 @@ export function LivePlayerView({ sceneId }: { sceneId: string }) {
   const recording = useRef<AbortController | null>(null);
   useEffect(() => () => recording.current?.abort(), []);
 
-  const speed = Number(params.speed ?? 1);
-  const loopSeconds = scene.loopSeconds * loopMultiplier(Number.isFinite(speed) ? speed : 1);
+  const loopSeconds = effectiveLoopSeconds(scene, params);
   const busy = exporting || recorded !== null;
 
   /** The page's size, shrunk to what the GPU can render, plus a note when it had to shrink. */

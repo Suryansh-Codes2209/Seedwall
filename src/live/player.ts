@@ -1,6 +1,6 @@
 import type { Params } from "@/generators/types";
 import { buildFragment } from "./glsl/prelude";
-import { clampMouse, loopMultiplier, phaseAt, shouldDraw, smoothMouse } from "./loop";
+import { clampMouse, effectiveLoopSeconds, phaseAt, shouldDraw, smoothMouse } from "./loop";
 import type { AnyLiveScene } from "./types";
 import { paramUniforms, type UniformValue } from "./uniforms";
 
@@ -112,7 +112,7 @@ export function createLivePlayer(
     uniforms = paramUniforms(scene, p);
     const s = Number(p.speed ?? scene.params.speed?.default ?? 1);
     speed = Number.isFinite(s) ? s : 1;
-    loopSeconds = scene.loopSeconds * loopMultiplier(speed);
+    loopSeconds = effectiveLoopSeconds(scene, p);
     // Not animating (stopped, paused or reduced motion): refresh the still so it shows the new params.
     if (!raf && drawnPhase !== null) renderFrame(drawnPhase);
   }

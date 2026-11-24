@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildFragment } from "@/live/glsl/prelude";
-import { clampMouse, phaseAt, pointerToMouse, shouldDraw, smoothMouse } from "@/live/loop";
+import { clampMouse, effectiveLoopSeconds, phaseAt, pointerToMouse, shouldDraw, smoothMouse } from "@/live/loop";
 import { createLivePlayer } from "@/live/player";
 import type { AnyLiveScene } from "@/live/types";
 
@@ -45,6 +45,22 @@ describe("phaseAt", () => {
     expect(phaseAt(5000, 10, 2)).toBe(0); // loop 5 s
     expect(phaseAt(5000, 10, 1.9)).toBe(0); // nearest is still 2×
     expect(phaseAt(15000, 20, 1 / 1.5)).toBeCloseTo(0.5, 10); // loop 30 s
+  });
+});
+
+describe("effectiveLoopSeconds", () => {
+  it("scales the scene loop by the speed multiplier", () => {
+    expect(effectiveLoopSeconds(SCENE, { speed: 1 })).toBe(10);
+    expect(effectiveLoopSeconds(SCENE, { speed: 2 })).toBe(5);
+    expect(effectiveLoopSeconds(SCENE, { speed: 0.5 })).toBe(20);
+  });
+
+  it("falls back to the scene's speed default, then 1", () => {
+    const fast = { ...SCENE, params: { ...SCENE.params, speed: { ...SCENE.params.speed!, default: 2 } } } as AnyLiveScene;
+    expect(effectiveLoopSeconds(fast, {})).toBe(5);
+    const noSpeed = { ...SCENE, params: { seed: SCENE.params.seed! } } as AnyLiveScene;
+    expect(effectiveLoopSeconds(noSpeed, {})).toBe(10);
+    expect(effectiveLoopSeconds(SCENE, { speed: "fast" })).toBe(10);
   });
 });
 

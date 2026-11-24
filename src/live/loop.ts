@@ -1,3 +1,6 @@
+import type { Params } from "@/generators/types";
+import type { AnyLiveScene } from "./types";
+
 /** Loop-length multipliers a `speed` value snaps to (speed 2 → 0.5× the loop, speed 0.5 → 2×). */
 const LOOP_MULTIPLIERS = [2, 1.5, 1, 0.75, 0.5] as const;
 
@@ -7,6 +10,12 @@ export function loopMultiplier(speed: number): number {
   let best: number = LOOP_MULTIPLIERS[0];
   for (const m of LOOP_MULTIPLIERS) if (Math.abs(m - want) < Math.abs(best - want)) best = m;
   return best;
+}
+
+/** Seconds one loop really lasts: the scene's loop scaled by the multiplier its `speed` param snaps to. */
+export function effectiveLoopSeconds(scene: AnyLiveScene, params: Params): number {
+  const s = Number(params.speed ?? scene.params.speed?.default ?? 1);
+  return scene.loopSeconds * loopMultiplier(Number.isFinite(s) ? s : 1);
 }
 
 /** Loop phase in [0, 1) after `elapsedMs`, for a scene loop of `loopSeconds` played at `speed`. */
