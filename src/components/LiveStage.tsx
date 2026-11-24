@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Params } from "@/generators/types";
 import { pointerToMouse } from "@/live/loop";
-import { createLivePlayer, type LivePlayer } from "@/live/player";
+import { createLivePlayer, loseContext, type LivePlayer } from "@/live/player";
 import { posterPath } from "@/live/poster";
 import type { AnyLiveScene } from "@/live/types";
 
@@ -26,7 +26,7 @@ interface Props {
  */
 export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
   const playerRef = useRef<LivePlayer | null>(null);
   const paramsRef = useRef(params);
   const reducedRef = useRef(false);
@@ -48,23 +48,35 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const el = stage.current;
+    if (!el) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     reducedRef.current = reduced;
+    // A fresh canvas per player, so losing the old context on cleanup never breaks the next player
+    // (a frame-rate change, or StrictMode's dev remount). In the stage before the player starts, so it sizes to it.
+    const canvas = document.createElement("canvas");
+    el.prepend(canvas);
     const player = createLivePlayer(canvas, scene, paramsRef.current, { reducedMotion: reduced, fps });
     if (!player) {
+      canvas.remove();
       setFailed(true);
       return;
     }
     setFailed(false);
     playerRef.current = player;
-    const onLost = () => setFailed(true);
+    let lost = false;
+    const onLost = () => {
+      lost = true;
+      canvas.hidden = true;
+      setFailed(true);
+    };
     canvas.addEventListener("lost", onLost);
     player.start();
     return () => {
       canvas.removeEventListener("lost", onLost);
       player.dispose();
+      if (!lost) loseContext(player.gl); // free the GPU context now, not when the canvas is collected
+      canvas.remove();
       playerRef.current = null;
     };
   }, [scene, fps]);
@@ -90,6 +102,7 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
     <div className="preview-wrap live-stage" ref={wrap}>
       <div
         className="preview"
+        ref={stage}
         style={{ width: dw, height: dh }}
         role="img"
         aria-label={`${scene.name} live wallpaper, ${w} by ${h} pixels`}
@@ -99,7 +112,6 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
         }}
         onPointerLeave={() => playerRef.current?.setMouse(0, 0)}
       >
-        <canvas ref={canvasRef} hidden={failed} />
         {/* eslint-disable-next-line @next/next/no-img-element -- a fixed-size poster from /public, no optimisation needed */}
         {failed && <img src={poster} alt="" />}
       </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVE_SCENES, resolveLiveParams } from "@/live";
-import { createLivePlayer } from "@/live/player";
+import { createLivePlayer, loseContext } from "@/live/player";
 import { posterPath } from "@/live/poster";
 import { createHoverIntent, createSharedPlayer, type SharedPlayer } from "@/live/shared";
 
@@ -28,10 +28,16 @@ export function LiveGrid() {
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-hidden", "true");
     canvasRef.current = canvas;
-    const shared = createSharedPlayer((scene, params) => createLivePlayer(canvas, scene, params, { fps: 30, mouse: false }));
+    let gl: WebGL2RenderingContext | null = null;
+    const shared = createSharedPlayer((scene, params) => {
+      const player = createLivePlayer(canvas, scene, params, { fps: 30, mouse: false });
+      if (player) gl = player.gl;
+      return player;
+    });
     sharedRef.current = shared;
     // A lost GPU context ends the animation for this visit; the posters carry on.
     const onLost = () => {
+      gl = null;
       shared.dispose();
       sharedRef.current = null;
       canvas.remove();
@@ -42,6 +48,8 @@ export function LiveGrid() {
     return () => {
       canvas.removeEventListener("lost", onLost);
       shared.dispose();
+      // This canvas is never used again, so free its context now rather than at garbage collection.
+      if (gl) loseContext(gl);
       canvas.remove();
       sharedRef.current = null;
       canvasRef.current = null;

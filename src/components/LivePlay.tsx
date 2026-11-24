@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
 import { pointerToMouse } from "@/live/loop";
-import { createLivePlayer, type LivePlayer } from "@/live/player";
+import { createLivePlayer, loseContext, type LivePlayer } from "@/live/player";
 import { posterPath } from "@/live/poster";
 import { decodeLiveState, decodePlayOptions } from "@/lib/liveState";
 
@@ -27,7 +27,7 @@ declare global {
 /** The full-viewport player on /live/[id]/play. It covers the site chrome and hides page scrolling. */
 export function LivePlay({ sceneId }: { sceneId: string }) {
   const search = useSearchParams();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
   const [poster, setPoster] = useState<string | null>(null);
   const query = search.toString();
 
@@ -40,8 +40,12 @@ export function LivePlay({ sceneId }: { sceneId: string }) {
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const el = stage.current;
+    if (!el) return;
+    // A fresh canvas per player, so losing the old context on cleanup never breaks the next player
+    // (a query change, or StrictMode's dev remount).
+    const canvas = document.createElement("canvas");
+    el.prepend(canvas);
     const q = new URLSearchParams(query);
     const state = decodeLiveState(sceneId, q);
     const scene = getLiveScene(state.scene) ?? LIVE_SCENES[0]!;
@@ -61,6 +65,7 @@ export function LivePlay({ sceneId }: { sceneId: string }) {
     const showPoster = () => {
       player?.dispose();
       player = null;
+      canvas.hidden = true;
       setPoster(posterUrl);
     };
 
@@ -94,14 +99,18 @@ export function LivePlay({ sceneId }: { sceneId: string }) {
       cancelAnimationFrame(raf);
       canvas.removeEventListener("lost", onLost);
       window.removeEventListener("pointermove", onPointer);
-      player?.dispose();
+      // A lost context already set player to null; otherwise free the GPU context now, not at GC.
+      if (player) {
+        player.dispose();
+        loseContext(player.gl);
+      }
+      canvas.remove();
       if (window.seedwallLive === control) delete window.seedwallLive;
     };
   }, [sceneId, query]);
 
   return (
-    <div className="live-play">
-      <canvas ref={canvasRef} hidden={poster !== null} />
+    <div className="live-play" ref={stage}>
       {poster && (
         // eslint-disable-next-line @next/next/no-img-element -- a fixed-size poster from /public, no optimisation needed
         <img
