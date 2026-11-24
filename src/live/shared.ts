@@ -24,7 +24,8 @@ export interface SharedPlayer {
 /**
  * One player for a whole page of cards, so the page never holds more than one WebGL context.
  * Showing the same shader again only rebinds params; a different shader disposes the old
- * player before the factory builds the next one.
+ * player before the factory builds the next one. The factory draws on one canvas, so the
+ * player's per-context program cache means a shader seen before links no new program.
  */
 export function createSharedPlayer(factory: SharedPlayerFactory): SharedPlayer {
   let current: { fragment: string; player: SharedPlayable } | null = null;
@@ -51,5 +52,46 @@ export function createSharedPlayer(factory: SharedPlayerFactory): SharedPlayer {
       current?.player.stop();
     },
     dispose: drop,
+  };
+}
+
+export interface HoverIntent {
+  /** The pointer entered card `id`: activate it once the pointer has rested for the delay. */
+  enter(id: string): void;
+  /** The pointer left card `id`: drop its pending activation, if it has one. */
+  leave(id: string): void;
+  /** Activate `id` at once (keyboard focus), dropping any pending hover. */
+  now(id: string): void;
+  /** Drop any pending activation. */
+  cancel(): void;
+}
+
+/**
+ * Hover intent for the /live grid: a card only starts playing once the pointer rests on it for
+ * `delayMs`, so sweeping across the grid doesn't build a player for every card it crosses.
+ */
+export function createHoverIntent(delayMs: number, activate: (id: string) => void): HoverIntent {
+  let pending: { id: string; timer: ReturnType<typeof setTimeout> } | null = null;
+  const cancel = () => {
+    if (pending) clearTimeout(pending.timer);
+    pending = null;
+  };
+  return {
+    enter(id) {
+      cancel();
+      const timer = setTimeout(() => {
+        pending = null;
+        activate(id);
+      }, delayMs);
+      pending = { id, timer };
+    },
+    leave(id) {
+      if (pending?.id === id) cancel();
+    },
+    now(id) {
+      cancel();
+      activate(id);
+    },
+    cancel,
   };
 }

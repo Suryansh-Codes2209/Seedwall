@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { coerceParam } from "@/generators/render";
 import { createRng } from "@/generators/shared/rng";
 import type { Params } from "@/generators/types";
@@ -7,7 +7,10 @@ import type { LiveScene } from "@/live/types";
 import { loopMultiplier } from "@/live/loop";
 import { posterPath } from "@/live/poster";
 import { paramUniforms } from "@/live/uniforms";
-import { createSharedPlayer } from "@/live/shared";
+import { buildFragment } from "@/live/glsl/prelude";
+import { createLivePlayer } from "@/live/player";
+import { createHoverIntent, createSharedPlayer } from "@/live/shared";
+import { fakeGl } from "./fixtures/fakeGl";
 
 type TestP = Params & { bg: string; amt: number; on: boolean; mode: string; seed: number };
 
@@ -186,5 +189,98 @@ describe("createSharedPlayer", () => {
     const shared = createSharedPlayer(() => null);
     expect(shared.show(sceneN(1), {})).toBe(false);
     expect(() => shared.hide()).not.toThrow();
+  });
+});
+
+describe("shared player program cache", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const sceneN = (n: number): LiveScene => ({ ...scene, id: `scene-${n}`, fragment: `vec3 scene(vec2 uv) { return vec3(${n}.0); }` });
+
+  it("A, B, A on one canvas compiles A once", () => {
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
+    const { canvas, calls } = fakeGl();
+    const shared = createSharedPlayer((s, p) => createLivePlayer(canvas, s, p, { scale: 1, mouse: false }));
+    const [a, b] = [sceneN(1), sceneN(2)];
+    for (const s of [a, b, a, b]) expect(shared.show(s, resolveLiveParams(s))).toBe(true);
+    expect(calls.fragments.filter((f) => f === buildFragment(a))).toHaveLength(1);
+    expect(calls.fragments.filter((f) => f === buildFragment(b))).toHaveLength(1);
+    expect(calls.links).toBe(2);
+    shared.dispose();
+  });
+
+  it("caches per GL context, so another canvas compiles its own program", () => {
+    const a = sceneN(1);
+    const one = fakeGl();
+    const two = fakeGl();
+    createLivePlayer(one.canvas, a, {}, { scale: 1 })?.dispose();
+    createLivePlayer(two.canvas, a, {}, { scale: 1 })?.dispose();
+    expect(one.calls.links).toBe(1);
+    expect(two.calls.links).toBe(1);
+  });
+
+  it("drops the cache when the context is lost", () => {
+    const a = sceneN(1);
+    const { canvas, calls } = fakeGl();
+    createLivePlayer(canvas, a, {}, { scale: 1 });
+    canvas.dispatchEvent(new Event("webglcontextlost"));
+    createLivePlayer(canvas, a, {}, { scale: 1 });
+    expect(calls.links).toBe(2);
+  });
+});
+
+describe("createHoverIntent", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("activates only after the pointer rests for the delay", () => {
+    vi.useFakeTimers();
+    const activate = vi.fn();
+    const intent = createHoverIntent(150, activate);
+    intent.enter("a");
+    vi.advanceTimersByTime(149);
+    expect(activate).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(activate).toHaveBeenCalledExactlyOnceWith("a");
+  });
+
+  it("a sweep across cards activates only the card the pointer stops on", () => {
+    vi.useFakeTimers();
+    const activate = vi.fn();
+    const intent = createHoverIntent(150, activate);
+    for (const id of ["a", "b", "c"]) {
+      intent.enter(id);
+      vi.advanceTimersByTime(60);
+      intent.leave(id);
+    }
+    intent.enter("d");
+    vi.advanceTimersByTime(500);
+    expect(activate.mock.calls).toEqual([["d"]]);
+  });
+
+  it("leaving before the delay cancels; leaving another card doesn't", () => {
+    vi.useFakeTimers();
+    const activate = vi.fn();
+    const intent = createHoverIntent(150, activate);
+    intent.enter("a");
+    intent.leave("a");
+    vi.advanceTimersByTime(500);
+    expect(activate).not.toHaveBeenCalled();
+    intent.enter("b");
+    intent.leave("a");
+    vi.advanceTimersByTime(150);
+    expect(activate.mock.calls).toEqual([["b"]]);
+  });
+
+  it("now() activates at once and drops a pending hover; cancel() drops it too", () => {
+    vi.useFakeTimers();
+    const activate = vi.fn();
+    const intent = createHoverIntent(150, activate);
+    intent.enter("a");
+    intent.now("b");
+    expect(activate.mock.calls).toEqual([["b"]]);
+    intent.enter("c");
+    intent.cancel();
+    vi.advanceTimersByTime(500);
+    expect(activate.mock.calls).toEqual([["b"]]);
   });
 });

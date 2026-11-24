@@ -1,6 +1,6 @@
 import type { Params } from "@/generators/types";
 import { effectiveLoopSeconds, shouldDraw } from "./loop";
-import { createLivePlayer, type LivePlayer } from "./player";
+import { createLivePlayer, loseContext, type LivePlayer } from "./player";
 import type { AnyLiveScene } from "./types";
 
 /** Fits w×h inside a maxSide square, keeping the aspect ratio. `scaled` says whether it had to shrink. */
@@ -56,7 +56,7 @@ function exportPlayer(scene: AnyLiveScene, params: Params, w: number, h: number,
   if (!player) throw new Error("This browser can't render live wallpapers");
   const release = (p: LivePlayer) => {
     p.dispose();
-    p.gl.getExtension("WEBGL_lose_context")?.loseContext(); // free the context now, not at GC
+    loseContext(p.gl); // free the context now, not at GC
   };
   return { canvas, player, release: () => release(player) };
 }

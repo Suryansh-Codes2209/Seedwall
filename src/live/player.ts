@@ -65,9 +65,33 @@ function link(gl: WebGL2RenderingContext, fragment: string): WebGLProgram | null
 }
 
 /**
+ * Linked programs per GL context, by fragment source. A new player on a canvas that already ran
+ * the same shader (the /live grid's shared canvas, a scene shown again) reuses the program instead
+ * of compiling it again. Programs live as long as their context; lose the context to free them.
+ */
+const programs = new WeakMap<WebGL2RenderingContext, Map<string, WebGLProgram>>();
+
+function cachedProgram(gl: WebGL2RenderingContext, fragment: string): WebGLProgram | null {
+  let byFragment = programs.get(gl);
+  if (!byFragment) programs.set(gl, (byFragment = new Map()));
+  const hit = byFragment.get(fragment);
+  if (hit) return hit;
+  const program = link(gl, fragment);
+  if (program) byFragment.set(fragment, program);
+  return program;
+}
+
+/** Frees the canvas's GL context, and every program cached on it, now rather than at garbage collection. */
+export function loseContext(gl: WebGL2RenderingContext): void {
+  programs.delete(gl);
+  gl.getExtension("WEBGL_lose_context")?.loseContext();
+}
+
+/**
  * Plays a live scene on `canvas` with WebGL2. Returns null when WebGL2 is unavailable or the
  * shader fails to compile, so the caller can show a poster instead. Dispatches a `"lost"` event
- * on the canvas if the GL context is lost.
+ * on the canvas if the GL context is lost. dispose() keeps the compiled program cached on the
+ * context; call loseContext(player.gl) once the canvas is done with for good.
  */
 export function createLivePlayer(
   canvas: HTMLCanvasElement,
@@ -78,7 +102,7 @@ export function createLivePlayer(
   const ctx = canvas.getContext("webgl2", { antialias: false, premultipliedAlpha: false }) as WebGL2RenderingContext | null;
   if (!ctx) return null;
   const gl: WebGL2RenderingContext = ctx;
-  const program = link(gl, buildFragment(scene));
+  const program = cachedProgram(gl, buildFragment(scene));
   if (!program) return null;
 
   const fps = opts.fps ?? 30;
@@ -187,6 +211,7 @@ export function createLivePlayer(
   };
   const onLost = () => {
     lost = true;
+    programs.delete(gl);
     running = false;
     pause();
     canvas.dispatchEvent(new CustomEvent("lost"));
@@ -220,10 +245,8 @@ export function createLivePlayer(
       pause();
       if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility);
       canvas.removeEventListener?.("webglcontextlost", onLost);
-      if (!lost) {
-        gl.deleteVertexArray(vao);
-        gl.deleteProgram(program);
-      }
+      // The program stays cached on the context for the next player; loseContext frees it.
+      if (!lost) gl.deleteVertexArray(vao);
     },
   };
 }

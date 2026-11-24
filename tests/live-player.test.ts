@@ -3,6 +3,7 @@ import { buildFragment } from "@/live/glsl/prelude";
 import { clampMouse, effectiveLoopSeconds, phaseAt, pointerToMouse, shouldDraw, smoothMouse } from "@/live/loop";
 import { createLivePlayer } from "@/live/player";
 import type { AnyLiveScene } from "@/live/types";
+import { fakeGl } from "./fixtures/fakeGl";
 
 const SCENE = {
   id: "player-test",
@@ -145,53 +146,6 @@ describe("createLivePlayer", () => {
     expect(error).toHaveBeenCalledWith(expect.stringContaining("ERROR: 0:1: bad"));
   });
 });
-
-/** A WebGL2 stand-in that compiles and links everything and records draws and colour uniforms. */
-function fakeGl() {
-  const calls = { draws: 0, colors: [] as number[][], phases: [] as number[] };
-  const gl = {
-    VERTEX_SHADER: 1,
-    FRAGMENT_SHADER: 2,
-    COMPILE_STATUS: 3,
-    LINK_STATUS: 4,
-    TRIANGLES: 5,
-    createShader: () => ({}),
-    shaderSource: () => {},
-    compileShader: () => {},
-    getShaderParameter: () => true,
-    deleteShader: () => {},
-    createProgram: () => ({}),
-    attachShader: () => {},
-    linkProgram: () => {},
-    getProgramParameter: () => true,
-    createVertexArray: () => ({}),
-    getUniformLocation: (_p: unknown, name: string) => ({ name }),
-    viewport: () => {},
-    useProgram: () => {},
-    bindVertexArray: () => {},
-    uniform1f: (l: { name: string }, v: number) => {
-      if (l.name === "uPhase") calls.phases.push(v);
-    },
-    uniform1i: () => {},
-    uniform2f: () => {},
-    uniform3f: (_l: unknown, r: number, g: number, b: number) => calls.colors.push([r, g, b]),
-    drawArrays: () => {
-      calls.draws++;
-    },
-  };
-  const events = new EventTarget();
-  const canvas = {
-    width: 0,
-    height: 0,
-    clientWidth: 64,
-    clientHeight: 32,
-    getContext: () => gl,
-    addEventListener: events.addEventListener.bind(events),
-    removeEventListener: events.removeEventListener.bind(events),
-    dispatchEvent: events.dispatchEvent.bind(events),
-  } as unknown as HTMLCanvasElement;
-  return { canvas, calls };
-}
 
 describe("createLivePlayer setParams", () => {
   it("redraws the last frame when a param changes while not animating", () => {

@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LIVE_SCENES, resolveLiveParams } from "@/live";
 import { createLivePlayer } from "@/live/player";
 import { posterPath } from "@/live/poster";
-import { createSharedPlayer, type SharedPlayer } from "@/live/shared";
+import { createHoverIntent, createSharedPlayer, type SharedPlayer } from "@/live/shared";
 
 /**
  * The /live grid. Every card shows its poster; one shared canvas moves into whichever card is
- * hovered or focused (on touch screens, the card in the middle of the viewport) and plays it there,
- * so the page never holds more than one WebGL context. Under reduced motion the posters stay still.
+ * hovered or focused (on touch screens, the card that settles in the middle of the viewport) and plays it there,
+ * so the page never holds more than one WebGL context. A card starts once the pointer rests on it
+ * for HOVER_DELAY_MS (keyboard focus starts it at once). Under reduced motion the posters stay still.
  */
+const HOVER_DELAY_MS = 150;
+
 export function LiveGrid() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sharedRef = useRef<SharedPlayer | null>(null);
@@ -71,6 +74,9 @@ export function LiveGrid() {
     setActive(null);
   }, []);
 
+  const intent = useMemo(() => createHoverIntent(HOVER_DELAY_MS, activate), [activate]);
+  useEffect(() => () => intent.cancel(), [intent]);
+
   // Touch screens have no hover: play the card nearest the middle of the viewport.
   useEffect(() => {
     if (!window.matchMedia("(hover: none)").matches || !("IntersectionObserver" in window)) return;
@@ -81,15 +87,18 @@ export function LiveGrid() {
         for (const e of entries) {
           const id = ids.get(e.target);
           if (!id) continue;
-          if (e.isIntersecting) activate(id);
-          else deactivate(id);
+          if (e.isIntersecting) intent.enter(id);
+          else {
+            intent.leave(id);
+            deactivate(id);
+          }
         }
       },
       { rootMargin: "-45% 0px -45% 0px" },
     );
     for (const el of ids.keys()) io.observe(el);
     return () => io.disconnect();
-  }, [activate, deactivate]);
+  }, [intent, deactivate]);
 
   return (
     <div className="grid-cards live-grid">
@@ -105,9 +114,13 @@ export function LiveGrid() {
               if (el) cards.current.set(scene.id, el);
               else cards.current.delete(scene.id);
             }}
-            onPointerEnter={(e) => e.pointerType !== "touch" && activate(scene.id)}
-            onPointerLeave={(e) => e.pointerType !== "touch" && deactivate(scene.id)}
-            onFocus={() => activate(scene.id)}
+            onPointerEnter={(e) => e.pointerType !== "touch" && intent.enter(scene.id)}
+            onPointerLeave={(e) => {
+              if (e.pointerType === "touch") return;
+              intent.leave(scene.id);
+              deactivate(scene.id);
+            }}
+            onFocus={() => intent.now(scene.id)}
             onBlur={() => deactivate(scene.id)}
           >
             <div className="card-media">
