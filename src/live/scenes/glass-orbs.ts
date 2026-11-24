@@ -17,7 +17,7 @@ const params: ParamSchema<P> = {
   light: { kind: "color", label: "Light", default: "#fff8ee", group: "Colours", role: "fg" },
   count: { kind: "range", label: "Orbs", min: 3, max: 7, step: 1, default: 5, group: "Orbs" },
   gloss: { kind: "range", label: "Gloss", min: 0, max: 1, step: 0.05, default: 0.7, group: "Orbs" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 11 },
 };
 

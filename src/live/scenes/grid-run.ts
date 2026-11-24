@@ -17,7 +17,7 @@ const params: ParamSchema<P> = {
   sun: { kind: "color", label: "Sun", default: "#ffd23a", group: "Colours", role: "fg" },
   glow: { kind: "color", label: "Horizon", default: "#ff2f74", group: "Colours" },
   relief: { kind: "range", label: "Relief", min: 1, max: 5, step: 0.25, default: 3, group: "Terrain" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 6 },
 };
 

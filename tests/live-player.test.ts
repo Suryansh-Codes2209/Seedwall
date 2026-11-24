@@ -22,7 +22,7 @@ const SCENE = {
     },
     title: { kind: "text", label: "Title", default: "hi" },
     seed: { kind: "seed", label: "Seed", default: 3 },
-    speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1 },
+    speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1 },
   },
   presets: [],
   loopSeconds: 10,

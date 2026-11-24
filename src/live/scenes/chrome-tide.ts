@@ -17,7 +17,7 @@ const params: ParamSchema<P> = {
   sun: { kind: "color", label: "Sun", default: "#ffe2b3", group: "Colours", role: "fg" },
   chrome: { kind: "color", label: "Chrome", default: "#dcdde8", group: "Colours" },
   swell: { kind: "range", label: "Swell", min: 0.4, max: 1.6, step: 0.05, default: 1, group: "Sea" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 5 },
 };
 

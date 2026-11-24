@@ -17,7 +17,7 @@ const params: ParamSchema<P> = {
   light: { kind: "color", label: "Light", default: "#f6efe2", group: "Colours", role: "fg" },
   haze: { kind: "range", label: "Fog density", min: 0.3, max: 1.6, step: 0.05, default: 1, group: "Atmosphere" },
   rays: { kind: "range", label: "God rays", min: 0, max: 2, step: 0.05, default: 1, group: "Atmosphere" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 3 },
 };
 

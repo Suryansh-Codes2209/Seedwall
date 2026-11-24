@@ -4,6 +4,7 @@ import { createRng } from "@/generators/shared/rng";
 import type { Params } from "@/generators/types";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
 import type { LiveScene } from "@/live/types";
+import { loopMultiplier } from "@/live/loop";
 import { posterPath } from "@/live/poster";
 import { paramUniforms } from "@/live/uniforms";
 import { createSharedPlayer } from "@/live/shared";
@@ -114,6 +115,16 @@ describe.each(LIVE_SCENES.map((s) => [s.id, s] as const))("%s", (_id, s) => {
   it("has a seed param and a speed param", () => {
     expect(s.params.seed?.kind).toBe("seed");
     expect(s.params.speed).toBeDefined();
+  });
+
+  it("every speed step gives a different loop length", () => {
+    const def = s.params.speed;
+    expect(def?.kind).toBe("range");
+    if (def?.kind !== "range") return;
+    const steps: number[] = [];
+    for (let v = def.min; v <= def.max + 1e-9; v += def.step) steps.push(loopMultiplier(v));
+    expect(steps.length).toBeGreaterThan(1);
+    expect(new Set(steps).size).toBe(steps.length);
   });
 
   it("uses time only through uPhase and defines scene()", () => {

@@ -17,7 +17,7 @@ const params: ParamSchema<P> = {
   neon: { kind: "color", label: "Neon", default: "#ff4f9a", group: "Colours", role: "fg" },
   rain: { kind: "range", label: "Rain", min: 0.2, max: 1, step: 0.05, default: 0.65, group: "Glass" },
   blur: { kind: "range", label: "Blur", min: 0.5, max: 1.8, step: 0.05, default: 1, group: "Glass" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 4 },
 };
 

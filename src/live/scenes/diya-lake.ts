@@ -17,7 +17,7 @@ const params: ParamSchema<P> = {
   water: { kind: "color", label: "Water", default: "#080a18", group: "Colours", role: "fg" },
   count: { kind: "range", label: "Lanterns", min: 0.3, max: 1, step: 0.05, default: 0.7, group: "Lake" },
   ripple: { kind: "range", label: "Ripple", min: 0, max: 1, step: 0.05, default: 0.4, group: "Lake" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 6 },
 };
 

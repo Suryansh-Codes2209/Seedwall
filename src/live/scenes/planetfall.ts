@@ -21,7 +21,7 @@ const params: ParamSchema<P> = {
   rings: { kind: "color", label: "Rings", default: "#e6d2ae", group: "Colours" },
   ring: { kind: "range", label: "Ring density", min: 0, max: 1, step: 0.05, default: 0.8, group: "Planet" },
   tilt: { kind: "range", label: "Ring tilt", min: 0.1, max: 0.6, step: 0.05, default: 0.3, group: "Planet" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 4 },
 };
 

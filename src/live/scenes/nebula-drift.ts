@@ -40,7 +40,7 @@ const params: ParamSchema<P> = {
   dust: { kind: "toggle", label: "Dark dust lanes", default: true, group: "Nebula" },
   core: { kind: "toggle", label: "Bright core", default: true, group: "Nebula" },
   stars: { kind: "range", label: "Stars", min: 0, max: 3, step: 0.1, default: 1, group: "Stars" },
-  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.25, default: 1, group: "Motion" },
+  speed: { kind: "range", label: "Speed", min: 0.5, max: 2, step: 0.5, default: 1, group: "Motion" },
   seed: { kind: "seed", label: "Seed", default: 7 },
 };
 
