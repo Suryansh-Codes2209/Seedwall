@@ -31,3 +31,9 @@ export function smoothMouse(prev: [number, number], target: [number, number], dt
   const k = 1 - 2 ** (-Math.max(0, dtMs) / MOUSE_HALF_LIFE_MS);
   return [prev[0] + (target[0] - prev[0]) * k, prev[1] + (target[1] - prev[1]) * k];
 }
+
+/** Pointer in -1..1 (x right, y up, 0 at centre), clamped per axis; non-finite values become 0. */
+export function clampMouse(x: number, y: number): [number, number] {
+  const c = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(-1, v)) : 0);
+  return [c(x), c(y)];
+}

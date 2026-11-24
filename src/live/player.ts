@@ -1,6 +1,6 @@
 import type { Params } from "@/generators/types";
 import { buildFragment } from "./glsl/prelude";
-import { loopMultiplier, phaseAt, shouldDraw, smoothMouse } from "./loop";
+import { clampMouse, loopMultiplier, phaseAt, shouldDraw, smoothMouse } from "./loop";
 import type { AnyLiveScene } from "./types";
 import { paramUniforms, type UniformValue } from "./uniforms";
 
@@ -19,7 +19,7 @@ export interface LivePlayer {
   start(): void;
   stop(): void;
   setParams(p: Params): void;
-  /** Pointer position in 0–1 canvas space, y up. */
+  /** Pointer position in −1…1, x right-positive, y up-positive, (0,0) at centre; clamped to [−1, 1]. */
   setMouse(x: number, y: number): void;
   renderFrame(phase: number): void;
   readonly gl: WebGL2RenderingContext;
@@ -96,8 +96,8 @@ export function createLivePlayer(
   let uniforms: Record<string, UniformValue> = {};
   let speed = 1;
   let loopSeconds = scene.loopSeconds;
-  let mouse: [number, number] = [0.5, 0.5];
-  let mouseTarget: [number, number] = [0.5, 0.5];
+  let mouse: [number, number] = [0, 0];
+  let mouseTarget: [number, number] = [0, 0];
   let mouseAt = 0;
 
   let running = false; // the caller wants the loop playing
@@ -198,7 +198,7 @@ export function createLivePlayer(
     },
     setParams,
     setMouse(x, y) {
-      if (mouseOn) mouseTarget = [x, y];
+      if (mouseOn) mouseTarget = clampMouse(x, y);
     },
     renderFrame,
     dispose() {

@@ -13,7 +13,7 @@ export const PRELUDE = /* glsl */ `
 //   scene() returns linear colour; main() applies output gamma (pow 1/2.2).
 // - Time arrives only as uPhase in [0,1) over one loop of uLoop seconds. Use TAU*uPhase in
 //   periodic functions so the loop is seamless.
-// - uMouse is the smoothed pointer in 0-1 canvas space, y up (0.5,0.5 when unused).
+// - uMouse is the smoothed pointer in -1..1, x right, y up; (0,0) is the centre and the rest value.
 // - Raymarching scenes define the SW_RAYMARCH macro at the top of their fragment (it is moved
 //   above this prelude) and define float map(vec3 p); that enables calcNormal() and softShadow().
 uniform vec2 uRes;

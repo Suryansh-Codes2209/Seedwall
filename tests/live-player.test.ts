@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildFragment } from "@/live/glsl/prelude";
-import { phaseAt, shouldDraw, smoothMouse } from "@/live/loop";
+import { clampMouse, phaseAt, shouldDraw, smoothMouse } from "@/live/loop";
 import { createLivePlayer } from "@/live/player";
 import type { AnyLiveScene } from "@/live/types";
 
@@ -60,6 +60,14 @@ describe("smoothMouse", () => {
     const [x, y] = smoothMouse([0, 0], [1, 1], 120);
     expect(x).toBeCloseTo(0.5, 2);
     expect(y).toBeCloseTo(0.5, 2);
+  });
+});
+
+describe("clampMouse", () => {
+  it("clamps the pointer to -1..1", () => {
+    expect(clampMouse(5, -5)).toEqual([1, -1]);
+    expect(clampMouse(0.25, -0.5)).toEqual([0.25, -0.5]);
+    expect(clampMouse(Number.NaN, 0)).toEqual([0, 0]);
   });
 });
 
