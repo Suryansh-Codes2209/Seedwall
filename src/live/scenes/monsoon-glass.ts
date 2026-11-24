@@ -191,7 +191,10 @@ vec4 slideLayer(vec2 p, float cw, float layer, inout float clear) {
   float aa = 1.5 / uRes.y;
 
   vec2 q = (p - vec2(pathX(yd, ci, cw, h1, h2), yd)) / r;
-  q.y /= q.y > 0.0 ? 1.45 : 1.0; // a short tail above the drop
+  // A round head with a short, thinner tail above it.
+  float up = max(q.y, 0.0);
+  q.y /= q.y > 0.0 ? 1.25 : 1.0;
+  q.x *= 1.0 + 0.3 * min(up, 1.2);
   float d = length(q);
   vec4 drop = vec4(1.0 - smoothstep(1.0 - aa / r, 1.0, d), q, r);
 
@@ -247,16 +250,16 @@ vec3 scene(vec2 uv) {
   float d = length(q);
   float rim = smoothstep(0.85, 1.0, d);
 
-  // Inside a drop the city is seen flipped and small (the drop is a lens with a wide view), centred
-  // on the lit street band so every drop holds a few bright lights. The whole offset applies even on
+  // Inside a drop the city is seen flipped and small (the drop is a lens with a wide view), always
+  // centred on the lit street and skyline band so every drop holds several bright lights. The whole offset applies even on
   // a drop's anti-aliased edge (a part offset would land on unrelated lights and speckle the
   // outline); the rim's blur is high, so that edge stays soft.
   vec2 parallax = uMouse * vec2(0.035, 0.025);
   float inside = step(0.002, m);
-  vec2 inView = vec2(uv.x - q.x * (drop.w + 0.1), mix(uv.y, STREET + 0.1, 0.8) - q.y * 0.16);
+  vec2 inView = vec2(uv.x - q.x * (drop.w + 0.14), STREET + 0.1 - q.y * 0.2);
   vec2 lookup = mix(uv, inView, inside) + parallax;
   // Sharper inside drops, softened at the rim and in tiny beads so shrunken lights never alias.
-  float dropBlur = (0.4 + 1.2 * rim) * max(1.0, 0.01 / max(drop.w, 1e-4));
+  float dropBlur = (0.55 + 1.1 * rim) * max(1.0, 0.01 / max(drop.w, 1e-4));
   // Outside drops the lights keep one size (the defocus is the eye's); the mist only veils them.
   float blur = u_blur * mix(1.0, dropBlur, inside);
   vec3 col = city(lookup, blur);
@@ -268,11 +271,12 @@ vec3 scene(vec2 uv) {
 
   // A drop is brighter than the glass: it gathers light, has a bright crescent low down where
   // light focuses, a thin dark rim, and a highlight up and to the left.
-  vec3 inDrop = col * 1.5 + glow * 0.5;
-  inDrop += toLinear(u_light) * 0.18 * smoothstep(0.2, 0.9, -q.y) * (1.0 - rim);
-  inDrop *= mix(1.0, 0.35, rim);
-  vec2 hq = q - vec2(-0.35, 0.42);
-  inDrop += vec3(1.0) * exp(-dot(hq, hq) * 22.0) * 0.35;
+  vec3 warm = toLinear(u_light);
+  vec3 inDrop = col * 1.6 + glow * 1.2 + warm * 0.025;
+  inDrop += warm * 0.45 * smoothstep(0.15, 0.9, -q.y) * (1.0 - rim);
+  inDrop *= mix(1.0, 0.4, rim);
+  vec2 hq = q - vec2(-0.32, 0.4);
+  inDrop += vec3(1.0) * exp(-dot(hq, hq) * 18.0) * 0.6;
   col = mix(col, inDrop, m);
 
   col *= mix(1.0, 0.8, smoothstep(0.45, 1.15, length(uv * vec2(0.8, 1.0))));
