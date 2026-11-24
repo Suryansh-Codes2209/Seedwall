@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GeneratorGuideSection, faqPageSchema } from "@/components/GeneratorGuide";
 import { JsonLd } from "@/components/JsonLd";
 import { LiveThumb } from "@/components/LiveThumb";
 import { AUTHOR, absoluteUrl, pageMetadata } from "@/config/seo";
+import { getGuide } from "@/content/generators";
 import { GENERATORS, getGenerator } from "@/generators";
 import type { ParamDef } from "@/generators/types";
 
@@ -41,6 +43,8 @@ export default async function GeneratorPage({ params }: { params: Promise<{ id: 
   if (!gen) notFound();
   const first = gen.presets[0];
   const url = absoluteUrl(`/generators/${gen.id}`);
+  const guide = getGuide(gen.id);
+  const faq = guide ? faqPageSchema(guide, url) : undefined;
   const structured = {
     "@context": "https://schema.org",
     "@graph": [
@@ -62,6 +66,7 @@ export default async function GeneratorPage({ params }: { params: Promise<{ id: 
         isAccessibleForFree: true,
         keywords: gen.presets.map((p) => p.title).join(", "),
       },
+      ...(faq ? [faq] : []),
     ],
   };
 
@@ -124,6 +129,8 @@ export default async function GeneratorPage({ params }: { params: Promise<{ id: 
           </table>
         </div>
       </section>
+
+      {guide && <GeneratorGuideSection name={gen.name} guide={guide} />}
     </div>
   );
 }

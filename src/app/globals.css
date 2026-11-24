@@ -297,6 +297,11 @@ code, kbd, .mono { font-family: var(--font-mono); }
 .footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; padding-top: 20px; padding-bottom: 28px; border-top: 1px solid var(--line); font-size: 13.5px; }
 .footer-bottom a { color: var(--ink); }
 .footer-quip { font: italic 400 17px/1.3 var(--font-serif); color: var(--orange-text); }
+.footer-legal { display: flex; gap: 18px; list-style: none; margin: 0; padding: 0; }
+.footer-legal a { color: var(--muted); }
+.footer-legal a:hover { color: var(--ink); }
+.eyebrow a { color: inherit; text-decoration: none; }
+.eyebrow a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .credit-link { font-weight: 600; text-decoration: none; background: linear-gradient(var(--orange-text), var(--orange-text)) 0 100% / 100% 1.5px no-repeat; padding-bottom: 1px; }
 .credit-link:hover { color: var(--orange-text); }
 .new-tag { margin-left: 8px; font: 600 11px/1 var(--font-ui); padding: 3px 7px; border-radius: 99px; background: var(--orange); color: var(--orange-ink); vertical-align: 2px; }
@@ -743,6 +748,23 @@ dialog.wp-dialog { border: 1px solid var(--line-strong); border-radius: var(--ra
 .prose code { font-size: 0.9em; padding: 1px 6px; border-radius: 6px; background: var(--surface-2); color: var(--ink); }
 .prose pre { margin: 0; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; color: var(--ink); }
 .prose ol { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+/* Long reads: guides, policies and the generator write-ups. A ~65ch measure and looser leading. */
+.longform { max-width: 68ch; }
+.longform p, .longform li, .longform dd { font-size: 17px; line-height: 1.7; }
+.longform h2 { line-height: 1.2; }
+.longform h3 { font-size: 19px; line-height: 1.3; margin-top: 8px; letter-spacing: -0.02em; }
+.section-head + .prose.longform { margin-top: 0; }
+.guide-settings { margin: 0; display: grid; gap: 14px; }
+.guide-settings dt { font-weight: 600; color: var(--ink); }
+.guide-settings dd { margin: 2px 0 0; color: var(--muted); }
+.guide-faq { display: grid; gap: 18px; }
+.guide-faq h3 { margin: 0 0 4px; }
+.guide-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.guide-list a { display: block; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); text-decoration: none; color: var(--ink); }
+.guide-list a:hover { border-color: var(--line-strong); }
+.guide-list strong { display: block; font-size: 19px; letter-spacing: -0.02em; }
+.guide-list span { display: block; margin-top: 6px; color: var(--muted); }
+.prose .guide-list li::marker { content: none; }
 /* CopyCode: a code block with a copy button in its corner. */
 .code-block { position: relative; }
 .code-block pre { margin: 0; padding-right: 84px; max-height: 420px; }

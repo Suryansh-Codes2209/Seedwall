@@ -13,6 +13,8 @@ interface NavLink {
   note: string;
   /** Other paths that count as being "on" this link. */
   match?: (path: string) => boolean;
+  /** Only in the phone menu: the wide bar has no room, and the footer links it there. */
+  menuOnly?: boolean;
 }
 
 const LINKS: NavLink[] = [
@@ -23,6 +25,7 @@ const LINKS: NavLink[] = [
   { href: "/#generators", label: "Generators", note: "Every look, one page each", match: (p) => p.startsWith("/generators/") },
   { href: "/mac", label: "Mac app", note: "A new wallpaper every morning" },
   { href: "/claude", label: "Claude", note: "Backgrounds made from a chat" },
+  { href: "/guides", label: "Guides", note: "Seeds, OLED screens and sizes, explained", match: (p) => p.startsWith("/guides/"), menuOnly: true },
 ];
 
 const isActive = (l: NavLink, path: string) => path === l.href || (l.match?.(path) ?? false);
@@ -64,7 +67,7 @@ export function SiteHeader() {
 
           <nav className="nav-wide" aria-label="Main">
             <ul>
-              {LINKS.map((l) => (
+              {LINKS.filter((l) => !l.menuOnly).map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} aria-current={isActive(l, path) ? "page" : undefined}>
                     {l.label}
