@@ -26,6 +26,35 @@ const SIZES = [
 ] as const;
 const CHROME_ARGS = ["--use-angle=metal", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
 const READY_TIMEOUT_MS = 60_000;
+const DEV_STARTUP_TIMEOUT_MS = 180_000;
+
+/**
+ * The `next dev` this script started, if any. It runs detached in its own process group (so the
+ * whole group, workers included, can be killed), which also takes it out of the terminal's
+ * Ctrl-C, so every exit path below must stop it.
+ */
+let dev: ChildProcess | undefined;
+
+function stopDev() {
+  const pid = dev?.pid;
+  dev = undefined;
+  if (!pid) return;
+  try {
+    process.kill(-pid, "SIGTERM"); // only the group we spawned
+  } catch {
+    // already gone
+  }
+}
+
+process.on("exit", stopDev);
+process.once("SIGINT", () => {
+  stopDev();
+  process.exit(130);
+});
+process.once("SIGTERM", () => {
+  stopDev();
+  process.exit(143);
+});
 
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -39,34 +68,26 @@ function freePort(): Promise<number> {
 }
 
 /** Starts `next dev` and waits until the harness answers (the first compile can take a while). */
-async function startDev(): Promise<{ base: string; child: ChildProcess }> {
+async function startDev(): Promise<string> {
   const port = await freePort();
   const child = spawn("node_modules/.bin/next", ["dev", "-p", String(port)], { stdio: ["ignore", "pipe", "pipe"], detached: true });
+  dev = child; // registered before polling, so a timeout or signal still stops it
   let log = "";
   child.stdout?.on("data", (d) => (log += String(d)));
   child.stderr?.on("data", (d) => (log += String(d)));
   const base = `http://localhost:${port}`;
-  const deadline = Date.now() + 180_000;
+  const deadline = Date.now() + DEV_STARTUP_TIMEOUT_MS;
   while (Date.now() < deadline) {
     if (child.exitCode !== null) throw new Error(`next dev exited early:\n${log}`);
     try {
       const res = await fetch(`${base}/live-harness`);
-      if (res.ok) return { base, child };
+      if (res.ok) return base;
     } catch {
       // not listening yet
     }
     await new Promise((r) => setTimeout(r, 500));
   }
   throw new Error(`next dev did not come up on ${base}:\n${log}`);
-}
-
-function stopDev(child: ChildProcess | undefined) {
-  if (!child?.pid || child.exitCode !== null) return;
-  try {
-    process.kill(-child.pid, "SIGTERM"); // the whole group: next dev forks workers
-  } catch {
-    child.kill("SIGTERM");
-  }
 }
 
 const only = process.argv[2];
@@ -77,14 +98,8 @@ if (scenes.length === 0) {
 }
 
 const failures: string[] = [];
-let dev: ChildProcess | undefined;
 try {
-  let base = process.env.LIVE_BASE_URL?.replace(/\/$/, "");
-  if (!base) {
-    const started = await startDev();
-    base = started.base;
-    dev = started.child;
-  }
+  const base = process.env.LIVE_BASE_URL?.replace(/\/$/, "") || (await startDev());
   const browser = await chromium.launch({ channel: "chrome", headless: true, args: CHROME_ARGS });
   try {
     const page = await browser.newPage({ deviceScaleFactor: 1 });
@@ -124,7 +139,7 @@ try {
     await browser.close();
   }
 } finally {
-  stopDev(dev);
+  stopDev();
 }
 
 if (failures.length) {
