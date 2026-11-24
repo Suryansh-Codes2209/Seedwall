@@ -19,6 +19,8 @@ export const PRELUDE = /* glsl */ `
 // - Shared finishing helpers: rolloff(c) eases linear highlights above 0.8 towards 1 instead of
 //   clipping; finishDither(c) adds a 1/255 dither in display space (against banding) and returns
 //   linear colour again, so a scene can end with: return finishDither(rolloff(max(col, 0.0)));
+// - turns(k) is the angle of k whole turns per loop, TAU*fract(uPhase*k), wrapped first so phase 1
+//   lands on exactly the angles of phase 0. Use it with a whole-number k for every periodic motion.
 // - lookYawPitch(yaw, pitch) is a camera basis (columns: right, up, forward) looking along +z at
 //   yaw/pitch 0, with world up = +y: rd = normalize(lookYawPitch(yaw, pitch) * vec3(uv, focal)).
 uniform vec2 uRes;
@@ -68,6 +70,9 @@ float smin(float a, float b, float k) {
   float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
   return mix(b, a, h) - k * h * (1.0 - h);
 }
+
+// Angle of k whole turns per loop (k a whole number), wrapped so phase 1 gives exactly phase 0's angles.
+float turns(float k) { return TAU * fract(uPhase * k); }
 
 vec3 toLinear(vec3 c) { return pow(c, vec3(2.2)); }
 

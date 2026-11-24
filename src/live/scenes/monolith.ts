@@ -51,9 +51,6 @@ vec3 gLk[NS];   // |gLm| * half size, for the shadow test
 vec3 gLd[NS];   // light direction in the slab frame
 vec3 gL;        // direction towards the light
 
-// Angle of k whole turns per loop, wrapped first so phase 1 lands on exactly the angles of phase 0.
-float turns(float k) { return TAU * fract(uPhase * k); }
-
 vec3 safeDir(vec3 d) { return (2.0 * step(0.0, d) - 1.0) * max(abs(d), vec3(1e-5)); }
 
 mat3 rotYZ(float yaw, float roll) {

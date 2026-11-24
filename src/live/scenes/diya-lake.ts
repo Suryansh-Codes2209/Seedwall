@@ -44,9 +44,6 @@ const fragment = /* glsl */ `
 const float HORIZON = -0.1;
 const float TOPY = 0.62; // lanterns leave above this (past the top edge)
 
-// Angle of k whole turns per loop, wrapped first so phase 1 lands on exactly the angles of phase 0.
-float turns(float k) { return TAU * fract(uPhase * k); }
-
 vec3 skyCol(float y) {
   vec3 bg = toLinear(u_bg), warm = toLinear(u_lantern);
   vec3 col = bg * mix(1.15, 0.35, smoothstep(HORIZON, 0.55, y));

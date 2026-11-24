@@ -62,11 +62,9 @@ const presets: Preset<P>[] = [
  * (near stars most, the gas least), and each gas layer's noise slides round its own circle, so the
  * gas churns as the layers pass over one another. Twinkles are whole numbers of turns per loop and
  * every angle is wrapped with fract, so phase 0 and 1 are the same frame. All analytic: about twenty
- * noise lookups for the gas (skipped outside the body) plus 3x3 cells for two star layers.
+ * noise lookups for the gas (skipped outside the body) plus 3x3 cells for each of three star layers.
  */
 const fragment = /* glsl */ `
-// Angle of k whole turns per loop, wrapped first so phase 1 lands on exactly the angles of phase 0.
-float turns(float k) { return TAU * fract(uPhase * k); }
 vec2 circ(float a) { return vec2(cos(a), sin(a)); }
 
 float rnd(float k) { return hash21(vec2(uSeed * 61.7 + k, k * 3.3 + 1.0)); }

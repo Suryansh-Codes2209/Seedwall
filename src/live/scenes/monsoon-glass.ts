@@ -46,9 +46,6 @@ const float TOP = 0.75;       // drops start above the top edge (y = 0.5)
 const float HORIZON = -0.04;  // where the low city meets the sky
 const float STREET = -0.3;    // the traffic lanes
 
-// Angle of k whole turns per loop, wrapped first so phase 1 lands on exactly the angles of phase 0.
-float turns(float k) { return TAU * fract(uPhase * k); }
-
 // A soft disc of radius r with an edge soft wide (both > 0): 1 inside, 0 outside.
 float disc(float d, float r, float soft) { return 1.0 - smoothstep(r - soft, r, d); }
 
