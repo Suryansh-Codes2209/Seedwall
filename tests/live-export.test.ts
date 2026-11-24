@@ -51,7 +51,7 @@ describe("exportFileName", () => {
 });
 
 /** A WebGL2 stand-in that compiles everything and records the uPhase of every draw. */
-function fakeGl(phases: number[]) {
+function fakeGl(phases: number[], loseContext: () => void) {
   return {
     VERTEX_SHADER: 1,
     FRAGMENT_SHADER: 2,
@@ -70,7 +70,7 @@ function fakeGl(phases: number[]) {
     createVertexArray: () => ({}),
     deleteVertexArray: () => {},
     deleteProgram: () => {},
-    getExtension: () => null,
+    getExtension: (name: string) => (name === "WEBGL_lose_context" ? { loseContext } : null),
     getUniformLocation: (_p: unknown, name: string) => ({ name }),
     viewport: () => {},
     useProgram: () => {},
@@ -86,12 +86,14 @@ function fakeGl(phases: number[]) {
 }
 
 /** Fakes document, the canvas, MediaRecorder and requestAnimationFrame for recordLoop. */
-function fakeBrowser() {
+function fakeBrowser(opts: { recorderThrows?: boolean; hidden?: boolean } = {}) {
   const phases: number[] = [];
+  const loseContext = vi.fn();
+  const track = { requestFrame: () => {}, stop: vi.fn() };
   const listeners = new Map<string, Set<() => void>>();
   const doc = {
-    hidden: false,
-    visibilityState: "visible",
+    hidden: opts.hidden ?? false,
+    visibilityState: opts.hidden ? "hidden" : "visible",
     addEventListener: (type: string, fn: () => void) => {
       if (!listeners.has(type)) listeners.set(type, new Set());
       listeners.get(type)!.add(fn);
@@ -102,20 +104,23 @@ function fakeBrowser() {
       height: 150,
       clientWidth: 0,
       clientHeight: 0,
-      getContext: () => fakeGl(phases),
-      captureStream: () => ({ getVideoTracks: () => [{ requestFrame: () => {}, stop: () => {} }], getTracks: () => [] }),
+      getContext: () => fakeGl(phases, loseContext),
+      captureStream: () => ({ getVideoTracks: () => [track], getTracks: () => [track] }),
     }),
   };
   const recorders: FakeRecorder[] = [];
+  const throws = opts.recorderThrows ?? false;
   class FakeRecorder {
     static isTypeSupported = (m: string) => m.startsWith("video/webm");
     state = "inactive";
     ondataavailable: ((e: { data: Blob }) => void) | null = null;
     onstop: (() => void) | null = null;
+    onerror: ((e: unknown) => void) | null = null;
     constructor(
       _stream: unknown,
       public opts: { mimeType: string },
     ) {
+      if (throws) throw new Error("recorder failed");
       recorders.push(this);
     }
     start() {
@@ -136,6 +141,8 @@ function fakeBrowser() {
   return {
     phases,
     recorders,
+    loseContext,
+    track,
     hide() {
       doc.hidden = true;
       doc.visibilityState = "hidden";
@@ -164,6 +171,71 @@ describe("recordLoop", () => {
     await expect(done).rejects.toThrow(new Error("Recording stopped: tab was hidden"));
     expect(browser.recorders[0]?.state).toBe("inactive");
     expect(browser.listenerCount()).toBe(0);
+    expect(browser.track.stop).toHaveBeenCalled();
+    expect(browser.loseContext).toHaveBeenCalled();
+  });
+
+  it("rejects at once when the tab is already hidden", async () => {
+    const browser = fakeBrowser({ hidden: true });
+    await expect(recordLoop(SCENE, { speed: 1 }, 640, 360, 30)).rejects.toThrow(new Error("Recording stopped: tab was hidden"));
+    expect(browser.recorders).toHaveLength(0); // nothing created, so nothing to release
+    expect(browser.loseContext).not.toHaveBeenCalled();
+    expect(browser.listenerCount()).toBe(0);
+  });
+
+  it("releases the context when the recorder can't be created", async () => {
+    const browser = fakeBrowser({ recorderThrows: true });
+    await expect(recordLoop(SCENE, { speed: 1 }, 640, 360, 30)).rejects.toThrow("recorder failed");
+    expect(browser.track.stop).toHaveBeenCalled();
+    expect(browser.loseContext).toHaveBeenCalled();
+    expect(browser.listenerCount()).toBe(0);
+  });
+
+  it("fails cleanly when recorder.start throws inside a frame", async () => {
+    const browser = fakeBrowser();
+    const done = recordLoop(SCENE, { speed: 1 }, 640, 360, 30);
+    browser.recorders[0]!.start = () => {
+      throw new Error("start failed");
+    };
+    browser.pump(100);
+    await expect(done).rejects.toThrow("start failed");
+    expect(browser.track.stop).toHaveBeenCalled();
+    expect(browser.loseContext).toHaveBeenCalled();
+    expect(browser.listenerCount()).toBe(0);
+  });
+
+  it("fails cleanly on a recorder error", async () => {
+    const browser = fakeBrowser();
+    const done = recordLoop(SCENE, { speed: 1 }, 640, 360, 30);
+    browser.pump(500);
+    browser.recorders[0]!.onerror?.(new Event("error"));
+    await expect(done).rejects.toThrow("Recording failed");
+    expect(browser.recorders[0]?.state).toBe("inactive");
+    expect(browser.loseContext).toHaveBeenCalled();
+  });
+
+  it("rejects with an AbortError when aborted mid-recording", async () => {
+    const browser = fakeBrowser();
+    const ctrl = new AbortController();
+    const done = recordLoop(SCENE, { speed: 1 }, 640, 360, 30, undefined, ctrl.signal);
+    browser.pump(500);
+    ctrl.abort();
+    await expect(done).rejects.toMatchObject({ name: "AbortError" });
+    expect(browser.recorders[0]?.state).toBe("inactive");
+    expect(browser.track.stop).toHaveBeenCalled();
+    expect(browser.loseContext).toHaveBeenCalled();
+    expect(browser.listenerCount()).toBe(0);
+    const framesBefore = browser.phases.length;
+    browser.pump(1000);
+    expect(browser.phases.length).toBe(framesBefore);
+  });
+
+  it("rejects at once with an already-aborted signal", async () => {
+    const browser = fakeBrowser();
+    const ctrl = new AbortController();
+    ctrl.abort();
+    await expect(recordLoop(SCENE, { speed: 1 }, 640, 360, 30, undefined, ctrl.signal)).rejects.toMatchObject({ name: "AbortError" });
+    expect(browser.recorders).toHaveLength(0);
   });
 
   it("records exactly one effective loop length", async () => {

@@ -78,20 +78,26 @@ export function captureStill(scene: AnyLiveScene, params: Params, w: number, h: 
       return;
     }
     const { canvas, player, release } = out;
-    player.renderFrame(phase);
-    // toBlob copies the bitmap synchronously, before the drawing buffer is cleared.
-    canvas.toBlob((blob) => {
+    try {
+      player.renderFrame(phase);
+      // toBlob copies the bitmap synchronously, before the drawing buffer is cleared.
+      canvas.toBlob((blob) => {
+        release();
+        if (blob) resolve(blob);
+        else reject(new Error("Couldn't encode the PNG"));
+      }, "image/png");
+    } catch (e) {
       release();
-      if (blob) resolve(blob);
-      else reject(new Error("Couldn't encode the PNG"));
-    }, "image/png");
+      reject(e);
+    }
   });
 }
 
 /**
  * Records exactly one effective loop as video. The phase follows the wall clock, capped at `fps`,
  * and recording stops when one loop has passed, so the file plays back seamlessly on repeat.
- * Rejects if the tab is hidden mid-recording (the browser stops animation frames).
+ * Rejects if the tab is hidden (the browser stops animation frames), with an AbortError if
+ * `signal` aborts, or on any recorder failure; every failure stops the recorder and frees the context.
  */
 export function recordLoop(
   scene: AnyLiveScene,
@@ -100,83 +106,116 @@ export function recordLoop(
   h: number,
   fps: 30 | 60,
   onProgress?: (s: number) => void,
+  signal?: AbortSignal,
 ): Promise<{ blob: Blob; ext: string }> {
   return new Promise((resolve, reject) => {
+    const hiddenError = () => new Error("Recording stopped: tab was hidden");
+    const abortError = () => new DOMException("Recording cancelled", "AbortError");
+    if (signal?.aborted) return reject(abortError());
+    if (document.visibilityState === "hidden") return reject(hiddenError());
     const type = browserVideoMime();
-    if (!type) {
-      reject(new Error("This browser can't record video"));
-      return;
-    }
-    let out: ReturnType<typeof exportPlayer>;
-    try {
-      out = exportPlayer(scene, params, w, h, fps);
-    } catch (e) {
-      reject(e);
-      return;
-    }
-    const { canvas, player, release } = out;
+    if (!type) return reject(new Error("This browser can't record video"));
+
     const loopSeconds = effectiveLoopSeconds(scene, params);
     const loopMs = loopSeconds * 1000;
-
-    // Frames are pushed by hand right after each draw, in the same task, so each one is captured.
-    const stream = canvas.captureStream(0);
-    const track = stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack | undefined;
-    const recorder = new MediaRecorder(stream, {
-      mimeType: type.mime,
-      videoBitsPerSecond: Math.round(Math.min(40_000_000, Math.max(4_000_000, w * h * fps * 0.12))),
-    });
     const chunks: Blob[] = [];
+    let release = () => {};
+    let stream: MediaStream | undefined;
+    let recorder: MediaRecorder | undefined;
     let raf = 0;
     let t0: number | null = null;
     let last = -Infinity;
-    let finished = false;
+    let stopping = false; // the loop is complete and the recorder is flushing
+    let settled = false;
 
     const cleanup = () => {
-      finished = true;
+      settled = true;
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVisibility);
-      for (const t of stream.getTracks()) t.stop();
+      signal?.removeEventListener("abort", onAbort);
+      for (const t of stream?.getTracks() ?? []) t.stop();
       release();
     };
-    const onVisibility = () => {
-      if (document.visibilityState !== "hidden" || finished) return;
-      recorder.onstop = null;
-      if (recorder.state !== "inactive") recorder.stop();
+    /** The single failure path: discard the recording, free everything, reject. */
+    const fail = (err: unknown) => {
+      if (settled) return;
+      if (recorder) {
+        recorder.onstop = null;
+        recorder.onerror = null;
+        recorder.ondataavailable = null;
+        try {
+          if (recorder.state !== "inactive") recorder.stop();
+        } catch {
+          // already stopping; the recording is discarded either way
+        }
+      }
       cleanup();
-      reject(new Error("Recording stopped: tab was hidden"));
+      reject(err);
     };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden" && !stopping) fail(hiddenError());
+    };
+    const onAbort = () => fail(abortError());
+    document.addEventListener("visibilitychange", onVisibility);
+    signal?.addEventListener("abort", onAbort);
 
-    recorder.ondataavailable = (e) => {
+    let track: CanvasCaptureMediaStreamTrack | undefined;
+    let renderFrame: (phase: number) => void = () => {};
+    try {
+      const out = exportPlayer(scene, params, w, h, fps);
+      release = out.release;
+      renderFrame = out.player.renderFrame;
+      // Frames are pushed by hand right after each draw, in the same task, so each one is captured.
+      stream = out.canvas.captureStream(0);
+      track = stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack | undefined;
+      recorder = new MediaRecorder(stream, {
+        mimeType: type.mime,
+        videoBitsPerSecond: Math.round(Math.min(40_000_000, Math.max(4_000_000, w * h * fps * 0.12))),
+      });
+    } catch (e) {
+      fail(e);
+      return;
+    }
+    const rec = recorder;
+
+    rec.ondataavailable = (e) => {
       if (e.data.size > 0) chunks.push(e.data);
     };
-    recorder.onstop = () => {
+    rec.onerror = (e) => {
+      const err = (e as Event & { error?: unknown }).error;
+      fail(err instanceof Error ? err : new Error("Recording failed"));
+    };
+    rec.onstop = () => {
+      if (settled) return;
       cleanup();
       onProgress?.(loopSeconds);
-      resolve({ blob: new Blob(chunks, { type: recorder.mimeType || type.mime }), ext: type.ext });
+      resolve({ blob: new Blob(chunks, { type: rec.mimeType || type.mime }), ext: type.ext });
     };
 
     const frame = (now: number) => {
-      if (finished) return;
-      if (t0 === null) {
-        t0 = now;
-        recorder.start();
+      if (settled || stopping) return;
+      try {
+        if (t0 === null) {
+          t0 = now;
+          rec.start();
+        }
+        const elapsed = now - t0;
+        if (elapsed >= loopMs) {
+          // Phase 1 is phase 0 again: stop before drawing it, so the loop joins without a repeat.
+          stopping = true;
+          rec.stop();
+          return;
+        }
+        raf = requestAnimationFrame(frame);
+        if (!shouldDraw(now, last, fps)) return;
+        last = now;
+        renderFrame(elapsed / loopMs);
+        track?.requestFrame();
+        onProgress?.(elapsed / 1000);
+      } catch (e) {
+        fail(e);
       }
-      const elapsed = now - t0;
-      if (elapsed >= loopMs) {
-        // Phase 1 is phase 0 again: stop before drawing it, so the loop joins without a repeat.
-        finished = true;
-        recorder.stop();
-        return;
-      }
-      raf = requestAnimationFrame(frame);
-      if (!shouldDraw(now, last, fps)) return;
-      last = now;
-      player.renderFrame(elapsed / loopMs);
-      track?.requestFrame();
-      onProgress?.(elapsed / 1000);
     };
-
-    document.addEventListener("visibilitychange", onVisibility);
     raf = requestAnimationFrame(frame);
   });
 }

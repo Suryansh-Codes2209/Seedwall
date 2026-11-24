@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ParamValue } from "@/generators/types";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
@@ -58,6 +58,10 @@ export function LivePlayerView({ sceneId }: { sceneId: string }) {
 
   useEffect(() => setCanRecord(browserVideoMime() !== null), []);
 
+  // Leaving the page cancels a recording: its context, frame loop and recorder stop with it.
+  const recording = useRef<AbortController | null>(null);
+  useEffect(() => () => recording.current?.abort(), []);
+
   const speed = Number(params.speed ?? 1);
   const loopSeconds = scene.loopSeconds * loopMultiplier(Number.isFinite(speed) ? speed : 1);
   const busy = exporting || recorded !== null;
@@ -82,16 +86,23 @@ export function LivePlayerView({ sceneId }: { sceneId: string }) {
   };
 
   const downloadLoop = async () => {
+    const ctrl = new AbortController();
+    recording.current = ctrl;
     setRecorded(0);
     try {
       const { w, h, note } = exportSize();
-      const { blob, ext } = await recordLoop(scene, params, w, h, fps, (s) => setRecorded(Math.floor(s)));
+      const progress = (s: number) => {
+        if (!ctrl.signal.aborted) setRecorded(Math.floor(s));
+      };
+      const { blob, ext } = await recordLoop(scene, params, w, h, fps, progress, ctrl.signal);
+      if (ctrl.signal.aborted) return;
       downloadBlob(blob, exportFileName(scene.id, state.preset, w, h, ext));
       setToast(note || `Saved ${w}×${h} ${ext.toUpperCase()} loop`);
     } catch (e) {
-      setToast(e instanceof Error ? e.message : "Recording failed");
+      if (!ctrl.signal.aborted) setToast(e instanceof Error ? e.message : "Recording failed");
     } finally {
-      setRecorded(null);
+      if (recording.current === ctrl) recording.current = null;
+      if (!ctrl.signal.aborted) setRecorded(null);
     }
   };
 
