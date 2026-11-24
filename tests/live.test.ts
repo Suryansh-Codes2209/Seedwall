@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { coerceParam } from "@/generators/render";
 import { createRng } from "@/generators/shared/rng";
 import type { Params } from "@/generators/types";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
 import type { LiveScene } from "@/live/types";
 import { paramUniforms } from "@/live/uniforms";
+import { createSharedPlayer } from "@/live/shared";
 
 type TestP = Params & { bg: string; amt: number; on: boolean; mode: string; seed: number };
 
@@ -105,5 +106,61 @@ describe.each(LIVE_SCENES.map((s) => [s.id, s] as const))("%s", (_id, s) => {
   it("uses time only through uPhase and defines scene()", () => {
     expect(s.fragment).not.toMatch(/\b(uTime|iTime)\b/);
     expect(s.fragment).toContain("vec3 scene(");
+  });
+});
+
+describe("createSharedPlayer", () => {
+  const sceneN = (n: number): LiveScene => ({ ...scene, id: `scene-${n}`, fragment: `vec3 scene(vec2 uv) { return vec3(${n}.0); }` });
+
+  function mockFactory() {
+    let alive = 0;
+    let maxAlive = 0;
+    const log: string[] = [];
+    const factory = vi.fn((s: LiveScene, _p: Params) => {
+      alive++;
+      maxAlive = Math.max(maxAlive, alive);
+      log.push(`create ${s.id}`);
+      return {
+        start: vi.fn(() => log.push(`start ${s.id}`)),
+        stop: vi.fn(() => log.push(`stop ${s.id}`)),
+        setParams: vi.fn(() => log.push(`params ${s.id}`)),
+        dispose: vi.fn(() => {
+          alive--;
+          log.push(`dispose ${s.id}`);
+        }),
+      };
+    });
+    return { factory, log, stats: () => ({ alive, maxAlive }) };
+  }
+
+  it("LiveGrid uses one shared player: at most one context alive at any time", () => {
+    const m = mockFactory();
+    const shared = createSharedPlayer(m.factory);
+    const scenes = [1, 2, 3, 4, 5].map(sceneN);
+    for (const s of scenes) expect(shared.show(s, resolveLiveParams(s))).toBe(true);
+    expect(m.factory).toHaveBeenCalledTimes(5);
+    expect(m.stats().maxAlive).toBe(1);
+    // The previous player is disposed before the next one is created.
+    expect(m.log.indexOf("dispose scene-1")).toBeLessThan(m.log.indexOf("create scene-2"));
+    expect(m.log.indexOf("dispose scene-4")).toBeLessThan(m.log.indexOf("create scene-5"));
+    shared.dispose();
+    expect(m.stats().alive).toBe(0);
+  });
+
+  it("reuses the player for the same shader and only rebinds params", () => {
+    const m = mockFactory();
+    const shared = createSharedPlayer(m.factory);
+    const s = sceneN(1);
+    shared.show(s, resolveLiveParams(s));
+    shared.hide();
+    shared.show(s, { ...resolveLiveParams(s), amt: 0.9 });
+    expect(m.factory).toHaveBeenCalledTimes(1);
+    expect(m.log).toEqual(["create scene-1", "start scene-1", "stop scene-1", "params scene-1", "start scene-1"]);
+  });
+
+  it("hide stops the player and show reports a failed factory", () => {
+    const shared = createSharedPlayer(() => null);
+    expect(shared.show(sceneN(1), {})).toBe(false);
+    expect(() => shared.hide()).not.toThrow();
   });
 });

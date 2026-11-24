@@ -103,3 +103,17 @@ export function livePlayHref(s: LiveState, opts: { fps?: number; scale?: number;
   if (opts.mouse !== undefined) q.set("mouse", opts.mouse ? "1" : "0");
   return `/live/${s.scene}/play?${q.toString()}`;
 }
+
+/** Default render scale on /play: backing-store pixels per CSS pixel, kept low to save battery. */
+export const PLAY_DEFAULT_SCALE = 0.66;
+
+/** The /play extras: fps 30|60 (default 30), scale 0.25–2 (default 0.66), and mouse=0 to ignore the real pointer. */
+export function decodePlayOptions(q: URLSearchParams): { fps: 30 | 60; scale: number; pointer: boolean } {
+  const raw = q.get("scale");
+  const scale = raw === null || raw.trim() === "" ? Number.NaN : Number(raw);
+  return {
+    fps: q.get("fps") === "60" ? 60 : 30,
+    scale: Number.isFinite(scale) && scale > 0 ? Math.min(2, Math.max(0.25, scale)) : PLAY_DEFAULT_SCALE,
+    pointer: q.get("mouse") !== "0",
+  };
+}

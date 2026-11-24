@@ -22,6 +22,7 @@ export function GET(): Response {
     `- [Today's seed](${absoluteUrl("/today")}): one wallpaper a day, the same for everyone. Every seed from 1 to 999999 has a page at /s/<seed>.`,
     `- GitHub wallpapers: ${absoluteUrl("/u/<username>")} draws someone's real public contribution graph and commit history.`,
     `- [Daily wallpaper on any device](${absoluteUrl("/daily")}): set today's wallpaper automatically on iPhone and iPad (Shortcuts), Android (Tasker or MacroDroid), Windows (a PowerShell script and a scheduled task) and Linux (cron with GNOME or feh).`,
+    `- [Live wallpapers](${absoluteUrl("/live")}): moving 3D scenes rendered with WebGL2 that loop seamlessly; each has presets, colours and a seed at /live/<scene>, with still PNG and video loop downloads. The catalogue is JSON at ${absoluteUrl("/api/live")}.`,
     `- [Mac app](${absoluteUrl("/mac")}): a menu-bar app that sets a new wallpaper every day.`,
     `- [Claude connector and plugin](${absoluteUrl("/claude")}): render any generator from claude.ai or Claude Code, for hero backgrounds, OG images and banners.`,
     "",
