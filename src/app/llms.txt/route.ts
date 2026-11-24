@@ -3,6 +3,7 @@ import { SITE } from "@/config/site";
 import { DEVICES } from "@/config/devices";
 import { GENERATORS } from "@/generators";
 import { THEMES } from "@/generators/shared/themes";
+import { GUIDES } from "@/content/guides";
 
 export const dynamic = "force-static";
 
@@ -24,6 +25,14 @@ export function GET(): Response {
     `- [Daily wallpaper on any device](${absoluteUrl("/daily")}): set today's wallpaper automatically on iPhone and iPad (Shortcuts), Android (Tasker or MacroDroid), Windows (a PowerShell script and a scheduled task) and Linux (cron with GNOME or feh).`,
     `- [Mac app](${absoluteUrl("/mac")}): a menu-bar app that sets a new wallpaper every day.`,
     `- [Claude connector and plugin](${absoluteUrl("/claude")}): render any generator from claude.ai or Claude Code, for hero backgrounds, OG images and banners.`,
+    "",
+    `- [About](${absoluteUrl("/about")}): who makes Seedwall and how the generators work.`,
+    `- [Contact](${absoluteUrl("/contact")}): email, GitHub issues and socials.`,
+    `- [Privacy policy](${absoluteUrl("/privacy")}) and [terms of use](${absoluteUrl("/terms")}).`,
+    "",
+    "## Guides",
+    `- [All guides](${absoluteUrl("/guides")})`,
+    ...GUIDES.map((g) => `- [${g.title}](${absoluteUrl(`/guides/${g.slug}`)}): ${g.description}`),
     "",
     "## Image API",
     `- ${absoluteUrl("/api/s/<seed>")}?w=&h= (or ?d=<device>): PNG of a seed; &format=svg for SVG, &format=json for what the seed picks.`,
