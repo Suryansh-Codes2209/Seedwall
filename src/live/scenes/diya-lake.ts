@@ -30,10 +30,11 @@ const presets: Preset<P>[] = [
 
 /*
  * Paper sky lanterns rising over a still lake at night, in 2.5D. Three depth layers, each with its
- * own waterline below the horizon (nearer layers lower, larger, brighter and faster), a row of
- * floating diyas on that line, and lanterns rising from it. Every lantern sits in a column of its
- * layer; its height is fract(base + k * phase) with a whole number k, so it climbs out of the water,
- * fades in, leaves past the top edge and comes back from the water k times per loop. Sway and flicker
+ * own waterline below the horizon (nearer layers lower, larger, brighter and faster, as they have
+ * further to climb in the same time), floating diyas spread in front of that line, and lanterns
+ * rising from it. Every lantern sits in a column of its layer; its height is fract(base + phase), so
+ * it climbs out of the water, fades in, leaves past the top edge and comes back from the water
+ * exactly once per loop. Sway and flicker
  * are whole numbers of turns per loop too (wrapped with fract), so phase 0 and 1 are the same frame.
  * The water is a mirror: below a layer's waterline the same lanterns are drawn mirrored about it,
  * dimmed and broken up a little by a periodic ripple, with a glitter streak under each light. Each
@@ -82,8 +83,9 @@ vec3 diyaFlame(vec2 q, float s, float flick, vec3 warm) {
 }
 
 // Everything in one depth layer: lanterns above the waterline yw, or their mirror image below it.
-// cw is the column width, s the lantern size, k whole climbs per loop, dim the haze of distance.
-vec3 layer(vec2 p, float li, float yw, float cw, float s, float k, float dim) {
+// cw is the column width, s the lantern size, band how far in front of yw its diyas spread, dim the
+// haze of distance. Every lantern climbs once per loop.
+vec3 layer(vec2 p, float li, float yw, float cw, float s, float band, float dim) {
   vec3 warm = toLinear(u_lantern);
   bool mirror = p.y < yw;
   vec2 lp = p;
@@ -106,7 +108,7 @@ vec3 layer(vec2 p, float li, float yw, float cw, float s, float k, float dim) {
       if (h0 > u_count * stream) continue;
       float h1 = hash21(key + 1.7), h2 = hash21(key + 4.3), h3 = hash21(key + 8.9);
       float ss = s * mix(0.7, 1.25, h1);
-      float u = fract(h2 + float(j) * 0.5 + k * uPhase);
+      float u = fract(h2 + float(j) * 0.5 + uPhase);
       float y = mix(yw + 0.02 * s, TOPY + 2.0 * ss, u);
       float sway = 0.18 * cw * sin(turns(1.0 + floor(h3 * 2.0)) + h1 * TAU) * smoothstep(0.0, 0.3, u);
       float x = (c + 0.25 + 0.5 * h3) * cw + sway;
@@ -120,8 +122,9 @@ vec3 layer(vec2 p, float li, float yw, float cw, float s, float k, float dim) {
       lit += lantern(lp - vec2(x, y), ss, aa, flick, tint) * fade;
     }
   }
-  // Diyas floating on the water in a band just in front of this layer's waterline, each with a
-  // glitter streak below it. Each floats on its own line, so it is mirrored about that line.
+  // Diyas floating on the water in a band in front of this layer's waterline (nearer ones lower on
+  // screen and larger), each with a glitter streak below it. Each floats on its own line, so it is
+  // mirrored about that line.
   float dc = floor(p.x / (cw * 0.7));
   for (int i = -1; i <= 1; i++) {
     float c = dc + float(i);
@@ -131,7 +134,7 @@ vec3 layer(vec2 p, float li, float yw, float cw, float s, float k, float dim) {
     float h1 = hash21(key + 2.9), h2 = hash21(key + 6.1), h3 = hash21(key + 9.4);
     float near = h3 * h3;
     float ds = s * mix(0.3, 0.45, h1) * (1.0 + 0.8 * near);
-    float dw = yw - near * 0.45 * (yw - HORIZON + 0.012) - 0.004;
+    float dw = yw - near * band - 0.004;
     float x = (c + 0.15 + 0.7 * h2) * cw * 0.7;
     float y = dw + ds * 0.3 + 0.08 * ds * sin(turns(1.0) + h1 * TAU);
     float flick = 0.8 + 0.15 * sin(turns(9.0 + floor(h2 * 4.0)) + h0 * TAU) + 0.05 * sin(turns(23.0) + h2 * TAU);
@@ -145,7 +148,7 @@ vec3 layer(vec2 p, float li, float yw, float cw, float s, float k, float dim) {
     if (dm) {
       float dx = p.x - x, db = dw - p.y;
       acc += warm * 0.3 * flick * exp(-dx * dx / (0.15 * ds * ds)) * exp(-db / (2.5 * ds))
-           * (0.6 + 0.4 * sin(db * 900.0 / (1.0 + db * 6.0) + turns(5.0) + h1 * TAU));
+           * (0.6 + 0.4 * sin(db * 600.0 / (1.0 + db * 6.0) + turns(5.0) + h1 * TAU));
     }
   }
   if (mirror) lit *= 0.5 * exp(-below * 1.5);
@@ -166,9 +169,9 @@ vec3 scene(vec2 uv) {
   col = mix(col, toLinear(u_water) * 0.8, 0.6 * exp(-abs(uv.y - HORIZON) * 240.0));
 
   vec2 m = uMouse * vec2(0.03, 0.01);
-  col += layer(uv + m * 0.3, 0.0, HORIZON - 0.012, 0.055, 0.009, 1.0, 0.55);
-  col += layer(uv + m * 0.6, 1.0, HORIZON - 0.06, 0.1, 0.018, 1.0, 0.8);
-  col += layer(uv + m * 1.0, 2.0, HORIZON - 0.2, 0.19, 0.036, 2.0, 1.0);
+  col += layer(uv + m * 0.3, 0.0, HORIZON - 0.012, 0.055, 0.009, 0.04, 0.55);
+  col += layer(uv + m * 0.6, 1.0, HORIZON - 0.06, 0.1, 0.018, 0.12, 0.8);
+  col += layer(uv + m * 1.0, 2.0, HORIZON - 0.2, 0.15, 0.036, 0.15, 1.0);
 
   col *= mix(1.0, 0.75, smoothstep(0.5, 1.2, length(uv * vec2(0.75, 1.0))));
   return finishDither(rolloff(max(col, 0.0)));
