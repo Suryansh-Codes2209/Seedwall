@@ -4,6 +4,7 @@ import { createRng } from "@/generators/shared/rng";
 import type { Params } from "@/generators/types";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
 import type { LiveScene } from "@/live/types";
+import { posterPath } from "@/live/poster";
 import { paramUniforms } from "@/live/uniforms";
 import { createSharedPlayer } from "@/live/shared";
 
@@ -57,6 +58,14 @@ describe("resolveLiveParams", () => {
     expect(resolveLiveParams(scene, "p1")).toMatchObject({ amt: 0.25, mode: "a" });
     expect(resolveLiveParams(scene, "p1", { amt: 2, mode: "zzz", seed: 42, nope: 1 })).toEqual({ bg: "#ff8000", amt: 1, on: true, mode: "a", seed: 42 });
     expect(resolveLiveParams(scene, "missing")).toEqual(resolveLiveParams(scene));
+  });
+});
+
+describe("posterPath", () => {
+  it("builds the landscape and phone poster paths", () => {
+    expect(posterPath("glass-orbs", "aurora")).toBe("/live/glass-orbs/aurora.jpg");
+    expect(posterPath("glass-orbs", "aurora", false)).toBe("/live/glass-orbs/aurora.jpg");
+    expect(posterPath("glass-orbs", "aurora", true)).toBe("/live/glass-orbs/aurora-phone.jpg");
   });
 });
 

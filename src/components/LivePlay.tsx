@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { LIVE_SCENES, getLiveScene, resolveLiveParams } from "@/live";
 import { pointerToMouse } from "@/live/loop";
 import { createLivePlayer, type LivePlayer } from "@/live/player";
+import { posterPath } from "@/live/poster";
 import { decodeLiveState, decodePlayOptions } from "@/lib/liveState";
 
 /** What the Mac app drives through evaluateJavaScript. */
@@ -45,7 +46,7 @@ export function LivePlay({ sceneId }: { sceneId: string }) {
     const state = decodeLiveState(sceneId, q);
     const scene = getLiveScene(state.scene) ?? LIVE_SCENES[0]!;
     const opts = decodePlayOptions(q);
-    const posterUrl = `/live/${scene.id}/${state.preset}${window.innerHeight > window.innerWidth ? "-phone" : ""}.jpg`;
+    const posterUrl = posterPath(scene.id, state.preset, window.innerHeight > window.innerWidth);
 
     let player: LivePlayer | null = null;
     let raf = 0;

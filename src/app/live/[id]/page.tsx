@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { LivePlayerView } from "@/components/LivePlayerView";
 import { pageMetadata } from "@/config/seo";
 import { LIVE_SCENES, getLiveScene } from "@/live";
+import { posterPath } from "@/live/poster";
 
 export const dynamicParams = false;
 
@@ -14,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const scene = getLiveScene((await params).id);
   if (!scene) return {};
-  const image = `/live/${scene.id}/${scene.presets[0]?.id ?? ""}.jpg`;
+  const image = posterPath(scene.id, scene.presets[0]?.id ?? "");
   const alt = `${scene.name} live wallpaper made with Seedwall`;
   const meta = pageMetadata({
     title: `${scene.name}: live wallpaper`,

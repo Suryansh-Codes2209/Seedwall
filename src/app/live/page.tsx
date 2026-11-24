@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { LiveGrid } from "@/components/LiveGrid";
 import { pageMetadata } from "@/config/seo";
 import { LIVE_SCENES } from "@/live";
+import { posterPath } from "@/live/poster";
 
 const first = LIVE_SCENES[0];
-const image = first ? `/live/${first.id}/${first.presets[0]?.id ?? ""}.jpg` : "/og/default.png";
+const image = first ? posterPath(first.id, first.presets[0]?.id ?? "") : "/og/default.png";
 const meta = pageMetadata({
   title: "Live wallpapers: moving 3D desktop backgrounds",
   description:

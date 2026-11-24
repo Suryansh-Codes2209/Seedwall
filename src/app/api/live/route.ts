@@ -1,4 +1,5 @@
 import { LIVE_SCENES } from "@/live";
+import { posterPath } from "@/live/poster";
 
 export const dynamic = "force-static";
 
@@ -18,8 +19,8 @@ export function GET() {
     presets: s.presets.map((p) => ({
       id: p.id,
       title: p.title,
-      poster: `/live/${s.id}/${p.id}.jpg`,
-      posterPhone: `/live/${s.id}/${p.id}-phone.jpg`,
+      poster: posterPath(s.id, p.id),
+      posterPhone: posterPath(s.id, p.id, true),
     })),
     page: `/live/${s.id}`,
     play: `/live/${s.id}/play`,

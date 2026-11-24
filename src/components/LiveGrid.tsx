@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LIVE_SCENES, resolveLiveParams } from "@/live";
 import { createLivePlayer } from "@/live/player";
+import { posterPath } from "@/live/poster";
 import { createSharedPlayer, type SharedPlayer } from "@/live/shared";
 
 /**
@@ -111,7 +112,7 @@ export function LiveGrid() {
           >
             <div className="card-media">
               {/* eslint-disable-next-line @next/next/no-img-element -- a fixed-size poster from /public, no optimisation needed */}
-              <img src={`/live/${scene.id}/${preset}.jpg`} alt={`${scene.name} live wallpaper`} loading="lazy" width={1920} height={1080} />
+              <img src={posterPath(scene.id, preset)} alt={`${scene.name} live wallpaper`} loading="lazy" width={1920} height={1080} />
               <div
                 className="live-card-slot"
                 ref={(el) => {

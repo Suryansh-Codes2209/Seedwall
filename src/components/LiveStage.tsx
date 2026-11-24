@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Params } from "@/generators/types";
 import { pointerToMouse } from "@/live/loop";
 import { createLivePlayer, type LivePlayer } from "@/live/player";
+import { posterPath } from "@/live/poster";
 import type { AnyLiveScene } from "@/live/types";
 
 interface Props {
@@ -83,7 +84,7 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
     if (reducedRef.current) playerRef.current?.renderFrame(0);
   }, [dw, dh]);
 
-  const poster = `/live/${scene.id}/${preset}${h > w ? "-phone" : ""}.jpg`;
+  const poster = posterPath(scene.id, preset, h > w);
 
   return (
     <div className="preview-wrap live-stage" ref={wrap}>

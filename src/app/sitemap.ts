@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { absoluteUrl } from "@/config/seo";
 import { GENERATORS } from "@/generators";
 import { LIVE_SCENES } from "@/live";
+import { posterPath } from "@/live/poster";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -26,7 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,
-      images: [absoluteUrl(`/live/${s.id}/${s.presets[0]?.id ?? ""}.jpg`)],
+      images: [absoluteUrl(posterPath(s.id, s.presets[0]?.id ?? ""))],
     })),
   ];
 }
