@@ -19,7 +19,7 @@ const LINKS: NavLink[] = [
   { href: "/studio", label: "Studio", note: "Make your own wallpaper" },
   { href: "/paint", label: "Paint", note: "Turn a photo into a painting" },
   { href: "/gallery", label: "Gallery", note: "Ready-made downloads" },
-  { href: "/live", label: "Live", note: "Moving 3D wallpapers", match: (p) => p.startsWith("/live") },
+  { href: "/live", label: "Live", note: "Moving 3D wallpapers", match: (p) => p === "/live" || p.startsWith("/live/") },
   { href: "/today", label: "Today", note: "One seed a day, the same for everyone", match: (p) => p.startsWith("/s/") },
   { href: "/#generators", label: "Generators", note: "Every look, one page each", match: (p) => p.startsWith("/generators/") },
   { href: "/mac", label: "Mac app", note: "A new wallpaper every morning" },
