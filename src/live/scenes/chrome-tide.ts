@@ -95,7 +95,8 @@ vec3 scene(vec2 uv) {
   float yaw = uMouse.x * 0.15;
   // Portrait screens tilt up a little so the horizon sits nearer the middle.
   float pitch = -0.09 + 0.14 * (1.0 - min(uRes.x / uRes.y, 1.0)) + uMouse.y * 0.08;
-  vec3 ro = vec3(0.0, 1.6, 0.0);
+  // Always above the highest possible crest, so the march never starts under the sea.
+  vec3 ro = vec3(0.0, max(1.6, gMaxH + 0.15), 0.0);
   mat3 cam = lookYawPitch(yaw, pitch);
   vec3 rd = normalize(cam * vec3(uv, 1.6));
 
