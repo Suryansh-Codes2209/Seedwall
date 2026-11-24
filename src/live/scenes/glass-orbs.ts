@@ -32,7 +32,7 @@ const presets: Preset<P>[] = [
  * Glass metaballs (smooth-min of spheres) floating over an infinite studio floor.
  * Every moving term is sin/cos(TAU*uPhase*k + offset) with whole-number k, so phase 0 and 1 match.
  * Cost per pixel stays bounded: orb centres are computed once, the outer march (64 steps) only runs
- * inside a bounding sphere, the inner march is 20 steps, and floor shadows only run near the orbs.
+ * inside a bounding sphere, the inner march is 28 steps, and floor shadows only run near the orbs.
  */
 const fragment = /* glsl */ `
 #define SW_RAYMARCH
