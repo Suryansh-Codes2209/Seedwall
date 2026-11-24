@@ -112,7 +112,17 @@ export function createLivePlayer(
     uniforms = paramUniforms(scene, p);
     const s = Number(p.speed ?? scene.params.speed?.default ?? 1);
     speed = Number.isFinite(s) ? s : 1;
+    const prevLoopMs = loopSeconds * 1000;
     loopSeconds = effectiveLoopSeconds(scene, p);
+    // A new loop length keeps the current phase: rescale the elapsed time instead of letting the phase jump.
+    const loopMs = loopSeconds * 1000;
+    if (loopMs !== prevLoopMs) {
+      const now = performance.now();
+      const elapsed = raf ? now - startedAt : pausedElapsed;
+      const rebased = ((((elapsed % prevLoopMs) + prevLoopMs) % prevLoopMs) / prevLoopMs) * loopMs;
+      if (raf) startedAt = now - rebased;
+      else pausedElapsed = rebased;
+    }
     // Not animating (stopped, paused or reduced motion): refresh the still so it shows the new params.
     if (!raf && drawnPhase !== null) renderFrame(drawnPhase);
   }

@@ -148,7 +148,7 @@ describe("createLivePlayer", () => {
 
 /** A WebGL2 stand-in that compiles and links everything and records draws and colour uniforms. */
 function fakeGl() {
-  const calls = { draws: 0, colors: [] as number[][] };
+  const calls = { draws: 0, colors: [] as number[][], phases: [] as number[] };
   const gl = {
     VERTEX_SHADER: 1,
     FRAGMENT_SHADER: 2,
@@ -169,7 +169,9 @@ function fakeGl() {
     viewport: () => {},
     useProgram: () => {},
     bindVertexArray: () => {},
-    uniform1f: () => {},
+    uniform1f: (l: { name: string }, v: number) => {
+      if (l.name === "uPhase") calls.phases.push(v);
+    },
     uniform1i: () => {},
     uniform2f: () => {},
     uniform3f: (_l: unknown, r: number, g: number, b: number) => calls.colors.push([r, g, b]),
@@ -193,5 +195,68 @@ describe("createLivePlayer setParams", () => {
     player!.setParams({ bg: "#ffffff" });
     expect(calls.draws).toBe(2);
     expect(calls.colors.at(-1)).toEqual([1, 1, 1]);
+  });
+});
+
+/** A hand-driven clock and requestAnimationFrame queue: frame(t) sets the time and runs the queued callbacks. */
+function fakeFrames() {
+  let now = 0;
+  let queue: FrameRequestCallback[] = [];
+  const raf = vi.fn((cb: FrameRequestCallback) => {
+    queue.push(cb);
+    return queue.length;
+  });
+  const caf = vi.fn(() => {
+    queue = [];
+  });
+  vi.spyOn(performance, "now").mockImplementation(() => now);
+  vi.stubGlobal("requestAnimationFrame", raf);
+  vi.stubGlobal("cancelAnimationFrame", caf);
+  return {
+    raf,
+    caf,
+    frame(t: number) {
+      now = t;
+      const run = queue;
+      queue = [];
+      for (const cb of run) cb(t);
+    },
+    setNow(t: number) {
+      now = t;
+    },
+  };
+}
+
+describe("createLivePlayer speed changes", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the current phase when the speed changes while playing", () => {
+    const f = fakeFrames();
+    const { canvas, calls } = fakeGl();
+    const player = createLivePlayer(canvas, SCENE, { speed: 1 }, { scale: 1 })!;
+    player.start();
+    f.frame(5000); // 10 s loop → phase 0.5
+    expect(calls.phases.at(-1)).toBeCloseTo(0.5, 6);
+    player.setParams({ speed: 2 }); // 5 s loop from here on
+    f.frame(5050);
+    expect(calls.phases.at(-1)).toBeCloseTo(0.5 + 50 / 5000, 6);
+  });
+
+  it("keeps the paused phase when the speed changes while stopped", () => {
+    const f = fakeFrames();
+    const { canvas, calls } = fakeGl();
+    const player = createLivePlayer(canvas, SCENE, { speed: 1 }, { scale: 1 })!;
+    player.start();
+    f.frame(2500); // phase 0.25
+    f.setNow(2500);
+    player.stop();
+    player.setParams({ speed: 0.5 }); // 20 s loop
+    f.setNow(9000);
+    player.start();
+    f.frame(9000);
+    expect(calls.phases.at(-1)).toBeCloseTo(0.25, 6);
   });
 });
