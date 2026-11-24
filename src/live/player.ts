@@ -106,12 +106,15 @@ export function createLivePlayer(
   let startedAt = 0; // performance.now() at elapsed 0
   let pausedElapsed = 0;
   let lost = false;
+  let drawnPhase: number | null = null; // phase of the last frame drawn, for redraws while stopped
 
   function setParams(p: Params) {
     uniforms = paramUniforms(scene, p);
     const s = Number(p.speed ?? scene.params.speed?.default ?? 1);
     speed = Number.isFinite(s) ? s : 1;
     loopSeconds = scene.loopSeconds * loopMultiplier(speed);
+    // Not animating (stopped, paused or reduced motion): refresh the still so it shows the new params.
+    if (!raf && drawnPhase !== null) renderFrame(drawnPhase);
   }
 
   function resize() {
@@ -140,6 +143,7 @@ export function createLivePlayer(
     gl.uniform1f(loc("uLoop"), loopSeconds);
     gl.uniform2f(loc("uMouse"), mouse[0], mouse[1]);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    drawnPhase = phase;
   }
 
   function tick(now: number) {

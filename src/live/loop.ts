@@ -37,3 +37,9 @@ export function clampMouse(x: number, y: number): [number, number] {
   const c = (v: number) => (Number.isFinite(v) ? Math.min(1, Math.max(-1, v)) : 0);
   return [c(x), c(y)];
 }
+
+/** A pointer position in client pixels → −1…1 over `rect` (x right, y up), clamped like setMouse. */
+export function pointerToMouse(clientX: number, clientY: number, rect: { left: number; top: number; width: number; height: number }): [number, number] {
+  if (!(rect.width > 0 && rect.height > 0)) return [0, 0];
+  return clampMouse(((clientX - rect.left) / rect.width) * 2 - 1, 1 - ((clientY - rect.top) / rect.height) * 2);
+}

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildFragment } from "@/live/glsl/prelude";
-import { clampMouse, phaseAt, shouldDraw, smoothMouse } from "@/live/loop";
+import { clampMouse, phaseAt, pointerToMouse, shouldDraw, smoothMouse } from "@/live/loop";
 import { createLivePlayer } from "@/live/player";
 import type { AnyLiveScene } from "@/live/types";
 
@@ -71,6 +71,17 @@ describe("clampMouse", () => {
   });
 });
 
+describe("pointerToMouse", () => {
+  const rect = { left: 100, top: 50, width: 200, height: 100 };
+  it("maps the element to -1..1 with y up", () => {
+    expect(pointerToMouse(200, 100, rect)).toEqual([0, 0]);
+    expect(pointerToMouse(100, 50, rect)).toEqual([-1, 1]); // top left
+    expect(pointerToMouse(300, 150, rect)).toEqual([1, -1]); // bottom right
+    expect(pointerToMouse(400, 100, rect)).toEqual([1, 0]); // clamped
+    expect(pointerToMouse(10, 10, { left: 0, top: 0, width: 0, height: 0 })).toEqual([0, 0]);
+  });
+});
+
 describe("buildFragment", () => {
   it("starts with the version line and declares schema uniforms", () => {
     const src = buildFragment(SCENE);
@@ -116,5 +127,55 @@ describe("createLivePlayer", () => {
     const canvas = { getContext: () => gl } as unknown as HTMLCanvasElement;
     expect(createLivePlayer(canvas, SCENE, {})).toBeNull();
     expect(error).toHaveBeenCalledWith(expect.stringContaining("ERROR: 0:1: bad"));
+  });
+});
+
+/** A WebGL2 stand-in that compiles and links everything and records draws and colour uniforms. */
+function fakeGl() {
+  const calls = { draws: 0, colors: [] as number[][] };
+  const gl = {
+    VERTEX_SHADER: 1,
+    FRAGMENT_SHADER: 2,
+    COMPILE_STATUS: 3,
+    LINK_STATUS: 4,
+    TRIANGLES: 5,
+    createShader: () => ({}),
+    shaderSource: () => {},
+    compileShader: () => {},
+    getShaderParameter: () => true,
+    deleteShader: () => {},
+    createProgram: () => ({}),
+    attachShader: () => {},
+    linkProgram: () => {},
+    getProgramParameter: () => true,
+    createVertexArray: () => ({}),
+    getUniformLocation: (_p: unknown, name: string) => ({ name }),
+    viewport: () => {},
+    useProgram: () => {},
+    bindVertexArray: () => {},
+    uniform1f: () => {},
+    uniform1i: () => {},
+    uniform2f: () => {},
+    uniform3f: (_l: unknown, r: number, g: number, b: number) => calls.colors.push([r, g, b]),
+    drawArrays: () => {
+      calls.draws++;
+    },
+  };
+  const canvas = { width: 0, height: 0, clientWidth: 64, clientHeight: 32, getContext: () => gl } as unknown as HTMLCanvasElement;
+  return { canvas, calls };
+}
+
+describe("createLivePlayer setParams", () => {
+  it("redraws the last frame when a param changes while not animating", () => {
+    const { canvas, calls } = fakeGl();
+    const player = createLivePlayer(canvas, SCENE, { bg: "#000000" }, { reducedMotion: true, scale: 1 });
+    expect(player).not.toBeNull();
+    player!.setParams({ bg: "#ff0000" });
+    expect(calls.draws).toBe(0); // nothing drawn yet, so nothing to refresh
+    player!.start();
+    expect(calls.draws).toBe(1);
+    player!.setParams({ bg: "#ffffff" });
+    expect(calls.draws).toBe(2);
+    expect(calls.colors.at(-1)).toEqual([1, 1, 1]);
   });
 });
