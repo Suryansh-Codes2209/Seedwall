@@ -202,12 +202,6 @@ vec3 shadeGlass(vec3 p, vec3 rd) {
   return mix(trans + glow, refl, fres * mix(0.55, 1.0, u_gloss)) + lc * spec;
 }
 
-// Keeps highlights from clipping hard: identity below 0.8, eased towards 1 above it.
-vec3 rolloff(vec3 c) {
-  vec3 hi = 0.8 + 0.2 * (1.0 - exp(-(c - 0.8) * 5.0));
-  return mix(c, hi, step(0.8, c));
-}
-
 vec3 scene(vec2 uv) {
   setupOrbs();
   float aspect = uRes.x / uRes.y;
@@ -241,11 +235,9 @@ vec3 scene(vec2 uv) {
     if (hit) col = shadeGlass(ro + rd * t, rd);
   }
 
-  // Soft vignette, then dither in display space so dark gradients do not band.
+  // Soft vignette, highlight rolloff, then a display-space dither (prelude helpers).
   col *= mix(1.0, 0.82, smoothstep(0.35, 1.1, length(uv * vec2(0.85, 1.0))));
-  col = rolloff(max(col, 0.0));
-  vec3 s = pow(col, vec3(1.0 / 2.2)) + (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
-  return pow(max(s, 0.0), vec3(2.2));
+  return finishDither(rolloff(max(col, 0.0)));
 }
 `;
 

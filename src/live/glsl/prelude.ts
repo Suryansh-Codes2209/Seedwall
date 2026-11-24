@@ -16,6 +16,11 @@ export const PRELUDE = /* glsl */ `
 // - uMouse is the smoothed pointer in -1..1, x right, y up; (0,0) is the centre and the rest value.
 // - Raymarching scenes define the SW_RAYMARCH macro at the top of their fragment (it is moved
 //   above this prelude) and define float map(vec3 p); that enables calcNormal() and softShadow().
+// - Shared finishing helpers: rolloff(c) eases linear highlights above 0.8 towards 1 instead of
+//   clipping; finishDither(c) adds a 1/255 dither in display space (against banding) and returns
+//   linear colour again, so a scene can end with: return finishDither(rolloff(max(col, 0.0)));
+// - lookYawPitch(yaw, pitch) is a camera basis (columns: right, up, forward) looking along +z at
+//   yaw/pitch 0, with world up = +y: rd = normalize(lookYawPitch(yaw, pitch) * vec3(uv, focal)).
 uniform vec2 uRes;
 uniform float uPhase, uLoop, uSeed;
 uniform vec2 uMouse;
@@ -65,6 +70,26 @@ float smin(float a, float b, float k) {
 }
 
 vec3 toLinear(vec3 c) { return pow(c, vec3(2.2)); }
+
+// Keeps highlights from clipping hard: identity below 0.8, eased towards 1 above it.
+vec3 rolloff(vec3 c) {
+  vec3 hi = 0.8 + 0.2 * (1.0 - exp(-(c - 0.8) * 5.0));
+  return mix(c, hi, step(0.8, c));
+}
+
+// Dithers in display space so dark gradients do not band, then returns linear colour for main().
+vec3 finishDither(vec3 col) {
+  vec3 s = pow(col, vec3(1.0 / 2.2)) + (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
+  return pow(max(s, 0.0), vec3(2.2));
+}
+
+// Camera basis (right, up, forward) for a camera looking along +z at yaw = pitch = 0, world up +y.
+mat3 lookYawPitch(float yaw, float pitch) {
+  vec3 fw = vec3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch));
+  vec3 rt = normalize(cross(fw, vec3(0.0, 1.0, 0.0)));
+  vec3 up = cross(rt, fw);
+  return mat3(rt, up, fw);
+}
 
 #ifdef SW_RAYMARCH
 float map(vec3 p);

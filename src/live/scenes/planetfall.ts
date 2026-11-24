@@ -128,11 +128,6 @@ vec3 stars(vec2 p, float scale, float density, float bright, float salt) {
   return tint * lum * exp(-d * d / (rad * rad));
 }
 
-vec3 rolloff(vec3 c) {
-  vec3 hi = 0.8 + 0.2 * (1.0 - exp(-(c - 0.8) * 5.0));
-  return mix(c, hi, step(0.8, c));
-}
-
 vec3 scene(vec2 uv) {
   float aspect = uRes.x / uRes.y;
   vec2 suv = uv / min(aspect * 0.86, 1.0); // portrait screens zoom out so the rings still fit across
@@ -210,9 +205,7 @@ vec3 scene(vec2 uv) {
   }
 
   col *= mix(1.0, 0.8, smoothstep(0.5, 1.2, length(uv * vec2(0.75, 1.0))));
-  col = rolloff(max(col, 0.0));
-  vec3 dc = pow(col, vec3(1.0 / 2.2)) + (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
-  return pow(max(dc, 0.0), vec3(2.2));
+  return finishDither(rolloff(max(col, 0.0)));
 }
 `;
 

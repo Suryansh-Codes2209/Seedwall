@@ -90,21 +90,14 @@ vec3 sky(vec3 rd) {
   return c;
 }
 
-vec3 rolloff(vec3 c) {
-  vec3 hi = 0.8 + 0.2 * (1.0 - exp(-(c - 0.8) * 5.0));
-  return mix(c, hi, step(0.8, c));
-}
-
 vec3 scene(vec2 uv) {
   setupWaves();
   float yaw = uMouse.x * 0.15;
   // Portrait screens tilt up a little so the horizon sits nearer the middle.
   float pitch = -0.09 + 0.14 * (1.0 - min(uRes.x / uRes.y, 1.0)) + uMouse.y * 0.08;
   vec3 ro = vec3(0.0, 1.6, 0.0);
-  vec3 fw = vec3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch));
-  vec3 rt = normalize(cross(fw, vec3(0.0, 1.0, 0.0)));
-  vec3 up = cross(rt, fw);
-  vec3 rd = normalize(uv.x * rt + uv.y * up + 1.6 * fw);
+  mat3 cam = lookYawPitch(yaw, pitch);
+  vec3 rd = normalize(cam * vec3(uv, 1.6));
 
   vec3 col = sky(rd);
   if (rd.y < -1e-3) {
@@ -147,9 +140,7 @@ vec3 scene(vec2 uv) {
   }
 
   col *= mix(1.0, 0.85, smoothstep(0.4, 1.1, length(uv * vec2(0.8, 1.0))));
-  col = rolloff(max(col, 0.0));
-  vec3 dc = pow(col, vec3(1.0 / 2.2)) + (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
-  return pow(max(dc, 0.0), vec3(2.2));
+  return finishDither(rolloff(max(col, 0.0)));
 }
 `;
 

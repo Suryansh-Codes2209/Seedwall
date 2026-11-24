@@ -119,22 +119,15 @@ vec3 sky(vec3 rd) {
   return c;
 }
 
-vec3 rolloff(vec3 c) {
-  vec3 hi = 0.8 + 0.2 * (1.0 - exp(-(c - 0.8) * 5.0));
-  return mix(c, hi, step(0.8, c));
-}
-
 vec3 scene(vec2 uv) {
   float scroll = TILE * uPhase; // exactly one tile per loop
   float yaw = uMouse.x * 0.12;
   float pitch = -0.04 + uMouse.y * 0.06;
   vec3 ro = vec3(0.0, 0.85, 0.0);
-  vec3 fw = vec3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch));
-  vec3 rt = normalize(cross(fw, vec3(0.0, 1.0, 0.0)));
-  vec3 up = cross(rt, fw);
+  mat3 cam = lookYawPitch(yaw, pitch);
   float aspect = uRes.x / uRes.y;
   vec2 suv = uv / min(aspect * 1.2, 1.0); // portrait widens the view a little
-  vec3 rd = normalize(suv.x * rt + suv.y * up + 1.5 * fw);
+  vec3 rd = normalize(cam * vec3(suv, 1.5));
 
   vec3 col = sky(rd);
   float hMax = u_relief * 2.2 + 0.1;
@@ -207,9 +200,7 @@ vec3 scene(vec2 uv) {
   }
 
   col *= mix(1.0, 0.82, smoothstep(0.45, 1.15, length(uv * vec2(0.8, 1.0))));
-  col = rolloff(max(col, 0.0));
-  vec3 dc = pow(col, vec3(1.0 / 2.2)) + (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
-  return pow(max(dc, 0.0), vec3(2.2));
+  return finishDither(rolloff(max(col, 0.0)));
 }
 `;
 
