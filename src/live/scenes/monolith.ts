@@ -25,7 +25,7 @@ const presets: Preset<P>[] = [
   { id: "basalt", title: "Basalt", params: {} },
   { id: "desert", title: "Desert", params: { bg: "#7d5a40", slab: "#80583a", light: "#ffd9a0", haze: 1.2, rays: 1.1, seed: 11 } },
   { id: "temple", title: "Temple", params: { bg: "#27433e", slab: "#3f3b33", light: "#ffdf8c", haze: 1.1, rays: 1.2, seed: 17 } },
-  { id: "void", title: "Void", params: { bg: "#07070d", slab: "#101016", light: "#a7b8ff", haze: 0.7, rays: 1.6, seed: 29 } },
+  { id: "void", title: "Void", params: { bg: "#030306", slab: "#0c0c12", light: "#8a9cff", haze: 0.5, rays: 0.2, seed: 29 } },
 ];
 
 /*
@@ -111,7 +111,7 @@ float occlusion(int i, vec3 q) {
   if (tF <= 0.0) return 0.0;
   float tm = max(0.5 * (tN + tF), 0.0);
   float pen = 0.03 + 0.025 * tm;
-  return smoothstep(pen, -pen, sdBox(q + gLd[i] * tm, gHalf[i]));
+  return 1.0 - smoothstep(-pen, pen, sdBox(q + gLd[i] * tm, gHalf[i]));
 }
 
 float lightVis(vec3 p) {
@@ -192,7 +192,7 @@ vec3 scene(vec2 uv) {
     float tm = max(0.5 * (tt.x + tt.y), 0.0);
     float sd = sdBox(o + d * tm, gHalf[i]);
     float w = 0.7 * max(tm, 0.5) * pixAngle;
-    if (sd < w && tt.x < tFront) { tFront = tt.x; iFront = i; cov = smoothstep(w, -w, sd); }
+    if (sd < w && tt.x < tFront) { tFront = tt.x; iFront = i; cov = 1.0 - smoothstep(-w, w, sd); }
   }
   float tBack = 1e9;
   int iBack = -1;
@@ -234,8 +234,8 @@ vec3 scene(vec2 uv) {
   accF = mix(accF, quadAverage(accF, qd), steady);
   float c = dot(rd, gL);
   float g = 0.8;
-  float phase = 0.025 + 0.012 * (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * c, 1.5);
-  vec3 shaft = toLinear(u_light) * u_rays * phase * 2.6;
+  float phase = 0.01 + 0.016 * (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * c, 1.5);
+  vec3 shaft = toLinear(u_light) * u_rays * phase * 4.0;
 
   vec3 col = mix(back + shaft * accB, front + shaft * accF, cov);
   col *= mix(1.0, 0.78, smoothstep(0.4, 1.15, length(uv * vec2(0.8, 1.0))));
