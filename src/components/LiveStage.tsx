@@ -14,14 +14,16 @@ interface Props {
   /** The target screen; the stage keeps its aspect ratio. */
   w: number;
   h: number;
+  /** Frame-rate cap. Changing it restarts the player. */
+  fps?: 30 | 60;
 }
 
 /**
  * Plays a live scene in a stage sized to the device's aspect ratio (fit like Preview).
- * The player is created once per scene; param edits only rebind uniforms, so nothing recompiles.
+ * The player is created once per scene and frame rate; param edits only rebind uniforms, so nothing recompiles.
  * Without WebGL2, or if the GPU context is lost, it shows the preset's poster instead.
  */
-export function LiveStage({ scene, preset, params, w, h }: Props) {
+export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playerRef = useRef<LivePlayer | null>(null);
@@ -49,7 +51,7 @@ export function LiveStage({ scene, preset, params, w, h }: Props) {
     if (!canvas) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     reducedRef.current = reduced;
-    const player = createLivePlayer(canvas, scene, paramsRef.current, { reducedMotion: reduced });
+    const player = createLivePlayer(canvas, scene, paramsRef.current, { reducedMotion: reduced, fps });
     if (!player) {
       setFailed(true);
       return;
@@ -64,7 +66,7 @@ export function LiveStage({ scene, preset, params, w, h }: Props) {
       player.dispose();
       playerRef.current = null;
     };
-  }, [scene]);
+  }, [scene, fps]);
 
   useEffect(() => {
     paramsRef.current = params;
