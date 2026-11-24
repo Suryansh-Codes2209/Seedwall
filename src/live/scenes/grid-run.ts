@@ -132,6 +132,9 @@ vec3 scene(vec2 uv) {
   vec3 col = sky(rd);
   float hMax = u_relief * 2.2 + 0.1;
   const float FAR = 75.0;
+  // Haze is complete by FOG_END, a little before FAR, so terrain at the end of the valley meets the
+  // haze drawn for rays that pass FAR (or run out of steps) without a seam.
+  const float FOG_END = 66.0;
 
   // March the heightfield, then refine the crossing inside its bracket.
   float t = 0.05;
@@ -148,15 +151,19 @@ vec3 scene(vec2 uv) {
     ta = t; da = d;
     float px = d * max(-rd.y + 0.5, 0.5) / (t * pixAngle);
     if (px < nearPx) { nearPx = px; nearT = t; }
-    t += max(0.45 * d / max(-rd.y + 0.5, 0.5), 0.01 + t * 0.006);
+    // Steps scale with the height gap over the ray's descent rate, so rays grazing the flat valley
+    // still reach FAR (about 46 steps at worst); the cap limits tunnelling through ridges, and an
+    // overshoot into terrain is caught by the bracket refine below.
+    t += min(max(0.5 * d / max(-rd.y, 0.05), 0.02 + t * 0.01), 0.8 + t * 0.06);
   }
   bool hit = tb > 0.0;
-  // A ray that ran out of steps before reaching FAR is still over terrain; show it as far haze.
+  // A ray that missed below the horizon (past FAR, or out of steps) is over distant terrain: draw it
+  // as full haze, which is also what terrain at FOG_END fades to. The sun sets behind that haze.
   vec3 pe = ro + rd * t;
-  if (!hit && t <= FAR && !(pe.y > hMax && rd.y >= 0.0)) col = skyGradient(rd);
+  if (!hit && (rd.y < 0.0 || (t <= FAR && pe.y <= hMax))) col = skyGradient(rd);
   // Sky pixels that grazed a ridge take part of the ridge's dark face, which softens the silhouette.
   if (!hit) {
-    vec3 ridge = mix(toLinear(u_bg) * 0.35, skyGradient(rd), smoothstep(18.0, FAR, nearT));
+    vec3 ridge = mix(toLinear(u_bg) * 0.35, skyGradient(rd), smoothstep(14.0, FOG_END, nearT));
     col = mix(col, ridge, 1.0 - smoothstep(0.0, 1.0, nearPx));
   }
   if (hit) {
@@ -195,7 +202,7 @@ vec3 scene(vec2 uv) {
     vec3 gridCol = toLinear(u_grid);
     col = face + gridCol * (line * 1.6 + halo) * fade;
     // Distance haze into the horizon glow.
-    float fog = smoothstep(14.0, FAR * 0.92, t);
+    float fog = smoothstep(14.0, FOG_END, t);
     col = mix(col, skyGradient(rd), fog);
   }
 
