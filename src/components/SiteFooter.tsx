@@ -114,6 +114,9 @@ export function SiteFooter() {
         <nav className="footer-col" aria-labelledby="fc-about">
           <h2 id="fc-about" className="footer-h">About</h2>
           <ul>
+            <li><Link href="/about">About Seedwall</Link></li>
+            <li><Link href="/guides">Guides</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
             <li><Ext href={REPO_URL}>Source on GitHub</Ext></li>
             <li><Ext href={`${REPO_URL}/blob/main/CONTRIBUTING.md`}>Add a generator</Ext></li>
             <li><ReportLink>Report a bug</ReportLink></li>
@@ -127,6 +130,12 @@ export function SiteFooter() {
           © {year} Seedwall. Designed and built by{" "}
           <a href={AUTHOR.url} target="_blank" rel="noreferrer" className="credit-link">{AUTHOR.name}</a>.
         </p>
+        <nav aria-label="Legal">
+          <ul className="footer-legal">
+            <li><Link href="/privacy">Privacy</Link></li>
+            <li><Link href="/terms">Terms</Link></li>
+          </ul>
+        </nav>
         <p className="footer-quip">Made by one person who changes wallpapers far too often.</p>
       </div>
     </footer>

@@ -3,6 +3,7 @@ import { SITE } from "@/config/site";
 import { DEVICES } from "@/config/devices";
 import { GENERATORS } from "@/generators";
 import { THEMES } from "@/generators/shared/themes";
+import { GUIDES } from "@/content/guides";
 
 export const dynamic = "force-static";
 
@@ -25,6 +26,14 @@ export function GET(): Response {
     `- [Live wallpapers](${absoluteUrl("/live")}): moving 3D scenes rendered with WebGL2 that loop seamlessly; each has presets, colours and a seed at /live/<scene>, with still PNG and video loop downloads. The catalogue is JSON at ${absoluteUrl("/api/live")}.`,
     `- [Mac app](${absoluteUrl("/mac")}): a menu-bar app that sets a new wallpaper every day.`,
     `- [Claude connector and plugin](${absoluteUrl("/claude")}): render any generator from claude.ai or Claude Code, for hero backgrounds, OG images and banners.`,
+    "",
+    `- [About](${absoluteUrl("/about")}): who makes Seedwall and how the generators work.`,
+    `- [Contact](${absoluteUrl("/contact")}): email, GitHub issues and socials.`,
+    `- [Privacy policy](${absoluteUrl("/privacy")}) and [terms of use](${absoluteUrl("/terms")}).`,
+    "",
+    "## Guides",
+    `- [All guides](${absoluteUrl("/guides")})`,
+    ...GUIDES.map((g) => `- [${g.title}](${absoluteUrl(`/guides/${g.slug}`)}): ${g.description}`),
     "",
     "## Image API",
     `- ${absoluteUrl("/api/s/<seed>")}?w=&h= (or ?d=<device>): PNG of a seed; &format=svg for SVG, &format=json for what the seed picks.`,
