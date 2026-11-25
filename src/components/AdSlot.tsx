@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { SITE } from "@/config/site";
 
@@ -7,11 +8,13 @@ import { SITE } from "@/config/site";
  * The site's one ad: a labelled banner at the end of the page, after the content and
  * before the footer. It is kept away from the preview and the download buttons on
  * purpose, so nobody taps an ad while reaching for a wallpaper.
- * Renders nothing until both NEXT_PUBLIC_ADSENSE_CLIENT and NEXT_PUBLIC_ADSENSE_SLOT are set.
+ * Renders nothing until both NEXT_PUBLIC_ADSENSE_CLIENT and NEXT_PUBLIC_ADSENSE_SLOT are set,
+ * and never under the full-screen live player (/live/<id>/play), where nobody could see it.
  */
 export function AdSlot() {
   const pushed = useRef(false);
-  const enabled = Boolean(SITE.adsenseClient && SITE.adsenseSlot);
+  const chromeless = /^\/live\/[^/]+\/play\/?$/.test(usePathname());
+  const enabled = Boolean(SITE.adsenseClient && SITE.adsenseSlot) && !chromeless;
 
   useEffect(() => {
     if (!enabled || pushed.current) return;

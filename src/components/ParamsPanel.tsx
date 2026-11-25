@@ -4,7 +4,8 @@ import { useId } from "react";
 import type { AnyGenerator, ParamDef, Params, ParamValue } from "@/generators/types";
 
 interface Props {
-  gen: AnyGenerator;
+  /** Anything with a params schema: a generator or a live scene. `id` keys the groups. */
+  gen: Pick<AnyGenerator, "id" | "params">;
   params: Params;
   onChange: (key: string, value: ParamValue) => void;
 }
