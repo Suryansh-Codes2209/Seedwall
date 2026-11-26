@@ -3,11 +3,13 @@ import { GalleryGrid } from "@/components/GalleryGrid";
 import { DrivePackButton } from "@/components/DrivePackButton";
 import { GENERATORS } from "@/generators";
 import { JsonLd } from "@/components/JsonLd";
-import { AUTHOR, absoluteUrl, pageMetadata } from "@/config/seo";
-import { getGallery } from "@/lib/galleryData";
+import { absoluteUrl, pageMetadata } from "@/config/seo";
+import { SITE } from "@/config/site";
+import { getGallery, getSampleItems } from "@/lib/galleryData";
+import { sampleLabel } from "@/lib/generatorPage";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Wallpaper Gallery: free desktop & phone wallpapers",
+  title: "Gallery: free desktop & phone wallpapers",
   description:
     "Free downloads: the Cutting Mat wallpaper pack for MacBook and iPhone, with and without text, plus samples from every Seedwall generator. Download directly or open any one in the studio to customise it.",
   path: "/gallery",
@@ -19,16 +21,22 @@ export const revalidate = 3600;
 
 export default async function GalleryPage() {
   const items = await getGallery();
+  // The images hosted on this site, named like their alt text (the Drive pack's own names are "Frame 1" and so on).
+  const local = getSampleItems().flatMap((i) => {
+    const gen = GENERATORS.find((g) => g.id === i.generator);
+    return gen ? [{ item: i, name: sampleLabel(gen, i).alt }] : [];
+  });
   const structured = {
     "@context": "https://schema.org",
     "@type": "ImageGallery",
     name: "Seedwall wallpaper gallery",
     url: absoluteUrl("/gallery"),
-    author: { "@type": "Person", name: AUTHOR.name, url: AUTHOR.url },
+    author: { "@id": `${SITE.url}/#author` },
     numberOfItems: items.length,
-    image: items.slice(0, 40).map((i) => ({
+    image: local.map(({ item: i, name }) => ({
       "@type": "ImageObject",
-      name: i.title,
+      name,
+      creator: { "@id": `${SITE.url}/#author` },
       contentUrl: absoluteUrl(i.downloadUrl),
       thumbnailUrl: absoluteUrl(i.previewUrl),
       width: i.width,

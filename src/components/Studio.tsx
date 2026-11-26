@@ -229,7 +229,7 @@ export function Studio() {
       <section className="studio-stage" aria-label="Preview">
         <div className="stage-bar">
           <div className="stage-title">
-            <h1>{gen.name}</h1>
+            <h2>{gen.name}</h2>
             <p>{presetTitle} · {state.w}×{state.h}</p>
           </div>
           <div className="actions">

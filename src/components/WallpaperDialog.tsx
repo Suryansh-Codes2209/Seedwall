@@ -84,7 +84,7 @@ export function WallpaperDialog({ item, onClose }: Props) {
               <dt>Size</dt>
               <dd>{shown.width}×{shown.height}</dd>
               <dt>Generator</dt>
-              <dd>{gen?.name ?? shown.generator}</dd>
+              <dd>{gen ? <Link href={`/generators/${gen.id}`}>{gen.name}</Link> : shown.generator}</dd>
               <dt>Text</dt>
               <dd>{shown.hasTextFree ? "Text-free" : "With text"}</dd>
               <dt>Tags</dt>

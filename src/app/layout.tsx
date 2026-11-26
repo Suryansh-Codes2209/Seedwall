@@ -8,6 +8,7 @@ import { ServiceWorker } from "@/components/ServiceWorker";
 import { AUTHOR, REPO_URL, absoluteUrl } from "@/config/seo";
 import { SITE } from "@/config/site";
 import { GENERATORS } from "@/generators";
+import { THEMES } from "@/generators/shared/themes";
 import "./globals.css";
 
 const grotesk = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-schibsted", display: "swap" });
@@ -15,8 +16,8 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", 
 /** Only the italic: it sets the one highlighted word in display headings. */
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: "italic", variable: "--font-instrument", display: "swap" });
 
-const TITLE = `${SITE.name}: generative desktop & phone wallpapers`;
-const DESCRIPTION = `Free wallpaper generator: ${GENERATORS.length} generative looks (cutting mat, flow field, synthwave, git graph and more), editor themes like Dracula and Tokyo Night, your own quote or none. Download full-size PNGs for MacBook, iPhone, 4K or any custom size.`;
+const TITLE = `${SITE.name}: free wallpaper generator for desktop & phone`;
+const DESCRIPTION = `Free wallpaper generator: ${GENERATORS.length} generative looks, ${THEMES.length} editor themes, your own quote or none. Download PNG or SVG for MacBook, iPhone, 4K or any size.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -27,7 +28,6 @@ export const metadata: Metadata = {
   creator: AUTHOR.name,
   publisher: AUTHOR.name,
   category: "design",
-  alternates: { canonical: "/" },
   formatDetection: { telephone: false, email: false, address: false },
   openGraph: {
     title: TITLE,
@@ -70,8 +70,18 @@ const STRUCTURED_DATA = {
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       image: absoluteUrl("/og/default.png"),
       author: { "@id": `${SITE.url}/#author` },
-      codeRepository: REPO_URL,
+      sameAs: [REPO_URL],
       featureList: GENERATORS.map((g) => g.name).join(", "),
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": `${SITE.url}/#source`,
+      name: `${SITE.name} source code`,
+      codeRepository: REPO_URL,
+      programmingLanguage: "TypeScript",
+      license: "https://opensource.org/licenses/MIT",
+      author: { "@id": `${SITE.url}/#author` },
+      targetProduct: { "@id": `${SITE.url}/#app` },
     },
     {
       "@type": "Person",

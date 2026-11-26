@@ -110,7 +110,7 @@ export function LiveGrid() {
 
   return (
     <div className="grid-cards live-grid">
-      {LIVE_SCENES.map((scene) => {
+      {LIVE_SCENES.map((scene, index) => {
         const preset = scene.presets[0]?.id ?? "";
         return (
           <Link
@@ -132,8 +132,16 @@ export function LiveGrid() {
             onBlur={() => deactivate(scene.id)}
           >
             <div className="card-media">
+              {/* The first row is on screen at load, and the first poster is the page's largest image. */}
               {/* eslint-disable-next-line @next/next/no-img-element -- a fixed-size poster from /public, no optimisation needed */}
-              <img src={posterPath(scene.id, preset)} alt={`${scene.name} live wallpaper`} loading="lazy" width={1920} height={1080} />
+              <img
+                src={posterPath(scene.id, preset)}
+                alt={`${scene.name} live wallpaper`}
+                loading={index < 3 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : undefined}
+                width={1920}
+                height={1080}
+              />
               <div
                 className="live-card-slot"
                 ref={(el) => {

@@ -112,7 +112,7 @@ export function LivePlayerView({ sceneId }: { sceneId: string }) {
       <section className="studio-stage" aria-label="Preview">
         <div className="stage-bar">
           <div className="stage-title">
-            <h1>{scene.name}</h1>
+            <h2>{scene.name}</h2>
             <p>{presetTitle} · {state.w}×{state.h}</p>
           </div>
           <div className="actions">

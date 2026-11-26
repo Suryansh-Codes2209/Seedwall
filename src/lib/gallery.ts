@@ -17,6 +17,15 @@ export interface GalleryItem {
   source: "drive" | "samples";
 }
 
+/**
+ * Pixel size of an item's `-preview.webp`: 900 px wide for landscape, 480 px wide for portrait,
+ * the same rule `scripts/lib/core.ts` uses when it writes them.
+ */
+export function previewSize(item: { width: number; height: number }): { width: number; height: number } {
+  const width = item.height > item.width ? 480 : 900;
+  return { width, height: Math.round((width * item.height) / item.width) };
+}
+
 const isStr = (v: unknown): v is string => typeof v === "string";
 const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
