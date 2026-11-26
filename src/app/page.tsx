@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { GalleryGrid } from "@/components/GalleryGrid";
 import { GeneratorCard } from "@/components/GeneratorCard";
@@ -10,6 +11,10 @@ import { GENERATORS } from "@/generators";
 import { getDriveItems, getSampleItems } from "@/lib/galleryData";
 
 export const revalidate = 3600;
+
+// Title, description and share card come from the root layout; only the canonical is set here,
+// so routes without their own metadata no longer inherit a canonical that points at the home page.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
   const drive = await getDriveItems();

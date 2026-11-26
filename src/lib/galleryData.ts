@@ -33,6 +33,15 @@ export async function getDriveItems(): Promise<GalleryItem[]> {
 
 export const getSampleItems = (): GalleryItem[] => SAMPLES;
 
+/** The locally hosted sample wallpapers of one generator (rendered by `npm run samples`). */
+export const samplesFor = (generator: string): GalleryItem[] => SAMPLES.filter((i) => i.generator === generator);
+
+/** A landscape sample of this generator's preset (or its first landscape sample), to show before the live render. */
+export function posterFor(generator: string, presetId?: string): GalleryItem | undefined {
+  const wide = samplesFor(generator).filter((i) => i.width > i.height);
+  return wide.find((i) => i.presetId === presetId) ?? (presetId ? undefined : wide[0]);
+}
+
 export async function getGallery(): Promise<GalleryItem[]> {
   return [...(await getDriveItems()), ...getSampleItems()];
 }

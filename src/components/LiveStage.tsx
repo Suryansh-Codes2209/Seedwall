@@ -6,6 +6,7 @@ import { pointerToMouse } from "@/live/loop";
 import { createLivePlayer, loseContext, type LivePlayer } from "@/live/player";
 import { posterPath } from "@/live/poster";
 import type { AnyLiveScene } from "@/live/types";
+import { cssFit } from "./Preview";
 
 interface Props {
   scene: AnyLiveScene;
@@ -71,8 +72,29 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
       setFailed(true);
     };
     canvas.addEventListener("lost", onLost);
-    player.start();
+    // Start after the first paint, and run only while the stage is on screen, so loading the page
+    // and scrolling past the player don't compete with the render loop.
+    let onScreen = true;
+    let ready = false;
+    const io =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(([entry]) => {
+            onScreen = entry?.isIntersecting ?? true;
+            if (ready) (onScreen ? player.start() : player.stop());
+          })
+        : null;
+    io?.observe(el);
+    let timer = 0;
+    const frame = requestAnimationFrame(() => {
+      timer = window.setTimeout(() => {
+        ready = true;
+        if (onScreen) player.start();
+      }, 0);
+    });
     return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(timer);
+      io?.disconnect();
       canvas.removeEventListener("lost", onLost);
       player.dispose();
       if (!lost) loseContext(player.gl); // free the GPU context now, not when the canvas is collected
@@ -90,6 +112,7 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
   const scale = Math.min((box.w || 320) / w, Math.max(200, box.h || 560) / h);
   const dw = Math.max(1, Math.floor(w * scale));
   const dh = Math.max(1, Math.floor(h * scale));
+  const measured = box.w > 0;
 
   // A resize clears the canvas; with reduced motion nothing else would redraw it.
   useEffect(() => {
@@ -103,7 +126,8 @@ export function LiveStage({ scene, preset, params, w, h, fps = 30 }: Props) {
       <div
         className="preview"
         ref={stage}
-        style={{ width: dw, height: dh }}
+        data-fit={measured ? undefined : "css"}
+        style={measured ? { width: dw, height: dh } : cssFit(w, h)}
         role="img"
         aria-label={`${scene.name} live wallpaper, ${w} by ${h} pixels`}
         onPointerMove={(e) => {

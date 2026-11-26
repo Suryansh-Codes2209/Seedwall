@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { AppIntro, StageSkeleton } from "@/components/AppIntro";
 import { LivePlayerView } from "@/components/LivePlayerView";
 import { pageMetadata } from "@/config/seo";
 import { LIVE_SCENES, getLiveScene } from "@/live";
@@ -31,9 +32,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function LiveScenePage({ params }: { params: Promise<{ id: string }> }) {
   const scene = getLiveScene((await params).id);
   if (!scene) notFound();
+  const first = scene.presets[0];
+  const names = scene.presets.map((p) => p.title).join(", ");
   return (
-    <Suspense fallback={<div className="container section"><p className="empty">Loading {scene.name}…</p></div>}>
-      <LivePlayerView sceneId={scene.id} />
-    </Suspense>
+    <>
+      <AppIntro
+        title={`${scene.name} live wallpaper`}
+        poster={first && { src: posterPath(scene.id, first.id), width: 1920, height: 1080, alt: `${scene.name} live wallpaper, ${first.title} preset` }}
+      >
+        {scene.description} A seamless {scene.loopSeconds}-second loop with {scene.presets.length} presets: {names}. Change the
+        colours and seed, then download a still or a video loop.
+      </AppIntro>
+      <Suspense fallback={<StageSkeleton label={`Loading ${scene.name}`} />}>
+        <LivePlayerView sceneId={scene.id} />
+      </Suspense>
+    </>
   );
 }

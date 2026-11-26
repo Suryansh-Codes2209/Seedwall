@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 /** A dashed guide drawn over the preview, in canvas pixels. */
 export interface PreviewZone {
@@ -18,6 +18,9 @@ interface Props {
   busy?: boolean;
   zones?: readonly PreviewZone[];
 }
+
+/** Inline style for a `.preview[data-fit="css"]` box: the wallpaper's aspect ratio, sized by globals.css. */
+export const cssFit = (w: number, h: number): CSSProperties => ({ "--pv-r": w / h, aspectRatio: `${w} / ${h}` }) as CSSProperties;
 
 /** Shows the full-size SVG inline, scaled to fit the stage while keeping its aspect ratio. */
 export function Preview({ svg, w, h, busy, zones }: Props) {
@@ -43,13 +46,17 @@ export function Preview({ svg, w, h, busy, zones }: Props) {
   const scale = Math.min((box.w || 320) / w, Math.max(200, box.h || 560) / h);
   const dw = Math.max(1, Math.floor(w * scale));
   const dh = Math.max(1, Math.floor(h * scale));
+  // Until the stage is measured (and in the server HTML) CSS applies the same fit, so the box has
+  // its final size from the first paint and nothing shifts when the measurement lands.
+  const measured = box.w > 0;
 
   return (
     <div className="preview-wrap" ref={wrap}>
       <div
         className="preview"
         data-busy={busy ? "true" : "false"}
-        style={{ width: dw, height: dh }}
+        data-fit={measured ? undefined : "css"}
+        style={measured ? { width: dw, height: dh } : cssFit(w, h)}
         role="img"
         aria-label={`Wallpaper preview, ${w} by ${h} pixels`}
       >

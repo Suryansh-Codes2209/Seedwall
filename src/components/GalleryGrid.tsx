@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { GalleryItem } from "@/lib/gallery";
+import { previewSize, type GalleryItem } from "@/lib/gallery";
 import { WallpaperDialog } from "./WallpaperDialog";
 
 interface Props {
@@ -87,18 +87,41 @@ export function GalleryGrid({ items, generators, compact }: Props) {
       )}
       {!compact && <p className="result-count" aria-live="polite">{shown.length} wallpapers</p>}
       <div className="gallery-grid">
-        {shown.map((item) => (
-          <button key={item.id} type="button" className={`gallery-item${item.height > item.width ? " portrait" : ""}`} onClick={() => setOpen(item)}>
-            <div className="gi-media">
-              {/* eslint-disable-next-line @next/next/no-img-element -- remote Drive thumbnails, no optimiser needed */}
-              <img src={item.previewUrl} alt={altFor(item)} loading="lazy" referrerPolicy="no-referrer" />
-            </div>
-            <div className="gi-body">
-              <strong>{item.title}</strong>
-              <span className="tag">{item.height > item.width ? "phone" : "desktop"}{item.hasTextFree ? " · no text" : ""}</span>
-            </div>
-          </button>
-        ))}
+        {shown.map((item, index) => {
+          const size = previewSize(item);
+          return (
+            // A real link to the full image (crawlable, opens in a new tab with a modifier key); a plain click opens the dialog.
+            <a
+              key={item.id}
+              href={item.downloadUrl}
+              className={`gallery-item${item.height > item.width ? " portrait" : ""}`}
+              rel={item.source === "drive" ? "noreferrer" : undefined}
+              onClick={(e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                e.preventDefault();
+                setOpen(item);
+              }}
+            >
+              <div className="gi-media">
+                {/* eslint-disable-next-line @next/next/no-img-element -- remote Drive thumbnails, no optimiser needed */}
+                <img
+                  src={item.previewUrl}
+                  alt={altFor(item)}
+                  width={size.width}
+                  height={size.height}
+                  loading={index < 4 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 && !compact ? "high" : undefined}
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <div className="gi-body">
+                <strong>{item.title}</strong>
+                <span className="tag">{item.height > item.width ? "phone" : "desktop"}{item.hasTextFree ? " · no text" : ""}</span>
+              </div>
+            </a>
+          );
+        })}
       </div>
       {!shown.length && <p className="empty">No wallpapers match those filters.</p>}
       <WallpaperDialog item={open} onClose={() => setOpen(null)} />

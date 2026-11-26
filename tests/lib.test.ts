@@ -149,6 +149,69 @@ describe("seo", () => {
     for (const g of GENERATORS) expect(urls).toContain(`https://seedwall.suryansh.work/generators/${g.id}`);
   });
 
+  it("clampDescription keeps short text and cuts long text on a word boundary", async () => {
+    const { clampDescription } = await import("@/config/seo");
+    expect(clampDescription("Short and sweet.")).toBe("Short and sweet.");
+    const long = "Free wallpaper generator with many looks, editor themes, your own quote or none, downloads for MacBook, iPhone, Android, iPad, 4K and any custom size you can think of today.";
+    const out = clampDescription(long);
+    expect(long.length).toBeGreaterThan(155);
+    expect(out.length).toBeLessThanOrEqual(155);
+    expect(out.endsWith("…")).toBe(true);
+    expect(long.startsWith(out.slice(0, -1))).toBe(true);
+    // The cut falls between words, and no dangling comma is left before the ellipsis.
+    expect(long[out.length - 1]).toMatch(/[\s,]/);
+    expect(out).not.toMatch(/[,;:]…$/);
+    expect(clampDescription("a".repeat(200)).length).toBeLessThanOrEqual(155);
+  });
+
+  it("pageMetadata never emits a description over 160 characters", async () => {
+    const { pageMetadata } = await import("@/config/seo");
+    const m = pageMetadata({ title: "T", description: "word ".repeat(60).trim(), path: "/x" });
+    expect(String(m.description).length).toBeLessThanOrEqual(160);
+    expect(String(m.openGraph?.description).length).toBeLessThanOrEqual(160);
+    expect(String(m.twitter?.description).length).toBeLessThanOrEqual(160);
+  });
+
+  it("every generator page description fits in 160 characters", async () => {
+    const { GENERATORS } = await import("@/generators");
+    const { generateMetadata } = await import("@/app/generators/[id]/page");
+    for (const g of GENERATORS) {
+      const m = await generateMetadata({ params: Promise.resolve({ id: g.id }) });
+      expect(String(m.description).length, g.id).toBeLessThanOrEqual(160);
+    }
+  });
+
+  it("previewSize matches the sizes scripts/lib/core.ts writes", async () => {
+    const { previewSize } = await import("@/lib/gallery");
+    expect(previewSize({ width: 2560, height: 1440 })).toEqual({ width: 900, height: 506 });
+    expect(previewSize({ width: 3024, height: 1964 })).toEqual({ width: 900, height: 585 });
+    expect(previewSize({ width: 1290, height: 2796 })).toEqual({ width: 480, height: 1040 });
+  });
+
+  it("every generator has local sample previews that exist on disk", async () => {
+    const { existsSync } = await import("node:fs");
+    const { GENERATORS } = await import("@/generators");
+    const { samplesFor } = await import("@/lib/galleryData");
+    for (const g of GENERATORS) {
+      const s = samplesFor(g.id);
+      expect(s.length, g.id).toBeGreaterThan(0);
+      for (const i of s) expect(existsSync(`public${i.previewUrl}`), i.previewUrl).toBe(true);
+    }
+  });
+
+  it("sitemap lists /generators, sample images and no build-time lastmod", async () => {
+    const { default: sitemap } = await import("@/app/sitemap");
+    const entries = sitemap();
+    expect(entries.map((e) => e.url)).toContain("https://seedwall.suryansh.work/generators");
+    const topo = entries.find((e) => e.url.endsWith("/generators/topographic"));
+    expect(topo?.images?.some((u) => u.includes("/gallery/topographic-"))).toBe(true);
+    const gallery = entries.find((e) => e.url.endsWith("/gallery"));
+    expect((gallery?.images ?? []).length).toBeGreaterThan(100);
+    // Real content dates, not the build time: they are in the past and not all the same.
+    for (const e of entries) expect(Date.now() - new Date(e.lastModified ?? 0).getTime(), e.url).toBeGreaterThan(60_000);
+    expect(new Set(entries.map((e) => String(e.lastModified))).size).toBeGreaterThan(1);
+  });
+
   it("has an OG image for every generator", async () => {
     const { existsSync } = await import("node:fs");
     const { GENERATORS } = await import("@/generators");
